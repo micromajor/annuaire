@@ -2,6 +2,7 @@ import Link from "next/link";
 import FloatingTools from "@/components/ui/FloatingTools";
 import HeroSearch from "@/components/features/HeroSearch";
 import MatchingBesoins, { type BesoinItem } from "@/components/features/MatchingBesoins";
+import ParticulierHome from "@/components/features/ParticulierHome";
 import { METIERS } from "@/constants";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
@@ -162,20 +163,7 @@ export default async function HomePage() {
           </div>
         ) : isParticulier ? (
           /* --- Vue particulier connecté --- */
-          <div className="relative z-10 w-full max-w-5xl text-center">
-            <span
-              className="bd-badge bd-anim-pop mb-8 inline-flex"
-              style={{ background: "#1a1a2e", color: "#60c5f1" }}
-            >
-              👋 Bonjour {particulierPrenom ?? ""} ! Qu&apos;est-ce qu&apos;on vous cherche ?
-            </span>
-            <h1 className="bd-titre bd-anim-build mb-10 text-5xl leading-tight text-[#1a1a2e] sm:text-7xl">
-              Trouvez le bon artisan
-            </h1>
-            <div className="bd-anim-build" style={{ animationDelay: "0.15s" }}>
-              <HeroSearch metiers={METIERS} />
-            </div>
-          </div>
+          <ParticulierHome prenom={particulierPrenom} metiers={METIERS} />
         ) : (
           /* --- Vue visiteur --- */
           <div className="relative z-10 w-full max-w-5xl text-center">
