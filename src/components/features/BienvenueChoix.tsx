@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -18,10 +18,15 @@ export default function BienvenueChoix() {
 
   async function choisirParticulier() {
     setLoading("particulier");
-    // Soft-delete le compte artisan créé automatiquement par Google OAuth
-    await fetch("/api/mon-espace/account", { method: "DELETE" });
-    // Déconnexion puis redirection vers l'accueil
-    await signOut({ callbackUrl: "/" });
+    // Marque le compte comme particulier en DB (persistance entre sessions)
+    await fetch("/api/mon-espace/account", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isParticulier: true }),
+    });
+    // Met à jour le JWT sans déconnecter
+    await update({ becomeParticulier: true });
+    router.push("/");
   }
 
   return (

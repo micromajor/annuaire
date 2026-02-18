@@ -68,6 +68,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (account?.provider === "google" && user.email) {
         let artisan = await prisma.artisan.findFirst({
           where: { email: user.email, deletedAt: null },
+          select: {
+            id: true,
+            prenom: true,
+            nom: true,
+            status: true,
+            draftData: true,
+          },
         });
 
         let isNew = false;
@@ -80,6 +87,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               prenom,
               nom,
               status: "EN_ATTENTE",
+            },
+            select: {
+              id: true,
+              prenom: true,
+              nom: true,
+              status: true,
+              draftData: true,
             },
           });
           isNew = true;
@@ -109,8 +123,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         // Injecter id + role dans le user pour le JWT
         user.id = artisan.id;
-        (user as { role?: string }).role = "artisan";
-        if (isNew) (user as { needsSetup?: boolean }).needsSetup = true;
+        // Si ce compte a déjà été marqué comme particulier, on conserve ce rôle
+        const draft = artisan.draftData as Record<string, unknown> | null;
+        if (draft?.isParticulier === true) {
+          (user as { role?: string }).role = "particulier";
+        } else {
+          (user as { role?: string }).role = "artisan";
+          if (isNew) (user as { needsSetup?: boolean }).needsSetup = true;
+        }
       }
       return true;
     },
@@ -123,6 +143,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       // Effacement du flag après choix de profil côté client
       if (trigger === "update" && (session as { clearSetup?: boolean })?.clearSetup) {
+        delete token.needsSetup;
+      }
+      // Passage en mode particulier
+      if (trigger === "update" && (session as { becomeParticulier?: boolean })?.becomeParticulier) {
+        token.role = "particulier";
         delete token.needsSetup;
       }
       return token;
