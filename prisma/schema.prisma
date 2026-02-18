@@ -121,11 +121,13 @@ model EditToken {
 
 model Besoin {
   id          String   @id @default(cuid())
+  artisanId   String?  // lien optionnel vers le compte particulier
   metierSlug  String
   commune     String
   description String   @db.VarChar(1000)
   prenom      String
-  contact     String
+  contact     String?  // contact via le site uniquement, non obligatoire
+  photos      Json?    // tableau d'URLs (max 6)
   status      String   @default("NOUVEAU")
   createdAt   DateTime @default(now())
 }

@@ -45,3 +45,7 @@ next-env.d.ts
 # Screenshots & logs MCP
 .playwright-mcp/
 *.png
+
+# Uploads utilisateurs (garder le dossier via .gitkeep)
+/public/uploads/besoins/*
+!/public/uploads/besoins/.gitkeep

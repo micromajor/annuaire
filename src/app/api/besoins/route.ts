@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/client";
+import { auth } from "@/lib/auth";
 import { z } from "zod";
 
 const BesoinSchema = z.object({
@@ -7,21 +8,33 @@ const BesoinSchema = z.object({
   commune: z.string().min(1),
   description: z.string().min(10).max(1000),
   prenom: z.string().min(1).max(50),
-  contact: z.string().min(3).max(200), // email ou tel
+  photos: z.array(z.string()).max(6).optional(),
 });
 
 export async function POST(req: Request) {
   try {
+    const session = await auth();
+    const userId = (session?.user as { id?: string })?.id;
+
     const body: unknown = await req.json();
     const data = BesoinSchema.parse(body);
 
+    // Persister le prénom sur le compte particulier connecté
+    if (userId) {
+      await prisma.artisan.update({
+        where: { id: userId },
+        data: { prenom: data.prenom },
+      });
+    }
+
     await prisma.besoin.create({
       data: {
+        artisanId: userId ?? null,
         metierSlug: data.metierSlug,
         commune: data.commune,
         description: data.description,
         prenom: data.prenom,
-        contact: data.contact,
+        photos: data.photos ?? [],
         status: "NOUVEAU",
       },
     });

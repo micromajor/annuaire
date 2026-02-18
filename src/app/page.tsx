@@ -61,7 +61,7 @@ export default async function HomePage() {
         commune: b.commune,
         description: b.description,
         prenom: b.prenom,
-        contact: b.contact,
+        photos: Array.isArray(b.photos) ? (b.photos as string[]) : [],
         createdAt: b.createdAt.toISOString(),
       }));
     }

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import HeroSearch from "@/components/features/HeroSearch";
 import { type METIERS, COMMUNES_NANTES_EST } from "@/constants";
 
 type Tab = "recherche" | "projet";
+
+const MAX_PHOTOS = 6;
 
 interface ParticulierHomeProps {
   prenom: string | null;
@@ -14,7 +16,13 @@ interface ParticulierHomeProps {
 /* ============================================================
    Formulaire de dépôt de besoin
    ============================================================ */
-function BesoinForm({ metiers }: { metiers: typeof METIERS }) {
+function BesoinForm({
+  prenomInitial,
+  metiers,
+}: {
+  prenomInitial: string | null;
+  metiers: typeof METIERS;
+}) {
   const [step, setStep] = useState<"form" | "success">("form");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,18 +30,57 @@ function BesoinForm({ metiers }: { metiers: typeof METIERS }) {
   const [metierSlug, setMetierSlug] = useState("");
   const [commune, setCommune] = useState("");
   const [description, setDescription] = useState("");
-  const [prenom, setPrenom] = useState("");
-  const [contact, setContact] = useState("");
+  const [prenom, setPrenom] = useState(prenomInitial ?? "");
+
+  // Photos
+  const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const incoming = Array.from(e.target.files ?? []);
+    setPhotos((prev) => {
+      const slots = MAX_PHOTOS - prev.length;
+      const next = incoming.slice(0, slots).map((file) => ({
+        file,
+        preview: URL.createObjectURL(file),
+      }));
+      return [...prev, ...next];
+    });
+    // reset input pour permettre re-sélection du même fichier
+    e.target.value = "";
+  }
+
+  function removePhoto(index: number) {
+    setPhotos((prev) => {
+      URL.revokeObjectURL(prev[index].preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
     try {
+      // 1. Upload des photos si présentes
+      let photoUrls: string[] = [];
+      if (photos.length > 0) {
+        const fd = new FormData();
+        photos.forEach((p) => fd.append("files", p.file));
+        const upRes = await fetch("/api/upload", { method: "POST", body: fd });
+        if (!upRes.ok) {
+          const d = (await upRes.json()) as { error?: string };
+          throw new Error(d.error ?? "Erreur upload photos");
+        }
+        const { urls } = (await upRes.json()) as { urls: string[] };
+        photoUrls = urls;
+      }
+
+      // 2. Créer le besoin
       const res = await fetch("/api/besoins", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ metierSlug, commune, description, prenom, contact }),
+        body: JSON.stringify({ metierSlug, commune, description, prenom, photos: photoUrls }),
       });
       if (!res.ok) {
         const data = (await res.json()) as { error?: string };
@@ -67,6 +114,19 @@ function BesoinForm({ metiers }: { metiers: typeof METIERS }) {
       className="bd-card mx-auto w-full max-w-xl space-y-5 p-6 text-left"
     >
       <h2 className="bd-titre text-2xl text-[#1a1a2e]">Décrivez votre projet</h2>
+
+      {/* Prénom */}
+      <div>
+        <label className="mb-1 block text-sm font-black text-[#1a1a2e]">Votre prénom</label>
+        <input
+          required
+          type="text"
+          value={prenom}
+          onChange={(e) => setPrenom(e.target.value)}
+          placeholder="Ex : Camille"
+          className="bd-input w-full"
+        />
+      </div>
 
       {/* Métier */}
       <div>
@@ -128,32 +188,58 @@ function BesoinForm({ metiers }: { metiers: typeof METIERS }) {
         />
       </div>
 
-      {/* Prénom */}
+      {/* Photos */}
       <div>
-        <label className="mb-1 block text-sm font-black text-[#1a1a2e]">Votre prénom</label>
-        <input
-          required
-          type="text"
-          value={prenom}
-          onChange={(e) => setPrenom(e.target.value)}
-          placeholder="Ex : Camille"
-          className="bd-input w-full"
-        />
-      </div>
-
-      {/* Contact */}
-      <div>
-        <label className="mb-1 block text-sm font-black text-[#1a1a2e]">
-          Email ou téléphone de contact
+        <label className="mb-2 block text-sm font-black text-[#1a1a2e]">
+          Photos du chantier
+          <span className="ml-1 font-normal text-[#1a1a2e]/40">
+            ({photos.length}/{MAX_PHOTOS} — optionnel)
+          </span>
         </label>
-        <input
-          required
-          type="text"
-          value={contact}
-          onChange={(e) => setContact(e.target.value)}
-          placeholder="Ex : camille@email.fr ou 06 12 34 56 78"
-          className="bd-input w-full"
-        />
+
+        {/* Grille de previews */}
+        {photos.length > 0 && (
+          <div className="mb-3 grid grid-cols-3 gap-2">
+            {photos.map((p, i) => (
+              <div
+                key={i}
+                className="group relative aspect-square overflow-hidden rounded-xl border-2 border-[#1a1a1a]"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.preview} alt="" className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removePhoto(i)}
+                  className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#1a1a1a] bg-white text-xs font-black opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Bouton d'ajout */}
+        {photos.length < MAX_PHOTOS && (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-3 border-dashed border-[#1a1a1a]/30 bg-white/50 py-4 text-sm font-bold text-[#1a1a2e]/50 transition-colors hover:border-[#60c5f1] hover:text-[#1a1a2e]"
+            >
+              📷 Ajouter des photos
+              <span className="text-xs font-normal">(JPG/PNG/WEBP · max 5 Mo/photo)</span>
+            </button>
+          </>
+        )}
       </div>
 
       {error && (
@@ -178,9 +264,6 @@ function BesoinForm({ metiers }: { metiers: typeof METIERS }) {
   );
 }
 
-/* ============================================================
-   Composant principal
-   ============================================================ */
 export default function ParticulierHome({ prenom, metiers }: ParticulierHomeProps) {
   const [tab, setTab] = useState<Tab>("recherche");
 
@@ -222,7 +305,7 @@ export default function ParticulierHome({ prenom, metiers }: ParticulierHomeProp
                 : { background: "white", color: "#1a1a2e" }
             }
           >
-            + Mon projet
+            📋 Mon projet
           </button>
         </div>
       </div>
@@ -239,7 +322,7 @@ export default function ParticulierHome({ prenom, metiers }: ParticulierHomeProp
         </div>
       ) : (
         <div className="bd-anim-build">
-          <BesoinForm metiers={metiers} />
+          <BesoinForm prenomInitial={prenom} metiers={metiers} />
         </div>
       )}
     </div>

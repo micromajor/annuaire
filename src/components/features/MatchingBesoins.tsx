@@ -22,7 +22,7 @@ export type BesoinItem = {
   commune: string;
   description: string;
   prenom: string;
-  contact: string;
+  photos: string[];
   createdAt: string;
 };
 
@@ -31,7 +31,6 @@ export type BesoinItem = {
    ============================================================ */
 function BesoinPanel({ besoin, onClose }: { besoin: BesoinItem; onClose: () => void }) {
   const emoji = METIER_EMOJIS[besoin.metierSlug] ?? "🔧";
-  const isEmail = besoin.contact.includes("@");
   const date = new Date(besoin.createdAt).toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "long",
@@ -88,18 +87,42 @@ function BesoinPanel({ besoin, onClose }: { besoin: BesoinItem; onClose: () => v
 
         <p className="text-xs text-gray-400 italic">Publié le {date}</p>
 
-        {/* Contact */}
+        {/* Photos */}
+        {besoin.photos.length > 0 && (
+          <div>
+            <p className="mb-2 text-xs font-black tracking-widest text-[#1a1a2e]/40 uppercase">
+              Photos du chantier
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {besoin.photos.map((url, i) => (
+                <a
+                  key={i}
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block aspect-square overflow-hidden rounded-xl border-2 border-[#1a1a1a]"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={url}
+                    alt=""
+                    className="h-full w-full object-cover transition-opacity hover:opacity-80"
+                  />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Contacter via le site */}
         <div className="border-t-2 border-[#1a1a1a]/10 pt-4">
-          <p className="mb-2 text-xs font-black tracking-widest text-[#1a1a2e]/40 uppercase">
-            Coordonnées
-          </p>
-          <a
-            href={isEmail ? `mailto:${besoin.contact}` : `tel:${besoin.contact}`}
+          <button
             className="bd-btn flex w-full items-center justify-center gap-2"
             style={{ background: "#6bcb77", color: "#1a1a2e", boxShadow: "3px 3px 0 #1a1a1a" }}
+            onClick={() => alert("Messagerie en cours de développement")}
           >
-            {isEmail ? "✉️ Répondre par email" : "📞 Appeler"} →
-          </a>
+            💬 Contacter {besoin.prenom} →
+          </button>
         </div>
       </div>
     </div>
