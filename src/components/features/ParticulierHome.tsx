@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import HeroSearch from "@/components/features/HeroSearch";
 import { type METIERS, COMMUNES_NANTES_EST } from "@/constants";
 
@@ -34,7 +34,6 @@ function BesoinForm({
 
   // Photos
   const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const incoming = Array.from(e.target.files ?? []);

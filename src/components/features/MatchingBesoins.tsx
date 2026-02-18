@@ -36,6 +36,7 @@ function BesoinPanel({ besoin, onClose }: { besoin: BesoinItem; onClose: () => v
     month: "long",
     year: "numeric",
   });
+  const [lightbox, setLightbox] = useState<string | null>(null);
 
   return (
     <div className="search-panel-enter bd-card overflow-hidden text-left">
@@ -95,22 +96,39 @@ function BesoinPanel({ besoin, onClose }: { besoin: BesoinItem; onClose: () => v
             </p>
             <div className="grid grid-cols-3 gap-2">
               {besoin.photos.map((url, i) => (
-                <a
+                <button
                   key={i}
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block aspect-square overflow-hidden rounded-xl border-2 border-[#1a1a1a]"
+                  type="button"
+                  onClick={() => setLightbox(url)}
+                  className="block aspect-square w-full overflow-hidden rounded-xl border-2 border-[#1a1a1a] transition-opacity hover:opacity-80"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={url}
-                    alt=""
-                    className="h-full w-full object-cover transition-opacity hover:opacity-80"
-                  />
-                </a>
+                  <img src={url} alt="" className="h-full w-full object-cover" />
+                </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Lightbox */}
+        {lightbox && (
+          <div
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-4"
+            onClick={() => setLightbox(null)}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={lightbox}
+              alt=""
+              className="max-h-full max-w-full rounded-xl object-contain shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button
+              onClick={() => setLightbox(null)}
+              className="absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-black/60 text-base font-black text-white hover:bg-black"
+            >
+              ✕
+            </button>
           </div>
         )}
 
