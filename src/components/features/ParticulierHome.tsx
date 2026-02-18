@@ -220,24 +220,17 @@ function BesoinForm({
 
         {/* Bouton d'ajout */}
         {photos.length < MAX_PHOTOS && (
-          <>
+          <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-3 border-dashed border-[#1a1a1a]/30 bg-white/50 py-4 text-sm font-bold text-[#1a1a2e]/50 transition-colors hover:border-[#60c5f1] hover:text-[#1a1a2e]">
             <input
-              ref={fileInputRef}
               type="file"
               accept="image/jpeg,image/png,image/webp"
               multiple
-              className="hidden"
+              className="sr-only"
               onChange={handleFileChange}
             />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-3 border-dashed border-[#1a1a1a]/30 bg-white/50 py-4 text-sm font-bold text-[#1a1a2e]/50 transition-colors hover:border-[#60c5f1] hover:text-[#1a1a2e]"
-            >
-              📷 Ajouter des photos
-              <span className="text-xs font-normal">(JPG/PNG/WEBP · max 5 Mo/photo)</span>
-            </button>
-          </>
+            📷 Ajouter des photos
+            <span className="text-xs font-normal">(JPG/PNG/WEBP · max 5 Mo/photo)</span>
+          </label>
         )}
       </div>
 

@@ -19,9 +19,9 @@ export async function POST(req: Request) {
     const body: unknown = await req.json();
     const data = BesoinSchema.parse(body);
 
-    // Persister le prénom sur le compte particulier connecté
+    // Persister le prénom sur le compte particulier connecté (silencieux si absent)
     if (userId) {
-      await prisma.artisan.update({
+      await prisma.artisan.updateMany({
         where: { id: userId },
         data: { prenom: data.prenom },
       });
