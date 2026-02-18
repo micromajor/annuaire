@@ -1,0 +1,144 @@
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/db/client";
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  providers: [
+    // --- Google OAuth ---
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+
+    // --- Compte admin ---
+    Credentials({
+      id: "admin",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Mot de passe", type: "password" },
+      },
+      async authorize(credentials) {
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminPassword = process.env.ADMIN_PASSWORD;
+        if (!adminEmail || !adminPassword) return null;
+        if (credentials?.email === adminEmail && credentials?.password === adminPassword) {
+          return { id: "admin", name: "Admin", email: adminEmail, role: "admin" };
+        }
+        return null;
+      },
+    }),
+
+    // --- Compte artisan email/password ---
+    Credentials({
+      id: "artisan",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Mot de passe", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+
+        const artisan = await prisma.artisan.findFirst({
+          where: { email: String(credentials.email), deletedAt: null },
+        });
+        if (!artisan?.passwordHash) return null;
+
+        const valid = await bcrypt.compare(String(credentials.password), artisan.passwordHash);
+        if (!valid) return null;
+
+        return {
+          id: artisan.id,
+          name: artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`,
+          email: artisan.email,
+          role: "artisan",
+        };
+      },
+    }),
+  ],
+
+  pages: {
+    signIn: "/connexion",
+  },
+
+  callbacks: {
+    async signIn({ user, account }) {
+      // OAuth Google — créer ou retrouver l'artisan
+      if (account?.provider === "google" && user.email) {
+        let artisan = await prisma.artisan.findFirst({
+          where: { email: user.email, deletedAt: null },
+        });
+
+        let isNew = false;
+        if (!artisan) {
+          const [prenom = "", ...rest] = (user.name ?? "").split(" ");
+          const nom = rest.join(" ") || "—";
+          artisan = await prisma.artisan.create({
+            data: {
+              email: user.email,
+              prenom,
+              nom,
+              status: "EN_ATTENTE",
+            },
+          });
+          isNew = true;
+        }
+
+        // Lier le compte OAuth s'il ne l'est pas encore
+        const existing = await prisma.oAuthAccount.findUnique({
+          where: {
+            provider_providerAccountId: {
+              provider: "google",
+              providerAccountId: account.providerAccountId,
+            },
+          },
+        });
+        if (!existing) {
+          await prisma.oAuthAccount.create({
+            data: {
+              artisanId: artisan.id,
+              provider: "google",
+              providerAccountId: account.providerAccountId,
+              access_token: account.access_token ?? null,
+              refresh_token: account.refresh_token ?? null,
+              expires_at: account.expires_at ?? null,
+            },
+          });
+        }
+
+        // Injecter id + role dans le user pour le JWT
+        user.id = artisan.id;
+        (user as { role?: string }).role = "artisan";
+        if (isNew) (user as { needsSetup?: boolean }).needsSetup = true;
+      }
+      return true;
+    },
+
+    async jwt({ token, user, trigger, session }) {
+      if (user) {
+        token.role = (user as { role?: string }).role;
+        if (user.id) token.sub = user.id;
+        if ((user as { needsSetup?: boolean }).needsSetup) token.needsSetup = true;
+      }
+      // Effacement du flag après choix de profil côté client
+      if (trigger === "update" && (session as { clearSetup?: boolean })?.clearSetup) {
+        delete token.needsSetup;
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as { role?: string }).role = token.role as string;
+        (session.user as { id?: string }).id = token.sub;
+        (session.user as { needsSetup?: boolean }).needsSetup = token.needsSetup as
+          | boolean
+          | undefined;
+      }
+      return session;
+    },
+  },
+
+  session: { strategy: "jwt" },
+});

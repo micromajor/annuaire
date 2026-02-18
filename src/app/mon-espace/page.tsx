@@ -1,0 +1,270 @@
+import { auth, signOut } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/db/client";
+import AutoSignOut from "@/components/ui/AutoSignOut";
+import Link from "next/link";
+import MonEspaceEditForm from "@/components/features/MonEspaceEditForm";
+
+export default async function MonEspacePage() {
+  const session = await auth();
+
+  if (!session || (session.user as { role?: string }).role !== "artisan") {
+    redirect("/connexion");
+  }
+
+  // Nouveau compte Google — doit choisir son profil
+  if ((session.user as { needsSetup?: boolean }).needsSetup) {
+    redirect("/bienvenue");
+  }
+
+  const artisanId = (session.user as { id?: string }).id!;
+  const artisan = await prisma.artisan.findUnique({
+    where: { id: artisanId },
+    include: {
+      metiers: { include: { metier: true } },
+      communes: { include: { commune: true } },
+      avis: { where: { status: "VALIDE" }, orderBy: { createdAt: "desc" }, take: 5 },
+      contacts: { orderBy: { createdAt: "desc" }, take: 5 },
+    },
+  });
+
+  if (!artisan) {
+    return <AutoSignOut />;
+  }
+
+  const nomAffiche = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
+  const moyenneAvis =
+    artisan.avis.length > 0
+      ? artisan.avis.reduce((s: number, a: { note: number }) => s + a.note, 0) / artisan.avis.length
+      : null;
+
+  const statusLabel: Record<string, string> = {
+    EN_ATTENTE: "⏳ En attente de validation",
+    VALIDE: "✅ Fiche en ligne",
+    REJETE: "❌ Fiche rejetée",
+  };
+  const statusColor: Record<string, string> = {
+    EN_ATTENTE: "bg-[#ffd93d] text-[#1a1a2e]",
+    VALIDE: "bg-[#6bcb77] text-white",
+    REJETE: "bg-[#ff6b6b] text-white",
+  };
+
+  return (
+    <div className="min-h-screen bg-[#6bcb77]">
+      {/* Header vert */}
+      <header className="border-b-4 border-[#1a1a1a] bg-[#1a1a2e] px-6 py-4">
+        <div className="mx-auto flex max-w-5xl items-center justify-between">
+          <Link href="/" className="bd-titre text-xl text-[#6bcb77]">
+            🔨 OyezArtisans
+          </Link>
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-bold text-white">{nomAffiche}</span>
+            <form
+              action={async () => {
+                "use server";
+                await signOut({ redirectTo: "/" });
+              }}
+            >
+              <button
+                type="submit"
+                className="rounded-lg border-2 border-[#6bcb77] px-3 py-1.5 text-xs font-bold text-[#6bcb77] hover:bg-[#6bcb77] hover:text-[#1a1a2e]"
+              >
+                Déconnexion
+              </button>
+            </form>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-5xl px-4 py-10">
+        {/* Titre */}
+        <div className="mb-8">
+          <h1 className="bd-titre text-4xl text-[#1a1a2e]">Bonjour, {artisan.prenom} 👋</h1>
+          <span
+            className={`mt-2 inline-block rounded-full px-4 py-1.5 text-sm font-black ${statusColor[artisan.status]}`}
+            style={{ border: "2px solid #1a1a1a" }}
+          >
+            {statusLabel[artisan.status]}
+          </span>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Formulaire de modification / complétion */}
+          <MonEspaceEditForm
+            artisan={{
+              prenom: artisan.prenom,
+              nom: artisan.nom,
+              raisonSociale: artisan.raisonSociale,
+              telephone: artisan.telephone,
+              siret: artisan.siret,
+              siteWeb: artisan.siteWeb,
+              description: artisan.description,
+              logoUrl: artisan.logoUrl,
+              metierSlugs: artisan.metiers.map((m: { metier: { slug: string } }) => m.metier.slug),
+              communeNoms: artisan.communes.map((c: { commune: { nom: string } }) => c.commune.nom),
+              status: artisan.status,
+            }}
+          />
+
+          {/* Carte — infos (lecture seule, visible quand profil complet) */}
+          {artisan.prenom && (
+            <div
+              className="col-span-full rounded-2xl border-4 border-[#1a1a1a] bg-white p-6"
+              style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
+            >
+              <h2 className="bd-titre mb-4 text-xl text-[#1a1a2e]">Ma fiche</h2>
+
+              {/* Logo + identité */}
+              <div className="mb-4 flex items-center gap-4">
+                {artisan.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={artisan.logoUrl}
+                    alt="Logo"
+                    className="h-16 w-16 shrink-0 rounded-xl object-contain"
+                    style={{ border: "3px solid #1a1a1a" }}
+                  />
+                ) : (
+                  <div
+                    className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#fff8f0] text-2xl"
+                    style={{ border: "3px solid #1a1a1a" }}
+                  >
+                    🔨
+                  </div>
+                )}
+                <div>
+                  <p className="font-black text-[#1a1a2e]">
+                    {artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`}
+                  </p>
+                  {artisan.raisonSociale && (
+                    <p className="text-sm text-gray-500">
+                      {artisan.prenom} {artisan.nom}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <dt className="font-bold text-gray-500">Métiers</dt>
+                <dd>
+                  {artisan.metiers
+                    .map((m: { metier: { label: string } }) => m.metier.label)
+                    .join(", ") || <span className="text-gray-300">—</span>}
+                </dd>
+                <dt className="font-bold text-gray-500">Zones</dt>
+                <dd>
+                  {artisan.communes
+                    .map((c: { commune: { nom: string } }) => c.commune.nom)
+                    .join(", ") || <span className="text-gray-300">—</span>}
+                </dd>
+                {artisan.telephone && (
+                  <>
+                    <dt className="font-bold text-gray-500">Téléphone</dt>
+                    <dd>{artisan.telephone}</dd>
+                  </>
+                )}
+                {artisan.siret && (
+                  <>
+                    <dt className="font-bold text-gray-500">SIRET</dt>
+                    <dd className="font-mono">{artisan.siret}</dd>
+                  </>
+                )}
+                {artisan.siteWeb && (
+                  <>
+                    <dt className="font-bold text-gray-500">Site web</dt>
+                    <dd>
+                      <a
+                        href={artisan.siteWeb}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#1a1a2e] underline"
+                      >
+                        {artisan.siteWeb.replace(/^https?:\/\//, "")}
+                      </a>
+                    </dd>
+                  </>
+                )}
+              </dl>
+
+              {artisan.description && (
+                <p className="mt-4 border-t pt-3 text-sm text-gray-600">{artisan.description}</p>
+              )}
+              {artisan.status === "VALIDE" && (
+                <Link
+                  href={`/artisans/${artisan.id}`}
+                  className="mt-4 inline-block text-sm font-bold text-[#1a1a2e] underline"
+                >
+                  Voir ma fiche publique →
+                </Link>
+              )}
+            </div>
+          )}
+
+          {/* Carte — avis */}
+          <div
+            className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-6"
+            style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
+          >
+            <h2 className="bd-titre mb-1 text-xl text-[#1a1a2e]">Avis clients</h2>
+            {moyenneAvis !== null ? (
+              <p className="mb-3 text-3xl font-black text-[#6bcb77]">
+                {moyenneAvis.toFixed(1)} <span className="text-lg text-gray-400">/ 5</span>
+              </p>
+            ) : (
+              <p className="mb-3 text-sm text-gray-400">Aucun avis validé pour l&apos;instant.</p>
+            )}
+            {artisan.avis.map(
+              (a: { id: string; auteurPrenom: string; note: number; commentaire: string }) => (
+                <div key={a.id} className="mb-2 border-t pt-2 text-sm">
+                  <span className="font-bold">{a.auteurPrenom}</span>{" "}
+                  <span className="text-yellow-500">
+                    {"★".repeat(a.note)}
+                    {"☆".repeat(5 - a.note)}
+                  </span>
+                  <p className="text-gray-600">{a.commentaire}</p>
+                </div>
+              )
+            )}
+          </div>
+
+          {/* Carte — demandes de contact */}
+          <div
+            className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-6 sm:col-span-2"
+            style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
+          >
+            <h2 className="bd-titre mb-3 text-xl text-[#1a1a2e]">Dernières demandes reçues</h2>
+            {artisan.contacts.length === 0 ? (
+              <p className="text-sm text-gray-400">Aucune demande pour l&apos;instant.</p>
+            ) : (
+              <ul className="space-y-3">
+                {artisan.contacts.map(
+                  (c: {
+                    id: string;
+                    clientPrenom: string;
+                    clientNom: string;
+                    typeTraux: string;
+                    message: string;
+                    clientEmail: string;
+                    clientTel?: string | null;
+                  }) => (
+                    <li key={c.id} className="rounded-xl border-2 border-gray-100 p-3 text-sm">
+                      <p className="font-bold text-[#1a1a2e]">
+                        {c.clientPrenom} {c.clientNom}
+                      </p>
+                      <p className="text-gray-500">{c.typeTraux}</p>
+                      <p className="mt-1 text-gray-700">{c.message}</p>
+                      <p className="mt-1 text-xs text-gray-400">
+                        {c.clientEmail}
+                        {c.clientTel ? ` · ${c.clientTel}` : ""}
+                      </p>
+                    </li>
+                  )
+                )}
+              </ul>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

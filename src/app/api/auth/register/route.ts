@@ -1,0 +1,50 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db/client";
+import bcrypt from "bcryptjs";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+/** Inscription rapide depuis la page /connexion — crée un artisan EN_ATTENTE avec juste email + password */
+export async function POST(request: NextRequest) {
+  const body = (await request.json()) as unknown;
+  const result = schema.safeParse(body);
+  if (!result.success) {
+    return NextResponse.json({ error: "Données invalides." }, { status: 422 });
+  }
+
+  const { email, password } = result.data;
+
+  const existing = await prisma.artisan.findFirst({
+    where: { email, deletedAt: null },
+  });
+  if (existing) {
+    // Compte existe mais sans password (inscrit via form artisan) — on lui ajoute
+    if (!existing.passwordHash) {
+      const passwordHash = await bcrypt.hash(password, 12);
+      await prisma.artisan.update({
+        where: { id: existing.id },
+        data: { passwordHash },
+      });
+      return NextResponse.json({ success: true });
+    }
+    return NextResponse.json({ error: "Un compte existe déjà avec cet email." }, { status: 409 });
+  }
+
+  const passwordHash = await bcrypt.hash(password, 12);
+  // Prenom/nom temporaires — l'artisan complétera sa fiche depuis /mon-espace
+  await prisma.artisan.create({
+    data: {
+      email,
+      prenom: "",
+      nom: "",
+      passwordHash,
+      status: "EN_ATTENTE",
+    },
+  });
+
+  return NextResponse.json({ success: true }, { status: 201 });
+}

@@ -1,0 +1,54 @@
+import { z } from "zod";
+
+export const contactFormSchema = z.object({
+  clientPrenom: z.string().min(2, "Prénom requis"),
+  clientNom: z.string().min(2, "Nom requis"),
+  clientEmail: z.string().email("Email invalide"),
+  clientTel: z.string().optional(),
+  message: z
+    .string()
+    .min(20, "Message trop court (20 caractères min)")
+    .max(1000, "Message trop long (1000 caractères max)"),
+  typeTraux: z.string().min(1, "Type de travaux requis"),
+  consent: z.literal(true, {
+    error: () => ({ message: "Vous devez accepter les conditions" }),
+  }),
+});
+
+export const inscriptionArtisanSchema = z.object({
+  raisonSociale: z.string().optional(),
+  siret: z
+    .string()
+    .regex(/^\d{14}$/, "SIRET invalide (14 chiffres)")
+    .optional()
+    .or(z.literal("")),
+  prenom: z.string().min(2, "Prénom requis"),
+  nom: z.string().min(2, "Nom requis"),
+  email: z.string().email("Email invalide"),
+  telephone: z.string().optional(),
+  siteWeb: z.string().url("URL invalide").optional().or(z.literal("")),
+  description: z.string().max(500, "Description trop longue (500 caractères max)").optional(),
+  metierSlugs: z.array(z.string()).min(1, "Au moins un métier requis"),
+  communeIds: z.array(z.string()).min(1, "Au moins une commune requise"),
+  consent: z.literal(true, {
+    error: () => ({ message: "Vous devez accepter les conditions" }),
+  }),
+  password: z.string().min(8, "Mot de passe trop court (8 caractères min)").optional(),
+});
+
+export const avisSchema = z.object({
+  auteurPrenom: z.string().min(2, "Prénom requis (2 caractères min)"),
+  auteurEmail: z.string().email("Email invalide"),
+  note: z.number().int().min(1, "Note requise").max(5, "Note max 5"),
+  commentaire: z
+    .string()
+    .min(20, "Commentaire trop court (20 caractères min)")
+    .max(800, "Commentaire trop long (800 caractères max)"),
+  consent: z.literal(true, {
+    error: () => ({ message: "Vous devez accepter les conditions" }),
+  }),
+});
+
+export type ContactFormData = z.infer<typeof contactFormSchema>;
+export type InscriptionArtisanData = z.infer<typeof inscriptionArtisanSchema>;
+export type AvisData = z.infer<typeof avisSchema>;

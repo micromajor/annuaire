@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// ENUMS
+// ---------------------------------------------------------------------------
+
+enum ArtisanStatus {
+  EN_ATTENTE
+  VALIDE
+  REJETE
+}
+
+// ---------------------------------------------------------------------------
+// MODELS
+// ---------------------------------------------------------------------------
+
+model Artisan {
+  id            String        @id @default(cuid())
+  raisonSociale String?
+  siret         String?       @unique
+  prenom        String
+  nom           String
+  email         String        @unique
+  telephone     String?
+  siteWeb       String?
+  logoUrl       String?       // URL du logo fournie par l'artisan
+  description   String?       @db.VarChar(500)
+  passwordHash  String?       // null = artisan sans compte (flux token uniquement)
+  status          ArtisanStatus @default(EN_ATTENTE)
+  hasPendingDraft Boolean       @default(false)
+  draftData       Json?         // modifications en attente de validation
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?     // soft delete
+
+  metiers    ArtisanMetier[]
+  communes   ArtisanCommune[]
+  contacts   ContactRequest[]
+  editTokens    EditToken[]
+  avis          Avis[]
+  oauthAccounts OAuthAccount[]
+}
+
+model Metier {
+  id       String          @id @default(cuid())
+  slug     String          @unique
+  label    String
+  artisans ArtisanMetier[]
+}
+
+model Commune {
+  id         String           @id @default(cuid())
+  nom        String
+  codePostal String
+  artisans   ArtisanCommune[]
+
+  @@unique([nom, codePostal])
+}
+
+model ArtisanMetier {
+  artisanId String
+  metierId  String
+  artisan   Artisan @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+  metier    Metier  @relation(fields: [metierId], references: [id], onDelete: Cascade)
+
+  @@id([artisanId, metierId])
+}
+
+model ArtisanCommune {
+  artisanId String
+  communeId String
+  artisan   Artisan @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+  commune   Commune @relation(fields: [communeId], references: [id], onDelete: Cascade)
+
+  @@id([artisanId, communeId])
+}
+
+model ContactRequest {
+  id           String   @id @default(cuid())
+  artisanId    String
+  clientPrenom String
+  clientNom    String
+  clientEmail  String
+  clientTel    String?
+  message      String   @db.VarChar(1000)
+  typeTraux    String
+  createdAt    DateTime @default(now())
+
+  artisan Artisan @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+}
+
+model Avis {
+  id           String    @id @default(cuid())
+  artisanId    String
+  auteurPrenom String
+  auteurEmail  String    // non affiché publiquement
+  note         Int       // 1-5
+  commentaire  String    @db.VarChar(800)
+  status       String    @default("EN_ATTENTE") // EN_ATTENTE | VALIDE | REJETE
+  createdAt    DateTime  @default(now())
+
+  artisan Artisan @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+}
+
+model EditToken {
+  id         String    @id @default(cuid())
+  token      String    @unique @default(cuid())
+  artisanId  String
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  artisan Artisan @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+}
+
+model Besoin {
+  id          String   @id @default(cuid())
+  metierSlug  String
+  commune     String
+  description String   @db.VarChar(1000)
+  prenom      String
+  contact     String
+  status      String   @default("NOUVEAU")
+  createdAt   DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// NEXTAUTH — OAuth accounts (Google, etc.)
+// ---------------------------------------------------------------------------
+
+model OAuthAccount {
+  id                String  @id @default(cuid())
+  artisanId         String
+  provider          String  // "google"
+  providerAccountId String
+  access_token      String? @db.Text
+  refresh_token     String? @db.Text
+  expires_at        Int?
+
+  artisan Artisan @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}

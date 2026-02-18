@@ -1,0 +1,435 @@
+@import "tailwindcss";
+
+/* =========================================================
+   DESIGN SYSTEM — Thème Bande Dessinée
+   ========================================================= */
+
+@theme inline {
+  --color-bd-jaune: #ffd93d;
+  --color-bd-jaune-hover: #f5c800;
+  --color-bd-rouge: #ff6b6b;
+  --color-bd-bleu: #1a1a2e;
+  --color-bd-creme: #fff8f0;
+  --color-bd-creme-dark: #f5ede0;
+  --color-bd-noir: #1a1a1a;
+  --color-bd-vert: #6bcb77;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #fff8f0;
+  color: #1a1a1a;
+  font-family: "Nunito", "Arial Rounded MT Bold", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =========================================================
+   COMPOSANTS BD — Carte
+   ========================================================= */
+.bd-card {
+  background: white;
+  border: 3px solid #1a1a1a;
+  border-radius: 0.75rem;
+  box-shadow: 5px 5px 0px #1a1a1a;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.bd-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0px #1a1a1a;
+}
+
+/* =========================================================
+   COMPOSANTS BD — Boutons
+   ========================================================= */
+.bd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.4rem;
+  font-family: "Nunito", sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  border: 3px solid #1a1a1a;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.bd-btn:active {
+  transform: translate(3px, 3px) !important;
+  box-shadow: 0px 0px 0px #1a1a1a !important;
+}
+
+.bd-btn-primary {
+  background: #ffd93d;
+  color: #1a1a1a;
+  box-shadow: 4px 4px 0px #1a1a1a;
+}
+.bd-btn-primary:hover {
+  background: #f5c800;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px #1a1a1a;
+}
+
+.bd-btn-secondary {
+  background: #1a1a2e;
+  color: white;
+  box-shadow: 4px 4px 0px #1a1a1a;
+}
+.bd-btn-secondary:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px #1a1a1a;
+}
+
+.bd-btn-outline {
+  background: white;
+  color: #1a1a1a;
+  box-shadow: 4px 4px 0px #1a1a1a;
+}
+.bd-btn-outline:hover {
+  background: #f5ede0;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px #1a1a1a;
+}
+
+/* =========================================================
+   COMPOSANTS BD — Badges
+   ========================================================= */
+.bd-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.65rem;
+  font-family: "Nunito", sans-serif;
+  font-weight: 800;
+  font-size: 0.75rem;
+  border: 2px solid #1a1a1a;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.bd-badge-jaune {
+  background: #ffd93d;
+  color: #1a1a1a;
+}
+.bd-badge-vert {
+  background: #6bcb77;
+  color: #1a1a1a;
+}
+.bd-badge-rouge {
+  background: #ff6b6b;
+  color: white;
+}
+.bd-badge-bleu {
+  background: #1a1a2e;
+  color: white;
+}
+
+/* =========================================================
+   COMPOSANTS BD — Inputs & Selects
+   ========================================================= */
+.bd-input,
+.bd-select {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  font-family: "Nunito", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 3px solid #1a1a1a;
+  border-radius: 0.5rem;
+  background: white;
+  color: #1a1a1a;
+  outline: none;
+  transition: box-shadow 0.15s ease;
+}
+.bd-input:focus,
+.bd-select:focus {
+  box-shadow: 3px 3px 0px #ffd93d;
+}
+.bd-input::placeholder {
+  color: #999;
+  font-weight: 400;
+}
+
+.bd-select {
+  padding-right: 2.5rem;
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%231a1a1a' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+}
+
+/* =========================================================
+   UTILITAIRES BD
+   ========================================================= */
+.bd-titre {
+  font-family: "Bangers", "Impact", cursive;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+
+.bd-onomatopee {
+  font-family: "Bangers", "Impact", cursive;
+  font-size: clamp(3rem, 8vw, 7rem);
+  color: #ffd93d;
+  -webkit-text-stroke: 3px #1a1a1a;
+  transform: rotate(-4deg);
+  display: inline-block;
+  letter-spacing: 0.05em;
+}
+
+.bd-halftone {
+  background-image: radial-gradient(circle, #1a1a1a 1px, transparent 1px);
+  background-size: 16px 16px;
+  background-color: #ffd93d;
+}
+
+.bd-separator {
+  height: 4px;
+  background: #1a1a1a;
+  border: none;
+  border-radius: 2px;
+}
+
+.bd-bubble {
+  background: white;
+  border: 3px solid #1a1a1a;
+  border-radius: 1rem;
+  box-shadow: 4px 4px 0px #1a1a1a;
+  position: relative;
+}
+
+/* =========================================================
+   ANIMATIONS BANDE DESSINÉE — Bâtiment
+   ========================================================= */
+
+/* Build up : apparition depuis le bas avec rebond */
+@keyframes bd-build {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-6px);
+  }
+  80% {
+    transform: translateY(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pop : scale avec overshoot (badge, icône) */
+@keyframes bd-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Swing : balancement de l'onomatopée */
+@keyframes bd-swing {
+  0% {
+    transform: rotate(-5deg) scale(1);
+  }
+  50% {
+    transform: rotate(5deg) scale(1.04);
+  }
+  100% {
+    transform: rotate(-5deg) scale(1);
+  }
+}
+
+/* Float : flottement doux des outils décoratifs */
+@keyframes bd-float {
+  0% {
+    transform: translateY(0px) rotate(var(--rot, 0deg));
+  }
+  100% {
+    transform: translateY(-20px) rotate(calc(var(--rot, 0deg) + 15deg));
+  }
+}
+
+/* Hammer : martelage — rotation rapide */
+@keyframes bd-hammer {
+  0% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-35deg) translateY(-4px);
+  }
+  40% {
+    transform: rotate(0deg);
+  }
+  60% {
+    transform: rotate(-25deg) translateY(-3px);
+  }
+  80% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* Confetti fall : chute des outils en succès */
+@keyframes bd-confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  80% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(300px) rotate(720deg) scale(0.5);
+  }
+}
+
+/* Shake : secouer sur erreur */
+@keyframes bd-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+/* Spin-once : rotation unique au load */
+@keyframes bd-spin-once {
+  0% {
+    transform: rotate(0deg) scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: rotate(380deg) scale(1.15);
+    opacity: 1;
+  }
+  80% {
+    transform: rotate(350deg) scale(0.95);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* =========================================================
+   CLASSES UTILITAIRES D'ANIMATION
+   ========================================================= */
+
+/* Remplissage vers l'avant pour rester à l'état final */
+.bd-anim-build {
+  opacity: 0;
+  animation: bd-build 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.bd-anim-pop {
+  opacity: 0;
+  animation: bd-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.bd-anim-swing {
+  animation: bd-swing 2.5s ease-in-out infinite;
+  transform-origin: center bottom;
+  display: inline-block;
+}
+
+.bd-anim-spin-once {
+  animation: bd-spin-once 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.bd-anim-shake {
+  animation: bd-shake 0.4s ease-in-out;
+}
+
+/* Carte artisan : outil emoji effet marteau au hover */
+.bd-card-tool-hover:hover .bd-tool-emoji {
+  animation: bd-hammer 0.5s ease-in-out;
+}
+
+/* =========================================================
+   ANIMATION — Résultats de recherche (slide-up + fade)
+   ========================================================= */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.search-result-enter {
+  animation: slideUpFade 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Panel détail artisan — glisse depuis la droite */
+@keyframes panelSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.search-panel-enter {
+  animation: panelSlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* =========================================================
+   TRANSITION SMOOTH POUR LES CARTES ARTISANS
+   ========================================================= */
+.bd-card-artisan {
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease;
+}
+
+.bd-card-artisan:hover {
+  transform: translate(-3px, -3px) rotate(-0.5deg);
+  box-shadow: 8px 8px 0px #1a1a1a;
+}
