@@ -1,6 +1,7 @@
 import Link from "next/link";
 import FloatingTools from "@/components/ui/FloatingTools";
 import HeroSearch from "@/components/features/HeroSearch";
+import MatchingBesoins, { type BesoinItem } from "@/components/features/MatchingBesoins";
 import { METIERS } from "@/constants";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
@@ -16,11 +17,17 @@ export default async function HomePage() {
   // Données selon le rôle connecté
   let artisanPrenom: string | null = null;
   let particulierPrenom: string | null = null;
+  let matchingBesoins: BesoinItem[] = [];
 
   if (isArtisan && userId) {
     const artisan = await prisma.artisan.findUnique({
       where: { id: userId },
-      select: { prenom: true, deletedAt: true },
+      select: {
+        prenom: true,
+        deletedAt: true,
+        metiers: { include: { metier: true } },
+        communes: { include: { commune: true } },
+      },
     });
 
     // Compte supprimé ou introuvable — invalider la session
@@ -29,6 +36,34 @@ export default async function HomePage() {
     }
 
     artisanPrenom = artisan.prenom;
+
+    const slugs = artisan.metiers.map((m) => m.metier.slug);
+    const communes = artisan.communes.map((c) => c.commune.nom);
+
+    if (slugs.length > 0 || communes.length > 0) {
+      const metierMap = Object.fromEntries(METIERS.map((m) => [m.slug, m.label]));
+      const rawBesoins = await prisma.besoin.findMany({
+        where: {
+          status: "NOUVEAU",
+          OR: [
+            ...(slugs.length > 0 ? [{ metierSlug: { in: slugs } }] : []),
+            ...(communes.length > 0 ? [{ commune: { in: communes } }] : []),
+          ],
+        },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+      });
+      matchingBesoins = rawBesoins.map((b) => ({
+        id: b.id,
+        metierSlug: b.metierSlug,
+        metierLabel: metierMap[b.metierSlug] ?? b.metierSlug,
+        commune: b.commune,
+        description: b.description,
+        prenom: b.prenom,
+        contact: b.contact,
+        createdAt: b.createdAt.toISOString(),
+      }));
+    }
   }
 
   if (isParticulier && userId) {
@@ -54,19 +89,19 @@ export default async function HomePage() {
         </Link>
         <nav className="flex items-center gap-3">
           {isArtisan ? (
-            <Link
-              href="/mon-espace"
-              className="bd-btn text-sm"
-              style={{
-                background: "#6bcb77",
-                border: "3px solid #1a1a1a",
-                boxShadow: "3px 3px 0 #1a1a1a",
-                color: "#1a1a2e",
-                fontWeight: 900,
+            <form
+              action={async () => {
+                "use server";
+                await signOut({ redirectTo: "/" });
               }}
             >
-              Mon espace →
-            </Link>
+              <button
+                type="submit"
+                className="text-sm font-bold text-[#1a1a2e] underline-offset-2 hover:underline"
+              >
+                Se déconnecter
+              </button>
+            </form>
           ) : isParticulier ? (
             <form
               action={async () => {
@@ -100,19 +135,30 @@ export default async function HomePage() {
 
         {isArtisan ? (
           /* --- Vue artisan connecté --- */
-          <div className="relative z-10 w-full max-w-xl text-center">
-            <span className="bd-badge bd-badge-bleu bd-anim-pop mb-6 inline-flex">
-              👋 Bonjour {artisanPrenom ?? "artisan"} !
-            </span>
-            <h1 className="bd-titre bd-anim-build mb-6 text-5xl leading-tight text-[#1a1a2e] sm:text-6xl">
-              Bienvenue sur OyezArtisans
-            </h1>
-            <p className="mb-8 text-base font-semibold text-[#1a1a2e]/70">
-              Gérez votre profil et suivez vos demandes depuis votre espace.
-            </p>
-            <Link href="/mon-espace" className="bd-btn bd-btn-primary px-8 py-3 text-lg">
-              Mon espace →
-            </Link>
+          <div className="relative z-10 w-full max-w-5xl">
+            {/* Header artisan */}
+            <div className="mb-8 flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
+              <div>
+                <span className="bd-badge bd-badge-bleu bd-anim-pop mb-3 inline-flex">
+                  👋 Bonjour {artisanPrenom ?? "artisan"} !
+                </span>
+                <h1 className="bd-titre bd-anim-build text-4xl leading-tight text-[#1a1a2e] sm:text-5xl">
+                  Vous pourriez les intéresser
+                </h1>
+                <p className="mt-2 text-sm font-semibold text-[#1a1a2e]/60">
+                  Ces particuliers cherchent votre expertise dans votre zone.
+                </p>
+              </div>
+              <Link
+                href="/mon-espace"
+                className="bd-btn bd-btn-primary shrink-0 px-6 py-3 text-base"
+              >
+                Mon espace →
+              </Link>
+            </div>
+
+            {/* Liste des demandes matchantes */}
+            <MatchingBesoins besoins={matchingBesoins} />
           </div>
         ) : isParticulier ? (
           /* --- Vue particulier connecté --- */
