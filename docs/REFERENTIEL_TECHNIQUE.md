@@ -1,6 +1,6 @@
 # Référentiel Technique — Annuaire Hyperlocal Artisans
 
-> Dernière mise à jour : 18 février 2026
+> Dernière mise à jour : 18 février 2026 — modèle Besoin, upload photos, rôles multi-profils
 
 ---
 
@@ -43,12 +43,15 @@
 - API simple, bon free tier
 - Templates React Email
 
-### Authentification (admin)
+### Authentification
 
-**NextAuth v5**
+**NextAuth v5 (beta)**
 
-- Session admin sécurisée
-- Provider credentials suffit pour V1 (1-2 admins)
+- Rôles JWT : `admin` | `artisan` | `particulier`
+- Provider credentials pour admin et artisan (email + password hash)
+- Provider OAuth Google (artisan)
+- Homepage différenciée selon rôle (3 vues)
+- Session étendue : `id`, `role`, `prenom`
 
 ### UI & Styling
 
@@ -120,23 +123,77 @@ scripts/tmp/                # Scripts ponctuels (vidé à chaque étape)
 
 ```prisma
 model Artisan {
-  id            String    @id @default(cuid())
-  raisonSociale String
-  siret         String?   @unique
-  prenom        String
-  nom           String
-  email         String    @unique
-  telephone     String?
-  siteWeb       String?
-  description   String?   @db.VarChar(500)
-  status        ArtisanStatus @default(EN_ATTENTE)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime? // soft delete
+  id              String        @id @default(cuid())
+  raisonSociale   String?
+  siret           String?       @unique
+  prenom          String
+  nom             String
+  email           String        @unique
+  telephone       String?
+  siteWeb         String?
+  logoUrl         String?       // URL du logo
+  description     String?       @db.VarChar(500)
+  passwordHash    String?       // null = artisan sans compte (flux token)
+  status          ArtisanStatus @default(EN_ATTENTE)
+  hasPendingDraft Boolean       @default(false)
+  draftData       Json?         // modifications en attente
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?     // soft delete
 
   metiers       ArtisanMetier[]
   communes      ArtisanCommune[]
   contacts      ContactRequest[]
+  editTokens    EditToken[]
+  avis          Avis[]
+  oauthAccounts OAuthAccount[]
+}
+
+model Besoin {
+  id          String   @id @default(cuid())
+  artisanId   String?  // lien optionnel vers le compte particulier
+  metierSlug  String
+  commune     String
+  description String   @db.VarChar(1000)
+  prenom      String
+  contact     String?  // optionnel
+  photos      Json?    // tableau d'URLs (max 6)
+  status      String   @default("NOUVEAU")
+  createdAt   DateTime @default(now())
+}
+
+model EditToken {
+  id         String    @id @default(cuid())
+  token      String    @unique @default(cuid())
+  artisanId  String
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+  artisan    Artisan   @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+}
+
+model OAuthAccount {
+  id                String  @id @default(cuid())
+  artisanId         String
+  provider          String  // "google"
+  providerAccountId String
+  access_token      String? @db.Text
+  refresh_token     String? @db.Text
+  expires_at        Int?
+  artisan           Artisan @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Avis {
+  id           String   @id @default(cuid())
+  artisanId    String
+  auteurPrenom String
+  auteurEmail  String
+  note         Int      // 1-5
+  commentaire  String   @db.VarChar(800)
+  status       String   @default("EN_ATTENTE")
+  createdAt    DateTime @default(now())
+  artisan      Artisan  @relation(fields: [artisanId], references: [id], onDelete: Cascade)
 }
 
 model Metier {
@@ -203,6 +260,25 @@ Voir le dossier `docs/ADR/` pour le détail de chaque décision.
 
 ---
 
+## API Routes principales
+
+| Méthode        | Route               | Description                                      |
+| -------------- | ------------------- | ------------------------------------------------ |
+| POST           | `/api/inscription`  | Inscription artisan public                       |
+| POST           | `/api/contact`      | Formulaire de contact fiche artisan              |
+| POST           | `/api/besoins`      | Dépôt de besoin particulier (auth)               |
+| POST           | `/api/upload`       | Upload photos chantier (max 6 × 5 Mo, multipart) |
+| GET/PATCH      | `/api/mon-espace/*` | Gestion compte artisan connecté                  |
+| GET/POST/PATCH | `/api/admin/*`      | Back-office admin (protégé)                      |
+
+### Stockage fichiers
+
+- Photos uploadées dans `/public/uploads/besoins/{uuid}.ext`
+- Fichiers ignorés par git (`.gitignore` + `.gitkeep`)
+- Après toute migration Prisma : **`npx prisma generate` + redémarrage serveur obligatoires**
+
+---
+
 ## Variables d'environnement requises
 
 ```env
@@ -210,8 +286,12 @@ Voir le dossier `docs/ADR/` pour le détail de chaque décision.
 DATABASE_URL=
 
 # Auth
-NEXTAUTH_SECRET=
+AUTH_SECRET=
 NEXTAUTH_URL=
+
+# OAuth Google
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 
 # Email (Resend)
 RESEND_API_KEY=

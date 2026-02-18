@@ -1,6 +1,6 @@
 # Roadmap — OyezArtisans · Réseau local d'artisans
 
-> Dernière mise à jour : 18 février 2026 — suppression feature Besoin (non implémentée)  
+> Dernière mise à jour : 18 février 2026 — features Besoin client + home artisan/particulier différenciée  
 > Statuts : `[ ]` à faire · `[~]` en cours · `[x]` terminé
 
 ---
@@ -96,6 +96,16 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] Logo artisan par URL (affiché sur la carte et la fiche)
 - [x] Magic link — `/mon-profil` : demande par email + édition sécurisée via token
 - [x] Migration DB : `logoUrl` + `EditToken` (token expirant, usage unique)
+- [x] Rôles NextAuth multi-profils : `admin` / `artisan` / `particulier`
+- [x] Homepage différenciée par rôle (3 vues : visiteur / artisan / particulier)
+- [x] Vue artisan home : "Vous pourriez les intéresser" — matching des Besoins par métier + commune + split panel
+- [x] Vue particulier home : toggle Trouver/Mon projet + formulaire dépôt de besoin
+- [x] Upload photos chantier (max 6 × 5 Mo, stockage `/public/uploads/besoins/`)
+- [x] Modèle Prisma `Besoin` : `photos Json?`, `artisanId String?`, `contact String?`, `status`
+- [x] Migration DB : `besoin_photos_contact_optional`
+- [x] API POST `/api/besoins` (Zod, session auth, persist prénom artisan)
+- [x] API POST `/api/upload` (multipart, UUID filenames, validation type + taille)
+- [x] Lightbox photo dans le panneau artisan (overlay `z-[200]`, fermeture fond ou ✕)
 
 ---
 
@@ -108,8 +118,9 @@ V4 — Communauté locale (clients, assos, territorio)
 
 ## Décisions / suppressions
 
-- [x] **Suppression feature Besoin** (18/02/2026) : `/besoin`, `BesoinForm`, `BesoinsFeed` supprimés — pas de modèle Prisma associé, pas d'API backend. YAGNI. Les particuliers passent par la HeroSearch de la homepage.
+- [x] **Suppression puis réimplémentation feature Besoin** : supprimée le 18/02/2026 (YAGNI, pas de backend), puis réimplémentée le même jour sous forme de feature complète avec modèle DB, API, upload photos et vue artisan matching.
 - [x] **Simplification header** (18/02/2026) : liens "Trouver un artisan" et "Déposer un besoin" retirés du header. L'accueil est le point d'entrée unique pour les visiteurs.
+- [x] **`prisma generate` obligatoire après migration** : le client Prisma doit être régénéré après toute migration pour que les nouveaux champs soient disponibles en runtime (appris via bug `photos` + `artisanId` inconnus).
 - [ ] Portfolio chantiers sur la fiche artisan (photos + description)
 - [ ] SEO : sitemap.xml, meta dynamiques, pages par commune
 - [ ] RGPD : mentions légales, politique confidentialité, suppression de compte

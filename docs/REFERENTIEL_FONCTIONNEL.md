@@ -1,6 +1,6 @@
 # Référentiel Fonctionnel — OyezArtisans
 
-> Dernière mise à jour : 18 février 2026
+> Dernière mise à jour : 18 février 2026 — ajout acteur Particulier, F06 dépôt besoin, F07 matching artisan
 
 ---
 
@@ -17,11 +17,12 @@ Contrairement aux annuaires nationaux (froids, spammeurs) et aux groupes Faceboo
 
 ## Acteurs
 
-| Acteur             | Description                                             |
-| ------------------ | ------------------------------------------------------- |
-| **Visiteur**       | Particulier qui consulte l'annuaire sans compte         |
-| **Artisan**        | Professionnel inscrit (librement ou saisi par l'équipe) |
-| **Administrateur** | Membre de l'équipe qui valide les fiches et modère      |
+| Acteur             | Description                                                                      |
+| ------------------ | -------------------------------------------------------------------------------- |
+| **Visiteur**       | Particulier qui consulte l'annuaire sans compte                                  |
+| **Particulier**    | Client inscrit (compte propre) qui peut déposer un besoin et suivre ses demandes |
+| **Artisan**        | Professionnel inscrit (librement ou saisi par l'équipe)                          |
+| **Administrateur** | Membre de l'équipe qui valide les fiches et modère                               |
 
 ---
 
@@ -88,6 +89,25 @@ Informations affichées :
 - Le **SIRET est unique** dans la base (pas de doublon)
 - Un email de contact artisan = **obligatoire** (même si masqué au public)
 
+### F06 — Dépôt de besoin (particulier connecté)
+
+- Accessible depuis la homepage pour les utilisateurs avec rôle `particulier`
+- Toggle UI : "🔍 Trouver un artisan" / "📋 Mon projet"
+- Champs : prénom (pré-rempli depuis le compte), type de métier, commune, description (max 1000 car.), photos (optionnel)
+- Upload max **6 photos** (JPG/PNG/WEBP, 5 Mo/photo), stockées dans `/public/uploads/besoins/`
+- Statut initial du besoin : `NOUVEAU`
+- Confirmation visuelle onomatopée BD : "Top !"
+- Prénom persisté sur le compte artisan à chaque soumission
+
+### F07 — Vue artisan : besoins correspondants
+
+- Accessible depuis la homepage pour les utilisateurs avec rôle `artisan`
+- Section "Vous pourriez les intéresser" avec split panel (même pattern que HeroSearch)
+- Filtrage automatique par métier(s) ET commune(s) de la fiche artisan
+- Panneau détail : description, badges métier/commune, date, galerie photos 3 cols
+- Lightbox photos au clic (overlay plein écran, fermeture fond ou bouton ✕)
+- Bouton "💬 Contacter" (placeholder, messagerie à implémenter)
+
 ---
 
 ## Non-périmètre V1
@@ -96,4 +116,4 @@ Informations affichées :
 - Paiement ou abonnement (Phase 4)
 - Espace artisan complet avec tableau de bord (Phase 2+)
 - Carte interactive (Backlog)
-- ~~Feature Besoin (dépôt de besoin client)~~ — supprimée le 18/02/2026 : pas de backend implémenté, pas de modèle DB. Repoussée à Phase 4 si pertinente.
+- Espace particulier : liste des besoins publiés (Phase 2+)
