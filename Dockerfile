@@ -66,6 +66,7 @@ USER nextjs
 
 EXPOSE 3000
 
-# npx télécharge prisma@7.4.0 avec toutes ses dépendances (valibot, etc.)
-# prisma.config.ts + node_modules/prisma sont présents → DATABASE_URL est lue correctement
-CMD ["sh", "-c", "npx --yes prisma@7.4.0 migrate deploy && node server.js"]
+# Démarre directement l'app Next.js
+# Les migrations Prisma sont lancées manuellement via Coolify Terminal
+# (npx prisma migrate deploy) ou pré-déployées via un script dédié
+CMD ["node", "server.js"]
