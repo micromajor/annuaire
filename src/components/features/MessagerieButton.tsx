@@ -26,7 +26,7 @@ export default function MessagerieButton({ artisanId, artisanNom }: Props) {
   if (!session || role !== "particulier") {
     return (
       <a
-        href={`/connexion?callbackUrl=/artisans/${artisanId}`}
+        href={`/connexion?callbackUrl=/artisan/${artisanId}`}
         className="bd-btn bd-btn-outline mt-3 w-full text-sm"
       >
         💬 Écrire un message

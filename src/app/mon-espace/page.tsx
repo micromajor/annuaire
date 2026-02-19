@@ -339,7 +339,7 @@ export default async function MonEspacePage() {
               )}
               {artisan.status === "VALIDE" && (
                 <Link
-                  href={`/artisans/${artisan.id}`}
+                  href={`/artisan/${artisan.id}`}
                   className="mt-4 inline-block text-sm font-bold text-[#1a1a2e] underline"
                 >
                   Voir ma fiche publique →

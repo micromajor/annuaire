@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description =
     artisan.description ??
     `Fiche de ${nom}, ${metiers} à ${communes || "Loire-Atlantique"}. Contactez-le directement sur Oyez Artisans !`;
-  const url = `https://oyezartisans.fr/artisans/${id}`;
+  const url = `https://oyezartisans.fr/artisan/${id}`;
 
   return {
     title,
@@ -111,12 +111,12 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "@id": `https://oyezartisans.fr/artisans/${artisan.id}`,
+    "@id": `https://oyezartisans.fr/artisan/${artisan.id}`,
     name: nomAffiche,
     description:
       artisan.description ??
       `${nomAffiche} — ${artisan.metiers.map((m) => m.metier.label).join(", ")} à ${artisan.communes.map((c) => c.commune.nom).join(", ")}`,
-    url: `https://oyezartisans.fr/artisans/${artisan.id}`,
+    url: `https://oyezartisans.fr/artisan/${artisan.id}`,
     ...(artisan.telephone ? { telephone: artisan.telephone } : {}),
     ...(artisan.logoUrl ? { image: artisan.logoUrl } : {}),
     ...(artisan.siteWeb ? { sameAs: [artisan.siteWeb] } : {}),

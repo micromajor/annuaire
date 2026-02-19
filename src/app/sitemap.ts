@@ -5,6 +5,7 @@ import { slugify } from "@/lib/utils/slugify";
 
 const BASE = "https://oyezartisans.fr";
 
+export const dynamic = "force-dynamic"; // rendu à la requête, pas au build
 export const revalidate = 3600; // régénérer toutes les heures
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -17,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   const artisanPages: MetadataRoute.Sitemap = artisans.map((a) => ({
-    url: `${BASE}/artisans/${a.id}`,
+    url: `${BASE}/artisan/${a.id}`,
     lastModified: a.updatedAt,
     changeFrequency: "monthly",
     priority: 0.7,

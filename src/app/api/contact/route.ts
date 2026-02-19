@@ -89,7 +89,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   });
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://oyezartisans.fr";
-  const avisUrl = `${appUrl}/artisans/${artisanId}?avisToken=${avisToken}#avis`;
+  const avisUrl = `${appUrl}/artisan/${artisanId}?avisToken=${avisToken}#avis`;
 
   // Email (Resend — sera activé quand la clé API sera configurée)
   if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "re_placeholder") {
@@ -139,7 +139,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   return NextResponse.json(
-    { success: true, avisToken, avisUrl: `/artisans/${artisanId}?avisToken=${avisToken}#avis` },
+    { success: true, avisToken, avisUrl: `/artisan/${artisanId}?avisToken=${avisToken}#avis` },
     { status: 201 }
   );
 }

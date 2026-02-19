@@ -115,12 +115,12 @@ export default function ArtisanCard({ artisan, avis = [] }: ArtisanCardProps) {
       {/* CTA */}
       <div className="mt-auto flex gap-2">
         <Link
-          href={`/artisans/${artisan.id}`}
+          href={`/artisan/${artisan.id}`}
           className="bd-btn bd-btn-outline flex-1 text-center text-sm"
         >
           Voir la fiche
         </Link>
-        <Link href={`/artisans/${artisan.id}#contact`} className="bd-btn bd-btn-primary text-sm">
+        <Link href={`/artisan/${artisan.id}#contact`} className="bd-btn bd-btn-primary text-sm">
           Contacter
         </Link>
       </div>
