@@ -1,11 +1,13 @@
 export const dynamic = "force-dynamic";
 
+import Link from "next/link";
 import { prisma } from "@/lib/db/client";
 import { METIERS, COMMUNES_NANTES_EST, PAGINATION } from "@/constants";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import { auth, signOut } from "@/lib/auth";
 import ArtisanCard from "@/components/features/ArtisanCard";
 import FiltresArtisans from "@/components/features/FiltresArtisans";
+import FloatingTools from "@/components/ui/FloatingTools";
+import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import type { Metadata } from "next";
 
 interface SearchParams {
@@ -25,7 +27,8 @@ export default async function ArtisansPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const params = await searchParams;
+  const [session, params] = await Promise.all([auth(), searchParams]);
+  const isConnected = !!session?.user;
   const page = Math.max(1, parseInt(params.page ?? "1", 10));
   const skip = (page - 1) * PAGINATION.ARTISANS_PAR_PAGE;
 
@@ -54,68 +57,163 @@ export default async function ArtisansPage({
   const totalPages = Math.ceil(total / PAGINATION.ARTISANS_PAR_PAGE);
 
   return (
-    <>
-      <Header />
-      <main className="mx-auto max-w-6xl px-4 py-10">
-        {/* Titre */}
-        <div className="mb-8">
-          <h1 className="bd-titre text-4xl text-[#1a1a2e] sm:text-5xl">🔍 Trouver votre artisan</h1>
-          <p className="mt-2 text-gray-600">
-            {total} artisan{total > 1 ? "s" : ""} trouvé{total > 1 ? "s" : ""} dans notre annuaire
-          </p>
-        </div>
-
-        {/* Filtres */}
-        <FiltresArtisans
-          metiers={METIERS}
-          communes={COMMUNES_NANTES_EST}
-          currentMetier={params.metier}
-          currentCommune={params.commune}
-        />
-
-        <hr className="bd-separator my-8" />
-
-        {/* Résultats */}
-        {artisans.length === 0 ? (
-          <div className="bd-bubble py-16 text-center">
-            <p className="bd-onomatopee mb-4 text-5xl" style={{ transform: "rotate(-3deg)" }}>
-              Oops!
-            </p>
-            <p className="text-lg font-semibold text-gray-600">
-              Aucun artisan trouvé pour ces critères.
-            </p>
-            <p className="mt-1 text-gray-400">Essayez de modifier vos filtres.</p>
-          </div>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {artisans.map((artisan) => (
-              <ArtisanCard key={artisan.id} artisan={artisan} avis={artisan.avis} />
-            ))}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-10 flex items-center justify-center gap-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <a
-                key={p}
-                href={`/artisans?${new URLSearchParams({
-                  ...(params.metier ? { metier: params.metier } : {}),
-                  ...(params.commune ? { commune: params.commune } : {}),
-                  page: String(p),
-                })}`}
-                className={`bd-btn ${
-                  p === page ? "bd-btn-secondary" : "bd-btn-outline"
-                } px-3 py-1 text-sm`}
+    <div className="flex min-h-screen flex-col bg-[#ffd93d]">
+      {/* Header minimaliste */}
+      <header className="relative z-50 flex items-center justify-between px-6 py-4">
+        <Link
+          href="/"
+          className="bd-titre text-2xl text-[#1a1a2e] no-underline"
+          style={{ textShadow: "2px 2px 0 rgba(0,0,0,0.15)" }}
+        >
+          Oyez Artisans !
+        </Link>
+        <nav className="flex items-center gap-3">
+          {isConnected ? (
+            <>
+              <NavMessagerieIcon />
+              <Link
+                href="/mon-espace"
+                aria-label="Mon espace"
+                title="Mon espace"
+                className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
               >
-                {p}
-              </a>
-            ))}
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </Link>
+              <form
+                action={async () => {
+                  "use server";
+                  await signOut({ redirectTo: "/" });
+                }}
+              >
+                <button
+                  type="submit"
+                  aria-label="Se déconnecter"
+                  title="Se déconnecter"
+                  className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                </button>
+              </form>
+            </>
+          ) : (
+            <Link
+              href="/connexion"
+              className="text-sm font-bold text-[#1a1a2e] underline-offset-2 hover:underline"
+            >
+              Se connecter
+            </Link>
+          )}
+        </nav>
+      </header>
+
+      <main className="relative flex-1 px-4 pt-8 pb-24">
+        <FloatingTools />
+
+        <div className="relative z-10 mx-auto w-full max-w-5xl">
+          {/* Badge + H1 */}
+          <div className="mb-10 text-center">
+            <span className="bd-badge bd-badge-bleu bd-anim-pop mb-8 inline-flex">
+              📍 Nantes &amp; Est Loire-Atlantique
+            </span>
+            <h1 className="bd-titre bd-anim-build mb-4 text-5xl leading-tight text-[#1a1a2e] sm:text-7xl">
+              Trouvez votre artisan
+            </h1>
+            <p className="text-sm font-semibold text-[#1a1a2e]/60">
+              {total} artisan{total > 1 ? "s" : ""} dans notre annuaire
+            </p>
           </div>
-        )}
+
+          {/* Filtres */}
+          <FiltresArtisans
+            metiers={METIERS}
+            communes={COMMUNES_NANTES_EST}
+            currentMetier={params.metier}
+            currentCommune={params.commune}
+          />
+
+          <hr className="bd-separator my-8" />
+
+          {/* Résultats */}
+          {artisans.length === 0 ? (
+            <div className="bd-bubble py-16 text-center">
+              <p className="bd-onomatopee mb-4 text-5xl" style={{ transform: "rotate(-3deg)" }}>
+                Oops!
+              </p>
+              <p className="text-lg font-semibold text-gray-600">
+                Aucun artisan trouvé pour ces critères.
+              </p>
+              <p className="mt-1 text-gray-400">Essayez de modifier vos filtres.</p>
+            </div>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {artisans.map((artisan) => (
+                <ArtisanCard key={artisan.id} artisan={artisan} avis={artisan.avis} />
+              ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-10 flex items-center justify-center gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <a
+                  key={p}
+                  href={`/artisans?${new URLSearchParams({
+                    ...(params.metier ? { metier: params.metier } : {}),
+                    ...(params.commune ? { commune: params.commune } : {}),
+                    page: String(p),
+                  })}`}
+                  className={`bd-btn ${
+                    p === page ? "bd-btn-secondary" : "bd-btn-outline"
+                  } px-3 py-1 text-sm`}
+                >
+                  {p}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
       </main>
-      <Footer />
-    </>
+
+      {/* Footer minimaliste */}
+      <footer className="relative z-10 border-t-2 border-[#1a1a1a]/10 px-6 py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
+          <span>© 2026 Oyez Artisans !</span>
+          <div className="flex gap-4">
+            <Link href="/mentions-legales" className="hover:text-[#1a1a2e]">
+              Mentions légales
+            </Link>
+            <Link href="/politique-confidentialite" className="hover:text-[#1a1a2e]">
+              Confidentialité
+            </Link>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
