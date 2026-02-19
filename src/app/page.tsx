@@ -1,7 +1,8 @@
 import Link from "next/link";
 import FloatingTools from "@/components/ui/FloatingTools";
 import HeroSearch from "@/components/features/HeroSearch";
-import MatchingBesoins, { type BesoinItem } from "@/components/features/MatchingBesoins";
+import { type BesoinItem } from "@/components/features/MatchingBesoins";
+import ArtisanHomeView from "@/components/features/ArtisanHomeView";
 import ParticulierHome from "@/components/features/ParticulierHome";
 import { METIERS } from "@/constants";
 import { auth, signOut } from "@/lib/auth";
@@ -19,6 +20,7 @@ export default async function HomePage() {
   let artisanPrenom: string | null = null;
   let particulierPrenom: string | null = null;
   let matchingBesoins: BesoinItem[] = [];
+  let artisanCommunes: string[] = [];
 
   if (isArtisan && userId) {
     const artisan = await prisma.artisan.findUnique({
@@ -40,6 +42,7 @@ export default async function HomePage() {
 
     const slugs = artisan.metiers.map((m) => m.metier.slug);
     const communes = artisan.communes.map((c) => c.commune.nom);
+    artisanCommunes = communes;
 
     if (slugs.length > 0 || communes.length > 0) {
       const metierMap = Object.fromEntries(METIERS.map((m) => [m.slug, m.label]));
@@ -90,33 +93,51 @@ export default async function HomePage() {
         </Link>
         <nav className="flex items-center gap-3">
           {isArtisan ? (
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/" });
-              }}
-            >
-              <button
-                type="submit"
+            <>
+              <Link
+                href="/mon-espace"
                 className="text-sm font-bold text-[#1a1a2e] underline-offset-2 hover:underline"
               >
-                Se déconnecter
-              </button>
-            </form>
+                Mon espace
+              </Link>
+              <span className="text-[#1a1a2e]/30">|</span>
+              <form
+                action={async () => {
+                  "use server";
+                  await signOut({ redirectTo: "/" });
+                }}
+              >
+                <button
+                  type="submit"
+                  className="text-sm font-bold text-[#1a1a2e] underline-offset-2 hover:underline"
+                >
+                  Se déconnecter
+                </button>
+              </form>
+            </>
           ) : isParticulier ? (
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/" });
-              }}
-            >
-              <button
-                type="submit"
+            <>
+              <Link
+                href="/mon-espace"
                 className="text-sm font-bold text-[#1a1a2e] underline-offset-2 hover:underline"
               >
-                Se déconnecter
-              </button>
-            </form>
+                Mon espace
+              </Link>
+              <span className="text-[#1a1a2e]/30">|</span>
+              <form
+                action={async () => {
+                  "use server";
+                  await signOut({ redirectTo: "/" });
+                }}
+              >
+                <button
+                  type="submit"
+                  className="text-sm font-bold text-[#1a1a2e] underline-offset-2 hover:underline"
+                >
+                  Se déconnecter
+                </button>
+              </form>
+            </>
           ) : (
             <>
               <Link
@@ -138,28 +159,20 @@ export default async function HomePage() {
           /* --- Vue artisan connecté --- */
           <div className="relative z-10 w-full max-w-5xl">
             {/* Header artisan */}
-            <div className="mb-8 flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
-              <div>
-                <span className="bd-badge bd-badge-bleu bd-anim-pop mb-3 inline-flex">
-                  👋 Bonjour {artisanPrenom ?? "artisan"} !
-                </span>
-                <h1 className="bd-titre bd-anim-build text-4xl leading-tight text-[#1a1a2e] sm:text-5xl">
-                  Vous pourriez les intéresser
-                </h1>
-                <p className="mt-2 text-sm font-semibold text-[#1a1a2e]/60">
-                  Ces particuliers cherchent votre expertise dans votre zone.
-                </p>
-              </div>
-              <Link
-                href="/mon-espace"
-                className="bd-btn bd-btn-primary shrink-0 px-6 py-3 text-base"
-              >
-                Mon espace →
-              </Link>
+            <div className="mb-8 text-center">
+              <span className="bd-badge bd-badge-bleu bd-anim-pop mb-3 inline-flex">
+                👋 Bonjour {artisanPrenom ?? "artisan"} !
+              </span>
+              <h1 className="bd-titre bd-anim-build text-4xl leading-tight text-[#1a1a2e] sm:text-5xl">
+                Vous pourriez les intéresser
+              </h1>
+              <p className="mt-2 text-sm font-semibold text-[#1a1a2e]/60">
+                Ces particuliers cherchent votre expertise dans votre zone.
+              </p>
             </div>
 
-            {/* Liste des demandes matchantes */}
-            <MatchingBesoins besoins={matchingBesoins} />
+            {/* Liste / Carte des demandes matchantes */}
+            <ArtisanHomeView besoins={matchingBesoins} artisanCommunes={artisanCommunes} />
           </div>
         ) : isParticulier ? (
           /* --- Vue particulier connecté --- */

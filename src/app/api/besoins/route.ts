@@ -42,7 +42,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: err.errors[0].message }, { status: 400 });
+      return NextResponse.json(
+        { error: err.issues[0]?.message ?? "Validation error" },
+        { status: 400 }
+      );
     }
     console.error("[POST /api/besoins]", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
