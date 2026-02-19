@@ -34,8 +34,9 @@ export default function NavMessagerieIcon() {
   return (
     <Link
       href="/messages"
-      className="relative flex items-center justify-center rounded-xl border-2 border-[#ffd93d]/40 p-2 text-[#ffd93d] transition-colors hover:bg-[#ffd93d]/10"
+      className="relative flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
       aria-label="Messages"
+      title="Messages"
     >
       <svg
         width="20"
