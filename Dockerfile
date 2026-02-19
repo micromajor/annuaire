@@ -54,10 +54,14 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# CLI Prisma (évite de télécharger via npx à chaque démarrage)
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 
 USER nextjs
 
 EXPOSE 3000
 
 # Lance les migrations puis démarre l'app
-CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
+# Le test sur DATABASE_URL évite un crash si la var n'est pas encore injectée
+CMD ["sh", "-c", "if [ -n \"$DATABASE_URL\" ]; then node_modules/.bin/prisma migrate deploy; else echo 'WARNING: DATABASE_URL not set, skipping migrations'; fi && node server.js"]
