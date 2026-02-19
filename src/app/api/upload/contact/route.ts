@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/client";
+import { compressImage } from "@/lib/utils/compressImage";
 
 const MAX_FILES = 6;
 const MAX_SIZE_MB = 5;
@@ -28,12 +29,15 @@ export async function POST(req: Request) {
           { status: 400 }
         );
 
+      const raw = Buffer.from(await file.arrayBuffer());
+      const { data, mimeType } = await compressImage(raw, file.type);
+
       const record = await prisma.uploadedFile.create({
         data: {
           filename: file.name,
-          mimeType: file.type,
-          size: file.size,
-          data: Buffer.from(await file.arrayBuffer()),
+          mimeType,
+          size: data.length,
+          data,
           contexte: "contact",
           uploaderId: null,
         },
