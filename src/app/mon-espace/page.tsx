@@ -8,7 +8,9 @@ import MonEspaceEditForm from "@/components/features/MonEspaceEditForm";
 export default async function MonEspacePage() {
   const session = await auth();
 
-  if (!session || (session.user as { role?: string }).role !== "artisan") {
+  const role = (session?.user as { role?: string })?.role;
+
+  if (!session || !["artisan", "particulier"].includes(role ?? "")) {
     redirect("/connexion");
   }
 
@@ -17,7 +19,115 @@ export default async function MonEspacePage() {
     redirect("/bienvenue");
   }
 
-  const artisanId = (session.user as { id?: string }).id!;
+  const userId = (session.user as { id?: string }).id!;
+
+  /* ------------------------------------------------------------------ */
+  /* Vue particulier                                                       */
+  /* ------------------------------------------------------------------ */
+  if (role === "particulier") {
+    const particulier = await prisma.artisan.findUnique({
+      where: { id: userId },
+      select: { prenom: true },
+    });
+    const besoins = await prisma.besoin.findMany({
+      where: { artisanId: userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return (
+      <div className="min-h-screen bg-[#60c5f1]">
+        <header className="border-b-4 border-[#1a1a1a] bg-[#1a1a2e] px-6 py-4">
+          <div className="mx-auto flex max-w-3xl items-center justify-between">
+            <Link href="/" className="bd-titre text-xl text-[#60c5f1]">
+              🔨 OyezArtisans
+            </Link>
+            <form
+              action={async () => {
+                "use server";
+                await signOut({ redirectTo: "/" });
+              }}
+            >
+              <button
+                type="submit"
+                className="rounded-lg border-2 border-[#60c5f1] px-3 py-1.5 text-xs font-bold text-[#60c5f1] hover:bg-[#60c5f1] hover:text-[#1a1a2e]"
+              >
+                Déconnexion
+              </button>
+            </form>
+          </div>
+        </header>
+
+        <main className="mx-auto max-w-3xl px-4 py-10">
+          <h1 className="bd-titre mb-1 text-4xl text-[#1a1a2e]">
+            Bonjour, {particulier?.prenom ?? "vous"} 👋
+          </h1>
+          <p className="mb-8 text-sm font-semibold text-[#1a1a2e]/60">
+            Retrouvez ici vos annonces publiées.
+          </p>
+
+          {besoins.length === 0 ? (
+            <div
+              className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-8 text-center"
+              style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
+            >
+              <p className="mb-2 text-3xl">📋</p>
+              <p className="font-bold text-[#1a1a2e]/60">
+                Aucune annonce publiée pour l&apos;instant.
+              </p>
+              <Link
+                href="/"
+                className="mt-4 inline-block text-sm font-bold text-[#1a1a2e] underline"
+              >
+                ← Déposer une annonce
+              </Link>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {besoins.map((b) => (
+                <div
+                  key={b.id}
+                  className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-5"
+                  style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-black text-[#1a1a2e]">
+                        {b.metierSlug} · {b.commune}
+                      </p>
+                      <p className="mt-1 text-sm text-gray-600">{b.description}</p>
+                    </div>
+                    <span
+                      className="shrink-0 rounded-full px-3 py-1 text-xs font-black"
+                      style={{
+                        background: b.status === "NOUVEAU" ? "#ffd93d" : "#6bcb77",
+                        border: "2px solid #1a1a1a",
+                        color: "#1a1a2e",
+                      }}
+                    >
+                      {b.status}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xs text-gray-400">
+                    Publié le{" "}
+                    {b.createdAt.toLocaleDateString("fr-FR", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
+    );
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Vue artisan (suite)                                                   */
+  /* ------------------------------------------------------------------ */
+  const artisanId = userId;
   const artisan = await prisma.artisan.findUnique({
     where: { id: artisanId },
     include: {

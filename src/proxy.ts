@@ -6,9 +6,9 @@ export default auth((req) => {
   const isAuthenticated = !!req.auth;
   const role = (req.auth?.user as { role?: string } | undefined)?.role;
 
-  // --- /mon-espace — artisans uniquement ---
+  // --- /mon-espace — artisans et particuliers ---
   if (pathname.startsWith("/mon-espace")) {
-    if (role !== "artisan") {
+    if (!["artisan", "particulier"].includes(role ?? "")) {
       const url = new URL("/connexion", req.nextUrl.origin);
       url.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(url);

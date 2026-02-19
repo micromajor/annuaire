@@ -208,69 +208,95 @@ export default function ArtisanHomeMap({
   const selectedBesoins = selectedCommune ? (besoinsByCommune[selectedCommune] ?? []) : [];
 
   return (
-    <div className="flex items-start gap-4">
-      {/* ---- Carte ---- */}
-      <div className={selectedCommune ? "min-w-0 flex-1" : "w-full"}>
-        {/* Légende */}
-        <div className="mb-3 flex flex-wrap gap-3 text-xs font-bold text-[#1a1a2e]/60">
-          <span className="flex items-center gap-1">
-            <span
-              className="inline-block h-3 w-5 rounded"
-              style={{ background: "#6bcb77", border: "2px solid #1a1a2e" }}
-            />
-            Votre zone
-          </span>
-          <span className="flex items-center gap-1">
-            <span
-              className="inline-block h-3 w-5 rounded"
-              style={{ background: "#ff6b6b", border: "2px solid #1a1a2e" }}
-            />
-            Demandes hors zone
-          </span>
-          <span className="flex items-center gap-1">
-            <span
-              className="inline-block h-3 w-5 rounded"
-              style={{ background: "#ffd93d", border: "2px solid #1a1a2e" }}
-            />
-            🔥 Demandes dans votre zone
-          </span>
-        </div>
+    <div className="flex flex-col gap-4">
+      {/* ---- Carte + panneau lateral (desktop) / empilement (mobile) ---- */}
+      <div className="flex flex-col items-start gap-4 sm:flex-row">
+        {/* ---- Carte ---- */}
+        <div className={selectedCommune ? "w-full min-w-0 sm:flex-1" : "w-full"}>
+          {/* Légende */}
+          <div className="mb-3 flex flex-wrap gap-3 text-xs font-bold text-[#1a1a2e]/60">
+            <span className="flex items-center gap-1">
+              <span
+                className="inline-block h-3 w-5 rounded"
+                style={{ background: "#6bcb77", border: "2px solid #1a1a2e" }}
+              />
+              Votre zone
+            </span>
+            <span className="flex items-center gap-1">
+              <span
+                className="inline-block h-3 w-5 rounded"
+                style={{ background: "#ff6b6b", border: "2px solid #1a1a2e" }}
+              />
+              Demandes hors zone
+            </span>
+            <span className="flex items-center gap-1">
+              <span
+                className="inline-block h-3 w-5 rounded"
+                style={{ background: "#ffd93d", border: "2px solid #1a1a2e" }}
+              />
+              🔥 Demandes dans votre zone
+            </span>
+          </div>
 
-        {/* Carte Leaflet */}
-        <div
-          className="overflow-hidden rounded-2xl"
-          style={{ border: "3px solid #1a1a1a", boxShadow: "4px 4px 0 #1a1a1a", height: 460 }}
-        >
-          <MapContainer
-            center={[47.35, -1.55]}
-            zoom={9}
-            style={{ height: "100%", width: "100%" }}
-            scrollWheelZoom
+          {/* Carte Leaflet */}
+          <div
+            className="overflow-hidden rounded-2xl"
+            style={{ border: "3px solid #1a1a1a", boxShadow: "4px 4px 0 #1a1a1a", height: 400 }}
           >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"
-            />
-            <GeoJSON
-              key={geoJsonKey}
-              data={geoData}
-              style={(f) => styleFeature(f as CommuneFeature)}
-              onEachFeature={(f, l) => onEachFeature(f as CommuneFeature, l)}
-            />
-            <FitBounds />
-          </MapContainer>
+            <MapContainer
+              center={[47.35, -1.55]}
+              zoom={9}
+              style={{ height: "100%", width: "100%" }}
+              scrollWheelZoom
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"
+              />
+              <GeoJSON
+                key={geoJsonKey}
+                data={geoData}
+                style={(f) => styleFeature(f as CommuneFeature)}
+                onEachFeature={(f, l) => onEachFeature(f as CommuneFeature, l)}
+              />
+              <FitBounds />
+            </MapContainer>
+          </div>
+
+          {besoins.length === 0 && (
+            <p className="mt-3 text-center text-xs font-bold text-[#1a1a2e]/40">
+              Aucune demande dans votre zone pour l&apos;instant.
+            </p>
+          )}
         </div>
 
-        {besoins.length === 0 && (
-          <p className="mt-3 text-center text-xs font-bold text-[#1a1a2e]/40">
-            Aucune demande dans votre zone pour l&apos;instant.
-          </p>
+        {/* ---- Panneau latéral commune sélectionnée (desktop uniquement) ---- */}
+        {selectedCommune && (
+          <div className="hidden w-72 shrink-0 sm:block">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="bd-titre text-lg text-[#1a1a2e]">📍 {selectedCommune}</h3>
+              <button
+                onClick={() => setSelectedCommune(null)}
+                className="rounded-lg border-2 border-[#1a1a1a] bg-white px-2 py-1 text-xs font-bold hover:bg-gray-50"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="mb-2 text-xs font-black tracking-widest text-[#1a1a2e]/40 uppercase">
+              {selectedBesoins.length} demande{selectedBesoins.length > 1 ? "s" : ""}
+            </p>
+            <div className="flex max-h-[370px] flex-col gap-2 overflow-y-auto pr-1">
+              {selectedBesoins.map((b) => (
+                <BesoinCompactCard key={b.id} besoin={b} />
+              ))}
+            </div>
+          </div>
         )}
       </div>
 
-      {/* ---- Panneau latéral commune sélectionnée ---- */}
+      {/* ---- Panneau mobile commune sélectionnée (sous la carte) ---- */}
       {selectedCommune && (
-        <div className="w-72 shrink-0">
+        <div className="sm:hidden">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="bd-titre text-lg text-[#1a1a2e]">📍 {selectedCommune}</h3>
             <button
@@ -283,7 +309,7 @@ export default function ArtisanHomeMap({
           <p className="mb-2 text-xs font-black tracking-widest text-[#1a1a2e]/40 uppercase">
             {selectedBesoins.length} demande{selectedBesoins.length > 1 ? "s" : ""}
           </p>
-          <div className="flex max-h-[420px] flex-col gap-2 overflow-y-auto pr-1">
+          <div className="flex flex-col gap-2">
             {selectedBesoins.map((b) => (
               <BesoinCompactCard key={b.id} besoin={b} />
             ))}

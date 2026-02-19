@@ -30,22 +30,35 @@ export default function ArtisanHomeView({
 
   return (
     <div>
-      {/* Toggle Liste / Carte */}
-      <div className="mb-5 flex justify-center gap-2">
-        {(["liste", "carte"] as View[]).map((v) => (
+      {/* Toggle Liste / Carte — style identique au ParticulierHome */}
+      <div className="mb-8 flex justify-center">
+        <div
+          className="flex overflow-hidden rounded-2xl border-3 border-[#1a1a1a]"
+          style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+        >
           <button
-            key={v}
-            onClick={() => setView(v)}
-            className="bd-btn px-6 py-2 text-sm font-black"
+            onClick={() => setView("liste")}
+            className="bd-titre px-6 py-3 text-base transition-colors"
             style={
-              view === v
-                ? { background: "#1a1a2e", color: "#fff", boxShadow: "3px 3px 0 #6bcb77" }
-                : { background: "white", color: "#1a1a2e", boxShadow: "3px 3px 0 #1a1a1a" }
+              view === "liste"
+                ? { background: "#1a1a2e", color: "#6bcb77" }
+                : { background: "white", color: "#1a1a2e" }
             }
           >
-            {v === "liste" ? "📋 Liste" : "🗺️ Carte"}
+            📋 Liste
           </button>
-        ))}
+          <button
+            onClick={() => setView("carte")}
+            className="bd-titre border-l-3 border-[#1a1a1a] px-6 py-3 text-base transition-colors"
+            style={
+              view === "carte"
+                ? { background: "#1a1a2e", color: "#6bcb77" }
+                : { background: "white", color: "#1a1a2e" }
+            }
+          >
+            🗺️ Carte
+          </button>
+        </div>
       </div>
 
       {view === "liste" ? (
