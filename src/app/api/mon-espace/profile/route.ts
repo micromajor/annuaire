@@ -18,11 +18,7 @@ const UpdateProfileSchema = z.object({
     .or(z.literal("")),
   siteWeb: z.string().url("URL invalide").max(300).optional().or(z.literal("")),
   description: z.string().max(2000).optional().or(z.literal("")),
-  logoUrl: z
-    .string()
-    .max(3 * 1024 * 1024)
-    .optional()
-    .or(z.literal("")), // base64 ≤ ~2 Mo
+  logoUrl: z.string().url("URL de logo invalide").max(500).optional().or(z.literal("")),
   metierSlugs: z.array(z.string()).min(1, "Au moins un métier requis"),
   communeNoms: z.array(z.string()).min(1, "Au moins une commune requise"),
 });

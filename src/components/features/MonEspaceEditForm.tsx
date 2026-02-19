@@ -53,25 +53,36 @@ export default function MonEspaceEditForm({ artisan }: Props) {
 
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(false);
+  const [logoLoading, setLogoLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      setErrors((prev) => ({ ...prev, logoUrl: ["Image trop lourde (max 2 Mo)"] }));
-      return;
+
+    setLogoLoading(true);
+    setErrors((prev) => {
+      const n = { ...prev };
+      delete n.logoUrl;
+      return n;
+    });
+
+    const fd = new FormData();
+    fd.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload/logo", { method: "POST", body: fd });
+      const data = (await res.json()) as { url?: string; error?: string };
+      if (!res.ok || !data.url) {
+        setErrors((prev) => ({ ...prev, logoUrl: [data.error ?? "Erreur lors de l'upload"] }));
+        return;
+      }
+      setForm((prev) => ({ ...prev, logoUrl: data.url! }));
+    } catch {
+      setErrors((prev) => ({ ...prev, logoUrl: ["Impossible de contacter le serveur"] }));
+    } finally {
+      setLogoLoading(false);
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      setForm((prev) => ({ ...prev, logoUrl: reader.result as string }));
-      setErrors((prev) => {
-        const n = { ...prev };
-        delete n.logoUrl;
-        return n;
-      });
-    };
-    reader.readAsDataURL(file);
   }
 
   function toggleMulti<T>(arr: T[], value: T): T[] {
@@ -167,9 +178,11 @@ export default function MonEspaceEditForm({ artisan }: Props) {
                     background: "#ffd93d",
                     border: "3px solid #1a1a1a",
                     boxShadow: "2px 2px 0 #1a1a1a",
+                    opacity: logoLoading ? 0.6 : 1,
+                    pointerEvents: logoLoading ? "none" : "auto",
                   }}
                 >
-                  📁 Choisir une image
+                  {logoLoading ? "⏳ Upload…" : "📁 Choisir une image"}
                 </label>
                 <input
                   id="logo-upload"
