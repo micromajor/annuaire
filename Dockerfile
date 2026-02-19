@@ -55,15 +55,13 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-# CLI Prisma (évite de télécharger via npx à chaque démarrage)
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-# dotenv requis par prisma.config.ts
+# dotenv requis par prisma.config.ts (lu par npx prisma au démarrage)
 COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
 
 USER nextjs
 
 EXPOSE 3000
 
-# Lance les migrations puis démarre l'app
-# node_modules/prisma/build/index.js est le vrai point d'entrée (évite le problème de symlink .bin/)
-CMD ["sh", "-c", "if [ -n \"$DATABASE_URL\" ]; then node node_modules/prisma/build/index.js migrate deploy; else echo 'WARNING: DATABASE_URL not set, skipping migrations'; fi && node server.js"]
+# npx télécharge prisma avec toutes ses dépendances (dont valibot, @prisma/dev, etc.)
+# prisma.config.ts est présent → DATABASE_URL est lue correctement
+CMD ["sh", "-c", "npx --yes prisma@7.4.0 migrate deploy && node server.js"]
