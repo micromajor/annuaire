@@ -84,192 +84,235 @@ export default async function HomePage() {
   }
 
   return (
-    <div
-      className={`flex min-h-screen flex-col ${isArtisan ? "bg-[#6bcb77]" : isParticulier ? "bg-[#60c5f1]" : "bg-[#ffd93d]"}`}
-    >
-      {/* Header minimaliste */}
-      <header className="relative z-50 flex items-center justify-between px-6 py-4">
-        <Link
-          href="/"
-          className="bd-titre text-2xl text-[#1a1a2e] no-underline"
-          style={{ textShadow: "2px 2px 0 rgba(0,0,0,0.15)" }}
-        >
-          Oyez Artisans !
-        </Link>
-        <nav className="flex items-center gap-3">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([
+            {
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "@id": "https://oyezartisans.fr/#organization",
+              name: "Oyez Artisans !",
+              url: "https://oyezartisans.fr",
+              logo: "https://oyezartisans.fr/icon-512.png",
+              description:
+                "Annuaire hyperlocal d'artisans du bâtiment à Nantes et Est Loire-Atlantique",
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "customer service",
+                areaServed: "FR",
+                availableLanguage: "French",
+              },
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "@id": "https://oyezartisans.fr/#website",
+              url: "https://oyezartisans.fr",
+              name: "Oyez Artisans !",
+              description: "Annuaire d'artisans du bâtiment en Loire-Atlantique",
+              publisher: { "@id": "https://oyezartisans.fr/#organization" },
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate: "https://oyezartisans.fr/artisans?metier={metier}&commune={commune}",
+                },
+                "query-input": "required name=metier name=commune",
+              },
+              inLanguage: "fr-FR",
+            },
+          ]),
+        }}
+      />
+      <div
+        className={`flex min-h-screen flex-col ${isArtisan ? "bg-[#6bcb77]" : isParticulier ? "bg-[#60c5f1]" : "bg-[#ffd93d]"}`}
+      >
+        {/* Header minimaliste */}
+        <header className="relative z-50 flex items-center justify-between px-6 py-4">
+          <Link
+            href="/"
+            className="bd-titre text-2xl text-[#1a1a2e] no-underline"
+            style={{ textShadow: "2px 2px 0 rgba(0,0,0,0.15)" }}
+          >
+            Oyez Artisans !
+          </Link>
+          <nav className="flex items-center gap-3">
+            {isArtisan ? (
+              <>
+                <NavMessagerieIcon />
+                <Link
+                  href="/mon-espace"
+                  aria-label="Mon espace"
+                  title="Mon espace"
+                  className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </Link>
+                <form
+                  action={async () => {
+                    "use server";
+                    await signOut({ redirectTo: "/" });
+                  }}
+                >
+                  <button
+                    type="submit"
+                    aria-label="Se déconnecter"
+                    title="Se déconnecter"
+                    className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                  </button>
+                </form>
+              </>
+            ) : isParticulier ? (
+              <>
+                <NavMessagerieIcon />
+                <Link
+                  href="/mon-espace"
+                  aria-label="Mon espace"
+                  title="Mon espace"
+                  className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </Link>
+                <form
+                  action={async () => {
+                    "use server";
+                    await signOut({ redirectTo: "/" });
+                  }}
+                >
+                  <button
+                    type="submit"
+                    aria-label="Se déconnecter"
+                    title="Se déconnecter"
+                    className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/connexion"
+                  className="text-sm font-bold text-[#1a1a2e] underline-offset-2 hover:underline"
+                >
+                  Se connecter
+                </Link>
+              </>
+            )}
+          </nav>
+        </header>
+
+        {/* Hero */}
+        <main className="relative flex flex-1 flex-col items-center justify-center px-4 pt-8 pb-24">
+          <FloatingTools />
+
           {isArtisan ? (
-            <>
-              <NavMessagerieIcon />
-              <Link
-                href="/mon-espace"
-                aria-label="Mon espace"
-                title="Mon espace"
-                className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              </Link>
-              <form
-                action={async () => {
-                  "use server";
-                  await signOut({ redirectTo: "/" });
-                }}
-              >
-                <button
-                  type="submit"
-                  aria-label="Se déconnecter"
-                  title="Se déconnecter"
-                  className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16 17 21 12 16 7" />
-                    <line x1="21" y1="12" x2="9" y2="12" />
-                  </svg>
-                </button>
-              </form>
-            </>
+            /* --- Vue artisan connecté --- */
+            <div className="relative z-10 w-full max-w-5xl">
+              {/* Header artisan */}
+              <div className="mb-8 text-center">
+                <span className="bd-badge bd-badge-bleu bd-anim-pop mb-3 inline-flex">
+                  👋 Bonjour {artisanPrenom ?? "artisan"} !
+                </span>
+                <h1 className="bd-titre bd-anim-build text-4xl leading-tight text-[#1a1a2e] sm:text-5xl">
+                  Vous pourriez les intéresser
+                </h1>
+                <p className="mt-2 text-sm font-semibold text-[#1a1a2e]/60">
+                  Ces particuliers cherchent votre expertise dans votre zone.
+                </p>
+              </div>
+
+              {/* Liste / Carte des demandes matchantes */}
+              <ArtisanHomeView besoins={matchingBesoins} artisanCommunes={artisanCommunes} />
+            </div>
           ) : isParticulier ? (
-            <>
-              <NavMessagerieIcon />
-              <Link
-                href="/mon-espace"
-                aria-label="Mon espace"
-                title="Mon espace"
-                className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              </Link>
-              <form
-                action={async () => {
-                  "use server";
-                  await signOut({ redirectTo: "/" });
-                }}
-              >
-                <button
-                  type="submit"
-                  aria-label="Se déconnecter"
-                  title="Se déconnecter"
-                  className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16 17 21 12 16 7" />
-                    <line x1="21" y1="12" x2="9" y2="12" />
-                  </svg>
-                </button>
-              </form>
-            </>
+            /* --- Vue particulier connecté --- */
+            <ParticulierHome prenom={particulierPrenom} metiers={METIERS} />
           ) : (
-            <>
-              <Link
-                href="/connexion"
-                className="text-sm font-bold text-[#1a1a2e] underline-offset-2 hover:underline"
-              >
-                Se connecter
-              </Link>
-            </>
-          )}
-        </nav>
-      </header>
-
-      {/* Hero */}
-      <main className="relative flex flex-1 flex-col items-center justify-center px-4 pt-8 pb-24">
-        <FloatingTools />
-
-        {isArtisan ? (
-          /* --- Vue artisan connecté --- */
-          <div className="relative z-10 w-full max-w-5xl">
-            {/* Header artisan */}
-            <div className="mb-8 text-center">
-              <span className="bd-badge bd-badge-bleu bd-anim-pop mb-3 inline-flex">
-                👋 Bonjour {artisanPrenom ?? "artisan"} !
+            /* --- Vue visiteur --- */
+            <div className="relative z-10 w-full max-w-5xl text-center">
+              <span className="bd-badge bd-badge-bleu bd-anim-pop mb-8 inline-flex">
+                📍 Nantes &amp; Est Loire-Atlantique
               </span>
-              <h1 className="bd-titre bd-anim-build text-4xl leading-tight text-[#1a1a2e] sm:text-5xl">
-                Vous pourriez les intéresser
+              <h1 className="bd-titre bd-anim-build mb-10 text-5xl leading-tight text-[#1a1a2e] sm:text-7xl">
+                Trouvez votre artisan
               </h1>
-              <p className="mt-2 text-sm font-semibold text-[#1a1a2e]/60">
-                Ces particuliers cherchent votre expertise dans votre zone.
-              </p>
+              <div className="bd-anim-build" style={{ animationDelay: "0.15s" }}>
+                <HeroSearch metiers={METIERS} />
+              </div>
             </div>
+          )}
+        </main>
 
-            {/* Liste / Carte des demandes matchantes */}
-            <ArtisanHomeView besoins={matchingBesoins} artisanCommunes={artisanCommunes} />
-          </div>
-        ) : isParticulier ? (
-          /* --- Vue particulier connecté --- */
-          <ParticulierHome prenom={particulierPrenom} metiers={METIERS} />
-        ) : (
-          /* --- Vue visiteur --- */
-          <div className="relative z-10 w-full max-w-5xl text-center">
-            <span className="bd-badge bd-badge-bleu bd-anim-pop mb-8 inline-flex">
-              📍 Nantes &amp; Est Loire-Atlantique
-            </span>
-            <h1 className="bd-titre bd-anim-build mb-10 text-5xl leading-tight text-[#1a1a2e] sm:text-7xl">
-              Trouvez votre artisan
-            </h1>
-            <div className="bd-anim-build" style={{ animationDelay: "0.15s" }}>
-              <HeroSearch metiers={METIERS} />
+        {/* Footer minimaliste — style Google */}
+        <footer className="relative z-10 border-t-2 border-[#1a1a1a]/10 px-6 py-3">
+          <div className="mx-auto flex max-w-6xl items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
+            <span>© 2026 Oyez Artisans !</span>
+            <div className="flex gap-4">
+              <Link href="/mentions-legales" className="hover:text-[#1a1a2e]">
+                Mentions légales
+              </Link>
+              <Link href="/politique-confidentialite" className="hover:text-[#1a1a2e]">
+                Confidentialité
+              </Link>
             </div>
           </div>
-        )}
-      </main>
-
-      {/* Footer minimaliste — style Google */}
-      <footer className="relative z-10 border-t-2 border-[#1a1a1a]/10 px-6 py-3">
-        <div className="mx-auto flex max-w-6xl items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
-          <span>© 2026 Oyez Artisans !</span>
-          <div className="flex gap-4">
-            <Link href="/mentions-legales" className="hover:text-[#1a1a2e]">
-              Mentions légales
-            </Link>
-            <Link href="/politique-confidentialite" className="hover:text-[#1a1a2e]">
-              Confidentialité
-            </Link>
-          </div>
-        </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
+    </>
   );
 }

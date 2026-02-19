@@ -1,0 +1,322 @@
+export const revalidate = 3600;
+export const dynamicParams = true;
+
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { prisma } from "@/lib/db/client";
+import { METIERS, COMMUNES_NANTES_EST } from "@/constants";
+import { slugify } from "@/lib/utils/slugify";
+import ArtisanCard from "@/components/features/ArtisanCard";
+import type { Metadata } from "next";
+
+type PageProps = {
+  params: Promise<{ metier: string; commune: string }>;
+};
+
+// Pré-génère les 200 combinaisons métier × commune à la compilation
+export function generateStaticParams() {
+  return METIERS.flatMap((m) =>
+    COMMUNES_NANTES_EST.map((c) => ({
+      metier: m.slug,
+      commune: slugify(c.nom),
+    }))
+  );
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { metier, commune } = await params;
+  const metierInfo = METIERS.find((m) => m.slug === metier);
+  const communeInfo = COMMUNES_NANTES_EST.find((c) => slugify(c.nom) === commune);
+  if (!metierInfo || !communeInfo) return { title: "Page introuvable" };
+
+  const label = metierInfo.label;
+  const nom = communeInfo.nom;
+  const cp = communeInfo.codePostal;
+  const labelLow = label.toLowerCase();
+  const url = `https://oyezartisans.fr/artisans/${metier}/${commune}`;
+
+  const title = `${label} à ${nom} (${cp}) — Oyez Artisans !`;
+  const description = `Trouvez un ${labelLow} à ${nom} (${cp}) en Loire-Atlantique. Artisans du bâtiment vérifiés, fiches complètes, contact direct. Devis gratuit.`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+      locale: "fr_FR",
+      siteName: "Oyez Artisans !",
+    },
+    twitter: { card: "summary", title, description },
+  };
+}
+
+export default async function LandingMetierCommune({ params }: PageProps) {
+  const { metier, commune } = await params;
+  const metierInfo = METIERS.find((m) => m.slug === metier);
+  const communeInfo = COMMUNES_NANTES_EST.find((c) => slugify(c.nom) === commune);
+  if (!metierInfo || !communeInfo) notFound();
+
+  const label = metierInfo.label;
+  const labelLow = label.toLowerCase();
+  const nom = communeInfo.nom;
+  const cp = communeInfo.codePostal;
+
+  const artisans = await prisma.artisan.findMany({
+    where: {
+      status: "VALIDE",
+      deletedAt: null,
+      metiers: { some: { metier: { slug: metier } } },
+      communes: { some: { commune: { nom } } },
+    },
+    include: {
+      metiers: { include: { metier: true } },
+      communes: { include: { commune: true } },
+      avis: { where: { status: "VALIDE" }, select: { note: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // JSON-LD BreadcrumbList + ItemList
+  const jsonLdBreadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://oyezartisans.fr" },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Artisans",
+        item: "https://oyezartisans.fr/artisans",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: label,
+        item: `https://oyezartisans.fr/artisans?metier=${metier}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
+        name: `${label} à ${nom}`,
+        item: `https://oyezartisans.fr/artisans/${metier}/${commune}`,
+      },
+    ],
+  };
+
+  const jsonLdItemList = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `${label}s à ${nom}`,
+    description: `Liste des ${labelLow}s disponibles à ${nom} (${cp})`,
+    numberOfItems: artisans.length,
+    itemListElement: artisans.map((a, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "LocalBusiness",
+        "@id": `https://oyezartisans.fr/artisans/${a.id}`,
+        name: a.raisonSociale ?? `${a.prenom} ${a.nom}`,
+        url: `https://oyezartisans.fr/artisans/${a.id}`,
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: nom,
+          postalCode: cp,
+          addressCountry: "FR",
+        },
+        ...(a.telephone ? { telephone: a.telephone } : {}),
+        ...(a.avis.length > 0
+          ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: (a.avis.reduce((s, v) => s + v.note, 0) / a.avis.length).toFixed(1),
+                reviewCount: a.avis.length,
+                bestRating: 5,
+                worstRating: 1,
+              },
+            }
+          : {}),
+      },
+    })),
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdItemList) }}
+      />
+
+      <div className="flex min-h-screen flex-col bg-[#ffd93d]">
+        {/* Header */}
+        <header className="relative z-50 flex items-center justify-between px-6 py-4">
+          <Link
+            href="/"
+            className="bd-titre text-2xl text-[#1a1a2e] no-underline"
+            style={{ textShadow: "2px 2px 0 rgba(0,0,0,0.15)" }}
+          >
+            Oyez Artisans !
+          </Link>
+          <Link
+            href="/artisans"
+            className="text-sm font-bold text-[#1a1a2e] underline-offset-2 hover:underline"
+          >
+            Annuaire complet
+          </Link>
+        </header>
+
+        <main className="mx-auto w-full max-w-6xl px-4 pt-4 pb-16">
+          {/* Breadcrumb */}
+          <nav
+            className="mb-6 flex flex-wrap items-center gap-1 text-xs font-semibold text-[#1a1a2e]/60"
+            aria-label="Fil d'ariane"
+          >
+            <Link href="/" className="hover:text-[#1a1a2e]">
+              Accueil
+            </Link>
+            <span>&rsaquo;</span>
+            <Link href="/artisans" className="hover:text-[#1a1a2e]">
+              Artisans
+            </Link>
+            <span>&rsaquo;</span>
+            <Link href={`/artisans?metier=${metier}`} className="hover:text-[#1a1a2e]">
+              {label}
+            </Link>
+            <span>&rsaquo;</span>
+            <span className="text-[#1a1a2e]">{nom}</span>
+          </nav>
+
+          {/* H1 + intro */}
+          <div className="mb-8">
+            <h1 className="bd-titre text-4xl text-[#1a1a2e] sm:text-5xl">
+              {label} à {nom}
+            </h1>
+            <p className="mt-3 max-w-2xl text-lg font-semibold text-[#1a1a2e]/80">
+              {artisans.length > 0 ? (
+                <>
+                  {artisans.length} {labelLow}
+                  {artisans.length > 1 ? "s référencés" : " référencé"} à {nom} ({cp}).
+                  Contactez-les directement, sans intermédiaire.
+                </>
+              ) : (
+                <>
+                  Aucun {labelLow} référencé à {nom} pour le moment.{" "}
+                  <Link href="/artisans" className="underline">
+                    Consultez l&apos;annuaire complet.
+                  </Link>
+                </>
+              )}
+            </p>
+          </div>
+
+          {/* Grille artisans */}
+          {artisans.length > 0 ? (
+            <div className="mb-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {artisans.map((artisan) => (
+                <ArtisanCard key={artisan.id} artisan={artisan} />
+              ))}
+            </div>
+          ) : (
+            <div
+              className="mb-10 rounded-2xl border-4 border-[#1a1a1a] bg-white px-8 py-12 text-center"
+              style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
+            >
+              <p className="mb-4 text-4xl">&#128270;</p>
+              <p className="font-black text-[#1a1a2e]">
+                Pas encore de {labelLow} sur {nom}
+              </p>
+              <p className="mt-1 text-sm text-gray-500">
+                Mais il y en a peut-être dans les communes voisines !
+              </p>
+              <Link
+                href={`/artisans?metier=${metier}`}
+                className="mt-4 inline-block rounded-xl border-2 border-[#1a1a2e] bg-[#ffd93d] px-5 py-2.5 text-sm font-black text-[#1a1a2e] hover:bg-[#ffcf00]"
+              >
+                Voir tous les {labelLow}s de Loire-Atlantique
+              </Link>
+            </div>
+          )}
+
+          {/* Section informative SEO */}
+          <div
+            className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-8"
+            style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
+          >
+            <h2 className="bd-titre mb-4 text-2xl text-[#1a1a2e]">
+              Trouver un {labelLow} à {nom}
+            </h2>
+            <p className="mb-4 text-sm leading-relaxed text-gray-700">
+              Oyez Artisans ! est l&apos;annuaire hyperlocal des artisans du bâtiment autour de
+              Nantes et de l&apos;Est Loire-Atlantique. Chaque fiche est validée manuellement avant
+              mise en ligne. Vous trouverez ici des {labelLow}s à {nom} ({cp}) et dans les communes
+              voisines&nbsp;: Nantes, Saint-Herblain, Rezé, Carquefou, Vertou,
+              Saint-Sébastien-sur-Loire, etc.
+            </p>
+            <p className="text-sm leading-relaxed text-gray-700">
+              Contactez un {labelLow} directement depuis sa fiche&nbsp;: envoyez votre demande,
+              joignez des photos du chantier, et recevez une réponse sous 48h. Inscription gratuite
+              pour les artisans.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href={`/artisans?metier=${metier}`}
+                className="rounded-xl border-2 border-[#1a1a2e] bg-[#ffd93d] px-4 py-2 text-sm font-black text-[#1a1a2e] hover:bg-[#ffcf00]"
+              >
+                Tous les {labelLow}s de Loire-Atlantique
+              </Link>
+              <Link
+                href="/artisans"
+                className="rounded-xl border-2 border-[#1a1a2e] bg-white px-4 py-2 text-sm font-black text-[#1a1a2e] hover:bg-gray-50"
+              >
+                Annuaire complet
+              </Link>
+              <Link
+                href="/inscription"
+                className="rounded-xl border-2 border-[#6bcb77] bg-[#6bcb77] px-4 py-2 text-sm font-black text-white hover:bg-[#5ab868]"
+              >
+                Vous êtes {labelLow} ? Rejoignez-nous
+              </Link>
+            </div>
+          </div>
+
+          {/* Autres communes pour ce métier */}
+          <div className="mt-8">
+            <h2 className="mb-4 font-black text-[#1a1a2e]">{label} dans d&apos;autres communes</h2>
+            <div className="flex flex-wrap gap-2">
+              {COMMUNES_NANTES_EST.filter((c) => c.nom !== nom).map((c) => (
+                <Link
+                  key={c.nom}
+                  href={`/artisans/${metier}/${slugify(c.nom)}`}
+                  className="rounded-full border-2 border-[#1a1a2e]/30 bg-white px-3 py-1.5 text-xs font-bold text-[#1a1a2e] hover:border-[#1a1a2e] hover:bg-[#fff8f0]"
+                >
+                  {label} {c.nom}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </main>
+
+        <footer className="mt-auto border-t-2 border-[#1a1a1a]/10 px-6 py-3">
+          <div className="mx-auto flex max-w-6xl items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
+            <span>&copy; 2026 Oyez Artisans !</span>
+            <div className="flex gap-4">
+              <Link href="/mentions-legales" className="hover:text-[#1a1a2e]">
+                Mentions légales
+              </Link>
+              <Link href="/politique-confidentialite" className="hover:text-[#1a1a2e]">
+                Confidentialité
+              </Link>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </>
+  );
+}

@@ -16,11 +16,55 @@ interface SearchParams {
   page?: string;
 }
 
-export const metadata: Metadata = {
-  title: "Trouver votre artisan",
-  description:
-    "Annuaire des artisans du bâtiment sur Nantes et l'Est de la Loire-Atlantique. Filtrez par métier et commune.",
-};
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const metierSlug = Array.isArray(params.metier) ? params.metier[0] : params.metier;
+  const commune = params.commune;
+
+  const metierInfo = metierSlug ? METIERS.find((m) => m.slug === metierSlug) : null;
+
+  if (metierInfo && commune) {
+    const title = `${metierInfo.label} à ${commune} — Annuaire artisans`;
+    return {
+      title,
+      description: `Trouvez un ${metierInfo.label.toLowerCase()} à ${commune} en Loire-Atlantique. Artisans du bâtiment vérifiés, contact direct.`,
+      alternates: {
+        canonical: `https://oyezartisans.fr/artisans/${metierInfo.slug}/${commune
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/\s+/g, "-")}`,
+      },
+    };
+  }
+
+  if (metierInfo) {
+    const title = `${metierInfo.label} en Loire-Atlantique — Annuaire artisans`;
+    return {
+      title,
+      description: `Trouvez un ${metierInfo.label.toLowerCase()} à Nantes et en Loire-Atlantique. Fiches vérifiées, contact direct sans intermédiaire.`,
+      alternates: { canonical: `https://oyezartisans.fr/artisans?metier=${metierInfo.slug}` },
+    };
+  }
+
+  return {
+    title: "Annuaire des artisans du bâtiment — Nantes & Loire-Atlantique",
+    description:
+      "Trouvez maçon, plombier, électricien, menuisier, couvreur et autres artisans du bâtiment à Nantes et en Loire-Atlantique. Fiches vérifiées, contact direct.",
+    alternates: { canonical: "https://oyezartisans.fr/artisans" },
+    openGraph: {
+      title: "Annuaire artisans — Nantes & Loire-Atlantique",
+      description:
+        "Maçon, plombier, électricien… Artisans du bâtiment vérifiés à Nantes et Est Loire-Atlantique.",
+      url: "https://oyezartisans.fr/artisans",
+      type: "website",
+    },
+  };
+}
 
 export default async function ArtisansPage({
   searchParams,

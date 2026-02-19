@@ -18,21 +18,66 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://oyezartisans.fr"),
   title: {
     default: "Oyez Artisans ! — Trouvez votre artisan près de chez vous",
     template: "%s | Oyez Artisans !",
   },
   description:
-    "Oyez Artisans ! : annuaire hyperlocal d'artisans du bâtiment à Nantes et Est Loire-Atlantique. Maçon, plombier, électricien, menuisier… Trouvez et contactez directement votre artisan près de chez vous.",
+    "Annuaire hyperlocal d’artisans du bâtiment à Nantes et Est Loire-Atlantique. Maçon, plombier, électricien, menuisier… Trouvez et contactez directement votre artisan près de chez vous.",
   keywords: [
     "artisan",
     "annuaire artisan",
-    "bâtiment",
+    "artisan bâtiment",
     "rénovation",
-    "plombier",
-    "électricien",
+    "plombier Nantes",
+    "électricien Nantes",
+    "maçon Loire-Atlantique",
+    "menuisier Nantes",
+    "couvreur Nantes",
+    "travaux maison",
+    "devis artisan",
     "oyezartisans",
+    "Loire-Atlantique",
+    "44",
   ],
+  authors: [{ name: "Oyez Artisans !", url: "https://oyezartisans.fr" }],
+  creator: "Oyez Artisans !",
+  publisher: "Oyez Artisans !",
+  alternates: {
+    canonical: "https://oyezartisans.fr",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    url: "https://oyezartisans.fr",
+    siteName: "Oyez Artisans !",
+    title: "Oyez Artisans ! — Artisans du bâtiment à Nantes et Loire-Atlantique",
+    description:
+      "Annuaire hyperlocal d’artisans vérifiés. Contact direct, sans intermédiaire. Nantes et Est Loire-Atlantique.",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Oyez Artisans !" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Oyez Artisans ! — Artisans du bâtiment à Nantes",
+    description: "Annuaire hyperlocal d’artisans vérifiés en Loire-Atlantique.",
+    images: ["/og-image.jpg"],
+  },
+  icons: {
+    icon: [{ url: "/favicon.ico" }, { url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/apple-icon.png" }],
+  },
 };
 
 export default function RootLayout({
