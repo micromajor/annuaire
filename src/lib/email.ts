@@ -36,7 +36,7 @@ export async function sendNouveauMessageEmail({
         <!-- Header -->
         <tr>
           <td style="background:#1a1a2e;padding:20px 28px;">
-            <p style="margin:0;font-size:22px;font-weight:900;color:#ffd93d;letter-spacing:-0.5px;">🔨 OyezArtisans</p>
+            <p style="margin:0;font-size:22px;font-weight:900;color:#ffd93d;letter-spacing:-0.5px;">Oyez Artisans !</p>
           </td>
         </tr>
         <!-- Body -->

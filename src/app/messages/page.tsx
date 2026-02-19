@@ -49,7 +49,7 @@ export default function MessagesPage() {
       <header className="border-b-4 border-[#1a1a1a] bg-[#1a1a2e] px-6 py-4">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <Link href="/" className="bd-titre text-xl" style={{ color: accent }}>
-            🔨 OyezArtisans
+            Oyez Artisans !
           </Link>
           <Link
             href="/mon-espace"

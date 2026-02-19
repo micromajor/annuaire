@@ -73,7 +73,7 @@ function ConnexionForm() {
     >
       <div className="mb-6 text-center">
         <Link href="/" className="bd-titre text-2xl text-[#1a1a2e]">
-          🔨 OyezArtisans
+          Oyez Artisans !
         </Link>
         <p className="mt-1 text-sm text-gray-500">
           {step === "email"

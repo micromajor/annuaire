@@ -20,7 +20,7 @@ export default function Header() {
             className="bd-titre text-2xl text-[#ffd93d] sm:text-3xl"
             style={{ textShadow: "2px 2px 0px #1a1a1a" }}
           >
-            🔨 OyezArtisans
+            Oyez Artisans !
           </span>
           <span className="bd-badge bd-badge-rouge hidden sm:inline-flex">Nantes Est</span>
         </Link>

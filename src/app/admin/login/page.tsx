@@ -39,7 +39,7 @@ function AdminLoginForm() {
       <div className="bd-card w-full max-w-sm p-8">
         {/* Logo */}
         <div className="mb-6 text-center">
-          <div className="bd-titre mb-1 text-3xl text-[#1a1a2e]">🔨 OyezArtisans</div>
+          <div className="bd-titre mb-1 text-3xl text-[#1a1a2e]">Oyez Artisans !</div>
           <div className="bd-badge bd-badge-rouge inline-flex">Back-office</div>
         </div>
 

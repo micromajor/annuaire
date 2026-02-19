@@ -94,7 +94,7 @@ export default async function HomePage() {
           className="bd-titre text-2xl text-[#1a1a2e] no-underline"
           style={{ textShadow: "2px 2px 0 rgba(0,0,0,0.15)" }}
         >
-          🔨 OyezArtisans
+          Oyez Artisans !
         </Link>
         <nav className="flex items-center gap-3">
           {isArtisan ? (
@@ -259,7 +259,7 @@ export default async function HomePage() {
       {/* Footer minimaliste — style Google */}
       <footer className="relative z-10 border-t-2 border-[#1a1a1a]/10 px-6 py-3">
         <div className="mx-auto flex max-w-6xl items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
-          <span>© 2026 OyezArtisans</span>
+          <span>© 2026 Oyez Artisans !</span>
           <div className="flex gap-4">
             <Link href="/mentions-legales" className="hover:text-[#1a1a2e]">
               Mentions légales

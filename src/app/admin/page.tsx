@@ -81,7 +81,7 @@ export default async function AdminPage() {
       {/* Header admin */}
       <header className="border-b-4 border-[#1a1a1a] bg-[#1a1a2e] px-6 py-3">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <span className="bd-titre text-2xl text-[#ffd93d]">🔨 OyezArtisans — Admin</span>
+          <span className="bd-titre text-2xl text-[#ffd93d]">Oyez Artisans ! — Admin</span>
           <AdminLogoutButton />
         </div>
       </header>

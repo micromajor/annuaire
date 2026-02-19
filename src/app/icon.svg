@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Fond jaune avec bordure BD -->
+  <rect width="32" height="32" rx="5" fill="#ffd93d"/>
+  <rect width="32" height="32" rx="5" fill="none" stroke="#1a1a2e" stroke-width="2.5"/>
+  <!-- "O!" centré, police Impact (proche de Bangers), noir -->
+  <text
+    x="16"
+    y="23"
+    font-family="Impact, 'Arial Black', sans-serif"
+    font-size="18"
+    font-weight="900"
+    fill="#1a1a2e"
+    text-anchor="middle"
+    letter-spacing="0.5"
+  >O!</text>
+</svg>

@@ -50,7 +50,7 @@ export default async function MonEspacePage() {
         <header className="border-b-4 border-[#1a1a1a] bg-[#1a1a2e] px-6 py-4">
           <div className="mx-auto flex max-w-3xl items-center justify-between">
             <Link href="/" className="bd-titre text-xl text-[#60c5f1]">
-              🔨 OyezArtisans
+              Oyez Artisans !
             </Link>
             <form
               action={async () => {
@@ -202,7 +202,7 @@ export default async function MonEspacePage() {
       <header className="border-b-4 border-[#1a1a1a] bg-[#1a1a2e] px-6 py-4">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <Link href="/" className="bd-titre text-xl text-[#6bcb77]">
-            🔨 OyezArtisans
+            Oyez Artisans !
           </Link>
           <div className="flex items-center gap-4">
             <span className="text-sm font-bold text-white">{nomAffiche}</span>
