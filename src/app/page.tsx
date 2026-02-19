@@ -8,6 +8,7 @@ import ArtisanHomeView from "@/components/features/ArtisanHomeView";
 import ParticulierHome from "@/components/features/ParticulierHome";
 import { METIERS } from "@/constants";
 import { auth, signOut } from "@/lib/auth";
+import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import { prisma } from "@/lib/db/client";
 import AutoSignOut from "@/components/ui/AutoSignOut";
 
@@ -98,6 +99,7 @@ export default async function HomePage() {
         <nav className="flex items-center gap-3">
           {isArtisan ? (
             <>
+              <NavMessagerieIcon />
               <Link
                 href="/mon-espace"
                 className="text-sm font-bold text-[#1a1a2e] underline-offset-2 hover:underline"
@@ -121,6 +123,7 @@ export default async function HomePage() {
             </>
           ) : isParticulier ? (
             <>
+              <NavMessagerieIcon />
               <Link
                 href="/mon-espace"
                 className="text-sm font-bold text-[#1a1a2e] underline-offset-2 hover:underline"
