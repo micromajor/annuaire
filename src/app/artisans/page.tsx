@@ -11,7 +11,7 @@ import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import type { Metadata } from "next";
 
 interface SearchParams {
-  metier?: string;
+  metier?: string | string[];
   commune?: string;
   page?: string;
 }
@@ -32,10 +32,19 @@ export default async function ArtisansPage({
   const page = Math.max(1, parseInt(params.page ?? "1", 10));
   const skip = (page - 1) * PAGINATION.ARTISANS_PAR_PAGE;
 
+  // Normalise metier en tableau (peut être string ou string[] selon Next.js)
+  const metierSlugs = params.metier
+    ? Array.isArray(params.metier)
+      ? params.metier
+      : [params.metier]
+    : [];
+
   const where = {
     status: "VALIDE" as const,
     deletedAt: null,
-    ...(params.metier ? { metiers: { some: { metier: { slug: params.metier } } } } : {}),
+    ...(metierSlugs.length > 0
+      ? { metiers: { some: { metier: { slug: { in: metierSlugs } } } } }
+      : {}),
     ...(params.commune ? { communes: { some: { commune: { nom: params.commune } } } } : {}),
   };
 
@@ -152,7 +161,7 @@ export default async function ArtisansPage({
           <FiltresArtisans
             metiers={METIERS}
             communes={COMMUNES_NANTES_EST}
-            currentMetier={params.metier}
+            currentMetiers={metierSlugs}
             currentCommune={params.commune}
           />
 
@@ -180,21 +189,23 @@ export default async function ArtisansPage({
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="mt-10 flex items-center justify-center gap-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <a
-                  key={p}
-                  href={`/artisans?${new URLSearchParams({
-                    ...(params.metier ? { metier: params.metier } : {}),
-                    ...(params.commune ? { commune: params.commune } : {}),
-                    page: String(p),
-                  })}`}
-                  className={`bd-btn ${
-                    p === page ? "bd-btn-secondary" : "bd-btn-outline"
-                  } px-3 py-1 text-sm`}
-                >
-                  {p}
-                </a>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+                const paginationParams = new URLSearchParams();
+                for (const m of metierSlugs) paginationParams.append("metier", m);
+                if (params.commune) paginationParams.set("commune", params.commune);
+                paginationParams.set("page", String(p));
+                return (
+                  <a
+                    key={p}
+                    href={`/artisans?${paginationParams}`}
+                    className={`bd-btn ${
+                      p === page ? "bd-btn-secondary" : "bd-btn-outline"
+                    } px-3 py-1 text-sm`}
+                  >
+                    {p}
+                  </a>
+                );
+              })}
             </div>
           )}
         </div>

@@ -2,26 +2,27 @@
 
 import { useRouter } from "next/navigation";
 import type { METIERS, COMMUNES_NANTES_EST } from "@/constants";
+import MultiCombobox from "@/components/ui/MultiCombobox";
 import Combobox from "@/components/ui/Combobox";
 
 interface FiltresArtisansProps {
   metiers: typeof METIERS;
   communes: typeof COMMUNES_NANTES_EST;
-  currentMetier?: string;
+  currentMetiers: string[];
   currentCommune?: string;
 }
 
 export default function FiltresArtisans({
   metiers,
   communes,
-  currentMetier,
+  currentMetiers,
   currentCommune,
 }: FiltresArtisansProps) {
   const router = useRouter();
 
-  function navigate(metier: string, commune: string) {
+  function navigate(selectedMetiers: string[], commune: string) {
     const params = new URLSearchParams();
-    if (metier) params.set("metier", metier);
+    for (const m of selectedMetiers) params.append("metier", m);
     if (commune) params.set("commune", commune);
     router.push(`/artisans${params.size ? `?${params}` : ""}`);
   }
@@ -35,21 +36,21 @@ export default function FiltresArtisans({
 
   return (
     <div className="space-y-3">
-      <Combobox
+      <MultiCombobox
         options={metierOptions}
-        value={currentMetier ?? ""}
+        values={currentMetiers}
         onChange={(v) => navigate(v, currentCommune ?? "")}
-        placeholder="Tous les metiers"
-        allLabel="Tous les metiers"
-        label="Corps de metier"
+        placeholder="Tous les métiers"
+        allLabel="Tous les métiers"
+        label="Corps de métier"
       />
       <Combobox
         options={communeOptions}
         value={currentCommune ?? ""}
-        onChange={(v) => navigate(currentMetier ?? "", v)}
+        onChange={(v) => navigate(currentMetiers, v)}
         placeholder="Toutes les communes"
         allLabel="Toutes les communes"
-        label="Commune"
+        label="Commune du projet"
       />
     </div>
   );
