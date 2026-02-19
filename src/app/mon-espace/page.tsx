@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { auth, signOut } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/client";

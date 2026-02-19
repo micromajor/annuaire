@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { notFound } from "next/navigation";
 import EditProfilForm from "@/components/features/EditProfilForm";
 import { prisma } from "@/lib/db/client";

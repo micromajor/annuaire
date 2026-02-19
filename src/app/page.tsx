@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import FloatingTools from "@/components/ui/FloatingTools";
 import HeroSearch from "@/components/features/HeroSearch";

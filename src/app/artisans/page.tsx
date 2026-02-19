@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { prisma } from "@/lib/db/client";
 import { METIERS, COMMUNES_NANTES_EST, PAGINATION } from "@/constants";
 import Header from "@/components/layout/Header";
