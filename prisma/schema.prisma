@@ -95,6 +95,7 @@ model ContactRequest {
   typeTraux    String
   avisToken    String?  @unique // token à usage unique pour laisser un avis
   avisUsed     Boolean  @default(false) // true une fois l'avis soumis
+  photos       Json?    // tableau d'URLs de photos jointes à la demande
   createdAt    DateTime @default(now())
 
   artisan Artisan @relation(fields: [artisanId], references: [id], onDelete: Cascade)

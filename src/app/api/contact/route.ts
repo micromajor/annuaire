@@ -60,6 +60,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     clientTel,
     message,
     typeTraux,
+    photos,
   } = parse.data;
 
   // Vérification artisan
@@ -83,6 +84,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       message,
       typeTraux,
       avisToken,
+      photos: photos ?? [],
     },
   });
 

@@ -2,10 +2,12 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { contactFormSchema, type ContactFormData } from "@/lib/validators/schemas";
 import { TYPES_TRAVAUX } from "@/constants";
 import ToolsConfetti from "@/components/ui/ToolsConfetti";
+
+const MAX_PHOTOS = 6;
 
 interface ContactFormProps {
   artisanId: string;
@@ -14,6 +16,10 @@ interface ContactFormProps {
 
 export default function ContactForm({ artisanId, artisanNom }: ContactFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -30,17 +36,45 @@ export default function ContactForm({ artisanId, artisanNom }: ContactFormProps)
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, artisanId }),
+        body: JSON.stringify({ ...data, artisanId, photos }),
       });
 
       if (!res.ok) throw new Error("Erreur serveur");
 
       setStatus("success");
       reset();
+      setPhotos([]);
     } catch {
       setStatus("error");
     }
   };
+
+  async function handlePhotoUpload(files: FileList) {
+    setPhotoError(null);
+    const remaining = MAX_PHOTOS - photos.length;
+    if (remaining <= 0) {
+      setPhotoError(`Maximum ${MAX_PHOTOS} photos.`);
+      return;
+    }
+    const toUpload = Array.from(files).slice(0, remaining);
+    const fd = new FormData();
+    toUpload.forEach((f) => fd.append("files", f));
+    setUploading(true);
+    try {
+      const res = await fetch("/api/upload/contact", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) {
+        setPhotoError(data.error ?? "Erreur upload");
+      } else {
+        setPhotos((prev) => [...prev, ...(data.urls as string[])].slice(0, MAX_PHOTOS));
+      }
+    } catch {
+      setPhotoError("Erreur réseau lors de l'upload.");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
 
   if (status === "success") {
     return (
@@ -147,6 +181,60 @@ export default function ContactForm({ artisanId, artisanNom }: ContactFormProps)
         {errors.message && (
           <p className="mt-1 text-xs font-semibold text-[#ff6b6b]">{errors.message.message}</p>
         )}
+      </div>
+
+      {/* Photos de chantier */}
+      <div>
+        <label className="mb-1 block text-sm font-bold text-[#1a1a2e]">
+          Photos du chantier{" "}
+          <span className="font-normal text-gray-400">(optionnel, max {MAX_PHOTOS})</span>
+        </label>
+        {photos.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-2">
+            {photos.map((url, i) => (
+              <div
+                key={url}
+                className="group relative h-20 w-20 overflow-hidden rounded-lg border-2 border-[#1a1a2e]"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt={`Photo ${i + 1}`} className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setPhotos((p) => p.filter((u) => u !== url))}
+                  className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-label="Supprimer"
+                >
+                  <span className="rounded-full bg-[#ff6b6b] px-1.5 py-0.5 text-xs font-black text-white">
+                    &#10005;
+                  </span>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        {photos.length < MAX_PHOTOS && (
+          <label
+            className={`flex cursor-pointer items-center gap-2 rounded-xl border-2 border-dashed border-[#1a1a2e]/30 bg-[#fafafa] px-4 py-3 text-sm font-semibold text-[#1a1a2e] transition-colors hover:border-[#1a1a2e] hover:bg-[#fff8f0] ${
+              uploading ? "pointer-events-none opacity-50" : ""
+            }`}
+          >
+            <span>&#128444;</span>
+            <span>
+              {uploading
+                ? "Upload en cours…"
+                : `Ajouter des photos (${MAX_PHOTOS - photos.length} restant${MAX_PHOTOS - photos.length > 1 ? "s" : ""})`}
+            </span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/jpeg,image/png,image/webp"
+              className="sr-only"
+              onChange={(e) => e.target.files && handlePhotoUpload(e.target.files)}
+            />
+          </label>
+        )}
+        {photoError && <p className="mt-1 text-xs font-semibold text-[#ff6b6b]">{photoError}</p>}
       </div>
 
       {/* Consentement RGPD */}

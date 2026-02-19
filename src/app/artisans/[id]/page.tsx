@@ -4,14 +4,13 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db/client";
 import { auth, signOut } from "@/lib/auth";
-import { COMMUNES_NANTES_EST } from "@/constants";
 import ContactForm from "@/components/features/ContactForm";
 import AvisList from "@/components/features/AvisList";
 import AvisForm from "@/components/features/AvisForm";
 import MessagerieButton from "@/components/features/MessagerieButton";
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
+import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapper";
 import PortfolioPhotos from "@/components/features/PortfolioPhotos";
-import CarteZoneWrapper from "@/components/features/CarteZoneWrapper";
 import type { Metadata } from "next";
 
 const METIER_EMOJIS: Record<string, string> = {
@@ -74,14 +73,7 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
   const portfolioPhotos = Array.isArray(artisan.portfolioPhotos)
     ? (artisan.portfolioPhotos as string[])
     : [];
-  const communesAvecCoords = artisan.communes
-    .map(({ commune }) => {
-      const found = COMMUNES_NANTES_EST.find((c) => c.nom === commune.nom);
-      return found
-        ? { nom: commune.nom, codePostal: commune.codePostal, lat: found.lat, lng: found.lng }
-        : null;
-    })
-    .filter((c): c is NonNullable<typeof c> => c !== null);
+  const communeNoms = artisan.communes.map(({ commune }) => commune.nom);
   const firstSlug = artisan.metiers[0]?.metier.slug ?? "";
   const artisanEmoji = METIER_EMOJIS[firstSlug] ?? "&#128295;";
   const moyenne =
@@ -164,7 +156,7 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
         </nav>
       </header>
 
-      <main className="mx-auto w-full max-w-4xl px-4 pt-6 pb-16">
+      <main className="mx-auto w-full max-w-6xl px-4 pt-6 pb-16">
         <nav className="mb-6 text-sm font-semibold text-[#1a1a2e]/60">
           <Link href="/artisans" className="hover:text-[#1a1a2e]">
             &larr; Retour &agrave; l&apos;annuaire
@@ -245,9 +237,9 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
 
               <div>
                 <h2 className="mb-3 font-black text-[#1a1a2e]">Zone d&apos;intervention</h2>
-                {communesAvecCoords.length > 0 && (
+                {communeNoms.length > 0 && (
                   <div className="mb-3 overflow-hidden rounded-xl border-2 border-[#1a1a2e]">
-                    <CarteZoneWrapper communes={communesAvecCoords} />
+                    <CarteZoneLectureWrapper communeNoms={communeNoms} />
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2">
