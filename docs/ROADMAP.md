@@ -64,7 +64,10 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] Header + Footer
 - [x] Page d'accueil : HeroSearch inline (recherche + split panel Google-style + responsive mobile)
 - [x] Page liste artisans `/artisans` (filtres métier + commune, pagination, SSR/SEO) — accès via "Voir tous les résultats" uniquement
+- [x] Harmonisation page `/artisans` : fond jaune, header inline, FloatingTools, badge — cohérent avec home
+- [x] Filtres multi-métiers : MultiCombobox (multi-select badges), commune par zone, layout flex-2/flex-1
 - [x] Page fiche artisan (détail complet + sidebar coordonnées)
+- [x] Restyling fiche artisan : fond jaune, header/footer inline, note moyenne, sidebar sticky
 - [x] Page 404 custom thème BD
 - [x] Responsive mobile-first (barre de recherche verticale, liste/panel plein écran, bouton retour)
 - [x] Animation split panel desktop 38/62% + slideUpFade résultats
@@ -115,6 +118,7 @@ V4 — Communauté locale (clients, assos, territorio)
 ## Phase 3 — Avis & confiance _(en cours)_
 
 - [x] Système d'avis clients (formulaire sur fiche, modération admin, affichage avec note/moyenne)
+- [x] Avis anti-fraude : token UUID unique généré au contact, lien dans email confirmation, validation token côté API, transaction atomique (créer avis + marquer token utilisé)
 - [ ] Badge "Coup de cœur" artisan (sélection éditoriale)
 
 ---
