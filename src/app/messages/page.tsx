@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface Conversation {
   id: string;
@@ -24,6 +25,9 @@ export default function MessagesPage() {
   const [convs, setConvs] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { data: session } = useSession();
+  const role = (session?.user as { role?: string })?.role;
+  const accent = role === "artisan" ? "#6bcb77" : "#60c5f1";
 
   useEffect(() => {
     fetch("/api/conversations")
@@ -44,12 +48,15 @@ export default function MessagesPage() {
     <div className="min-h-screen bg-[#fff8f0]">
       <header className="border-b-4 border-[#1a1a1a] bg-[#1a1a2e] px-6 py-4">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Link href="/" className="bd-titre text-xl text-[#60c5f1]">
+          <Link href="/" className="bd-titre text-xl" style={{ color: accent }}>
             🔨 OyezArtisans
           </Link>
           <Link
             href="/mon-espace"
-            className="rounded-lg border-2 border-[#60c5f1] px-3 py-1.5 text-xs font-bold text-[#60c5f1] hover:bg-[#60c5f1] hover:text-[#1a1a2e]"
+            className="rounded-lg border-2 px-3 py-1.5 text-xs font-bold transition-colors hover:text-[#1a1a2e]"
+            style={{ borderColor: accent, color: accent }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = accent)}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
           >
             ← Mon espace
           </Link>

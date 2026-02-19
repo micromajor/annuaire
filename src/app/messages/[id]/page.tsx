@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface Message {
   id: string;
@@ -35,6 +36,8 @@ export default function ConversationPage() {
   const [contenu, setContenu] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { data: session } = useSession();
+  const accent = (session?.user as { role?: string })?.role === "artisan" ? "#6bcb77" : "#60c5f1";
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -92,10 +95,14 @@ export default function ConversationPage() {
     }
   }
 
-  const nomArtisan = conversation
-    ? (conversation.artisan.raisonSociale ??
-      `${conversation.artisan.prenom} ${conversation.artisan.nom}`)
+  const nomInterlocuteur = conversation
+    ? myRole === "artisan"
+      ? `${conversation.particulier.prenom} ${conversation.particulier.nom}`
+      : (conversation.artisan.raisonSociale ??
+        `${conversation.artisan.prenom} ${conversation.artisan.nom}`)
     : "…";
+  const avatarUrl = myRole === "artisan" ? null : (conversation?.artisan.logoUrl ?? null);
+  const avatarEmoji = myRole === "artisan" ? "👤" : "🔨";
 
   return (
     <div className="flex h-screen flex-col bg-[#fff8f0]">
@@ -104,7 +111,8 @@ export default function ConversationPage() {
         <div className="mx-auto flex max-w-2xl items-center gap-3">
           <Link
             href="/messages"
-            className="shrink-0 text-lg font-bold text-[#60c5f1] hover:opacity-80"
+            className="shrink-0 text-lg font-bold hover:opacity-80"
+            style={{ color: accent }}
             aria-label="Retour"
           >
             ←
@@ -112,23 +120,21 @@ export default function ConversationPage() {
           {/* Avatar */}
           <div
             className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#fff8f0] text-base"
-            style={{ border: "2px solid #60c5f1" }}
+            style={{ border: `2px solid ${accent}` }}
           >
-            {conversation?.artisan.logoUrl ? (
+            {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={conversation.artisan.logoUrl}
-                alt=""
-                className="h-full w-full object-contain"
-              />
+              <img src={avatarUrl} alt="" className="h-full w-full object-contain" />
             ) : (
-              "🔨"
+              avatarEmoji
             )}
           </div>
           <div className="min-w-0">
-            <p className="truncate font-black text-white">{nomArtisan}</p>
+            <p className="truncate font-black text-white">{nomInterlocuteur}</p>
             {conversation && (
-              <p className="truncate text-xs text-[#60c5f1]/70">{conversation.sujet}</p>
+              <p className="truncate text-xs opacity-70" style={{ color: accent }}>
+                {conversation.sujet}
+              </p>
             )}
           </div>
         </div>
@@ -160,7 +166,7 @@ export default function ConversationPage() {
                         ? "rounded-br-sm bg-[#1a1a2e] text-white"
                         : "rounded-bl-sm bg-white text-[#1a1a2e]"
                     }`}
-                    style={{ boxShadow: isMine ? "3px 3px 0 #60c5f1" : "3px 3px 0 #1a1a1a" }}
+                    style={{ boxShadow: isMine ? `3px 3px 0 ${accent}` : "3px 3px 0 #1a1a1a" }}
                   >
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{m.contenu}</p>
                     <p
@@ -192,8 +198,8 @@ export default function ConversationPage() {
             placeholder="Votre message…"
             rows={2}
             maxLength={2000}
-            className="flex-1 resize-none rounded-xl border-3 border-[#1a1a1a] bg-[#fff8f0] px-3 py-2 text-sm font-medium text-[#1a1a2e] placeholder-gray-400 focus:ring-2 focus:ring-[#60c5f1] focus:outline-none"
-            style={{ boxShadow: "2px 2px 0 #1a1a1a" }}
+            className="flex-1 resize-none rounded-xl border-3 border-[#1a1a1a] bg-[#fff8f0] px-3 py-2 text-sm font-medium text-[#1a1a2e] placeholder-gray-400 focus:outline-none"
+            style={{ boxShadow: "2px 2px 0 #1a1a1a", outlineColor: accent }}
           />
           <button
             type="submit"
