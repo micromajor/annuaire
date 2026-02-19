@@ -53,21 +53,14 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Schéma Prisma pour les migrations au démarrage
-# prisma.config.ts est copié pour que npx prisma migrate deploy trouve la DATABASE_URL
-# node_modules/prisma est copié pour que `import "prisma/config"` soit résolvable
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
-COPY --from=builder /app/node_modules/valibot ./node_modules/valibot
+# node_modules complet pour que prisma migrate deploy fonctionne (@prisma/dev + toutes ses dépendances)
+COPY --from=builder /app/node_modules ./node_modules
 
 USER nextjs
 
 EXPOSE 3000
 
-# Démarre directement l'app Next.js
-# Les migrations Prisma sont lancées manuellement via Coolify Terminal
-# (npx prisma migrate deploy) ou pré-déployées via un script dédié
-CMD ["node", "server.js"]
+# Lance les migrations Prisma puis démarre l'app
+CMD ["sh", "-c", "node node_modules/prisma/build/index.js migrate deploy && node server.js"]
