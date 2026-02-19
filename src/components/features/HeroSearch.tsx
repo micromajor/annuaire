@@ -206,9 +206,7 @@ export default function HeroSearch({ metiers }: HeroSearchProps) {
       {/* Mobile : empilement vertical centré */}
       {/* Desktop : ligne horizontale */}
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:flex-nowrap sm:justify-center sm:gap-x-3">
-        <span className="bd-titre text-3xl text-[#1a1a2e] sm:shrink-0 sm:text-4xl">
-          Je cherche un
-        </span>
+        <span className="bd-titre text-3xl text-[#1a1a2e] sm:shrink-0 sm:text-4xl">Trouver</span>
 
         <div className="flex w-full items-center gap-3 sm:contents">
           <Combobox
