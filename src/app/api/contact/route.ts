@@ -72,6 +72,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   // Sauvegarde en base
+  const avisToken = crypto.randomUUID();
   await prisma.contactRequest.create({
     data: {
       artisanId,
@@ -81,8 +82,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       clientTel: clientTel ?? null,
       message,
       typeTraux,
+      avisToken,
     },
   });
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://oyezartisans.fr";
+  const avisUrl = `${appUrl}/artisans/${artisanId}?avisToken=${avisToken}#avis`;
 
   // Email (Resend — sera activé quand la clé API sera configurée)
   if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "re_placeholder") {
@@ -119,6 +124,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           <p>Votre demande a été transmise à <strong>${nomArtisan}</strong>. Vous devriez recevoir une réponse sous 48h.</p>
           <p>Récapitulatif de votre message :</p>
           <blockquote>${message.replace(/\n/g, "<br>")}</blockquote>
+          <hr />
+          <p>Une fois vos travaux terminés, vous pouvez laisser un avis sur ${nomArtisan} :</p>
+          <p><a href="${avisUrl}" style="background:#ffd93d;color:#1a1a2e;padding:10px 20px;border-radius:8px;font-weight:bold;text-decoration:none;">⭐ Laisser un avis</a></p>
+          <p style="font-size:12px;color:#999;">Ce lien est personnel et à usage unique.</p>
         `,
       });
     } catch (emailError) {
@@ -127,5 +136,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
   }
 
-  return NextResponse.json({ success: true }, { status: 201 });
+  return NextResponse.json(
+    { success: true, avisToken, avisUrl: `/artisans/${artisanId}?avisToken=${avisToken}#avis` },
+    { status: 201 }
+  );
 }

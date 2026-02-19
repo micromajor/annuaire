@@ -92,6 +92,8 @@ model ContactRequest {
   clientTel    String?
   message      String   @db.VarChar(1000)
   typeTraux    String
+  avisToken    String?  @unique // token à usage unique pour laisser un avis
+  avisUsed     Boolean  @default(false) // true une fois l'avis soumis
   createdAt    DateTime @default(now())
 
   artisan Artisan @relation(fields: [artisanId], references: [id], onDelete: Cascade)

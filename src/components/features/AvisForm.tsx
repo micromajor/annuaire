@@ -6,11 +6,12 @@ import type { AvisData } from "@/lib/validators/schemas";
 interface AvisFormProps {
   artisanId: string;
   artisanNom: string;
+  token?: string; // token issu du lien de confirmation de contact
 }
 
 const STAR_LABELS = ["", "Mauvais", "Moyen", "Bien", "Très bien", "Excellent"];
 
-export default function AvisForm({ artisanId, artisanNom }: AvisFormProps) {
+export default function AvisForm({ artisanId, artisanNom, token }: AvisFormProps) {
   const [note, setNote] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [prenom, setPrenom] = useState("");
@@ -48,6 +49,7 @@ export default function AvisForm({ artisanId, artisanNom }: AvisFormProps) {
           note,
           commentaire,
           consent,
+          avisToken: token,
         }),
       });
       const json = (await res.json()) as { error?: string };
@@ -61,6 +63,19 @@ export default function AvisForm({ artisanId, artisanNom }: AvisFormProps) {
       setErrorMsg("Impossible de contacter le serveur.");
       setStatus("error");
     }
+  }
+
+  if (!token) {
+    return (
+      <div className="bd-bubble p-6 text-center">
+        <p className="mb-2 text-3xl">🔒</p>
+        <p className="bd-titre text-lg text-[#1a1a2e]">Lien requis</p>
+        <p className="mt-2 text-sm text-gray-500">
+          Pour laisser un avis sur {artisanNom}, vous devez avoir soumis une demande de contact. Un
+          lien personnel vous a été envoyé par email après votre demande.
+        </p>
+      </div>
+    );
   }
 
   if (status === "success") {
