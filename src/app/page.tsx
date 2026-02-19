@@ -95,7 +95,7 @@ export default async function HomePage() {
               "@id": "https://oyezartisans.fr/#organization",
               name: "Oyez Artisans !",
               url: "https://oyezartisans.fr",
-              logo: "https://oyezartisans.fr/icon-512.png",
+              logo: "https://oyezartisans.fr/icon",
               description:
                 "Annuaire hyperlocal d'artisans du bâtiment à Nantes et Est Loire-Atlantique",
               contactPoint: {

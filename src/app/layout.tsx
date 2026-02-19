@@ -66,17 +66,13 @@ export const metadata: Metadata = {
     title: "Oyez Artisans ! — Artisans du bâtiment à Nantes et Loire-Atlantique",
     description:
       "Annuaire hyperlocal d’artisans vérifiés. Contact direct, sans intermédiaire. Nantes et Est Loire-Atlantique.",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Oyez Artisans !" }],
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Oyez Artisans !" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Oyez Artisans ! — Artisans du bâtiment à Nantes",
-    description: "Annuaire hyperlocal d’artisans vérifiés en Loire-Atlantique.",
-    images: ["/og-image.jpg"],
-  },
-  icons: {
-    icon: [{ url: "/favicon.ico" }, { url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
-    apple: [{ url: "/apple-icon.png" }],
+    description: "Annuaire hyperlocal d'artisans vérifiés en Loire-Atlantique.",
+    images: ["/opengraph-image"],
   },
 };
 
