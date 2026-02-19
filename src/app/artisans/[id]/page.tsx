@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const metiers = artisan.metiers.map((m) => m.metier.label).join(", ");
 
   return {
-    title: `${nom} â€” ${metiers}`,
+    title: `${nom} \u2014 ${metiers}`,
     description: artisan.description ?? `Fiche artisan de ${nom}`,
   };
 }
@@ -103,8 +103,8 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
               >
                 <button
                   type="submit"
-                  aria-label="Se dÃ©connecter"
-                  title="Se dÃ©connecter"
+                  aria-label="Se deconnecter"
+                  title="Se deconnecter"
                   className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
                 >
                   <svg
@@ -136,17 +136,16 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
       </header>
 
       <main className="mx-auto w-full max-w-4xl px-4 pt-6 pb-16">
-        {/* Breadcrumb */}
         <nav className="mb-6 text-sm font-semibold text-[#1a1a2e]/60">
           <Link href="/artisans" className="hover:text-[#1a1a2e]">
-            â† Retour Ã  l&apos;annuaire
+            &larr; Retour &agrave; l&apos;annuaire
           </Link>
         </nav>
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* COLONNE PRINCIPALE */}
           <div className="order-2 space-y-6 lg:order-1 lg:col-span-2">
-            {/* IdentitÃ© */}
+            {/* Identite */}
             <div className="bd-card p-6">
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
@@ -156,7 +155,6 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                       {artisan.prenom} {artisan.nom}
                     </p>
                   )}
-                  {/* Note rÃ©sumÃ©e */}
                   {moyenne !== null && (
                     <div className="mt-2 flex items-center gap-1.5 text-sm">
                       <span>
@@ -167,7 +165,7 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                               i < Math.round(moyenne!) ? "text-[#ffd93d]" : "text-gray-300"
                             }
                           >
-                            â˜…
+                            &#9733;
                           </span>
                         ))}
                       </span>
@@ -176,10 +174,11 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                     </div>
                   )}
                 </div>
-                {artisan.siret && <span className="bd-badge bd-badge-vert shrink-0">âœ“ Pro</span>}
+                {artisan.siret && (
+                  <span className="bd-badge bd-badge-vert shrink-0">&#10003; Pro</span>
+                )}
               </div>
 
-              {/* MÃ©tiers */}
               <div className="mb-5 flex flex-wrap gap-2">
                 {artisan.metiers.map(({ metier }) => (
                   <span key={metier.id} className="bd-badge bd-badge-jaune text-sm">
@@ -190,21 +189,19 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
 
               <hr className="bd-separator mb-5" />
 
-              {/* Description */}
               {artisan.description && (
                 <div className="mb-5">
-                  <h2 className="mb-2 font-black text-[#1a1a2e]">Ã€ propos</h2>
+                  <h2 className="mb-2 font-black text-[#1a1a2e]">&Agrave; propos</h2>
                   <p className="leading-relaxed text-gray-700">{artisan.description}</p>
                 </div>
               )}
 
-              {/* Zone d'intervention */}
               <div>
                 <h2 className="mb-3 font-black text-[#1a1a2e]">Zone d&apos;intervention</h2>
                 <div className="flex flex-wrap gap-2">
                   {artisan.communes.map(({ commune }) => (
                     <span key={commune.id} className="bd-badge bd-badge-bleu">
-                      ðŸ“ {commune.nom} ({commune.codePostal})
+                      &#128205; {commune.nom} ({commune.codePostal})
                     </span>
                   ))}
                 </div>
@@ -214,10 +211,10 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
             {/* Formulaire de contact */}
             <div id="contact" className="bd-card p-6">
               <h2 className="bd-titre mb-1 text-xl text-[#1a1a2e] sm:text-3xl">
-                Envoyer une demande Ã  {nomAffiche}
+                Envoyer une demande &agrave; {nomAffiche}
               </h2>
               <p className="mb-6 text-sm text-gray-500">
-                Votre message sera transmis directement. RÃ©ponse sous 48h.
+                Votre message sera transmis directement. R&eacute;ponse sous 48h.
               </p>
               <ContactForm artisanId={artisan.id} artisanNom={nomAffiche} />
             </div>
@@ -226,14 +223,14 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
             <div id="avis" className="grid gap-6 lg:grid-cols-2">
               <div className="bd-card p-6">
                 <h2 className="bd-titre mb-5 text-2xl text-[#1a1a2e]">
-                  â­ Avis clients ({avisValides.length})
+                  &#11088; Avis clients ({avisValides.length})
                 </h2>
                 <AvisList avis={avisValides} />
               </div>
               <div className="bd-card p-6">
                 <h2 className="bd-titre mb-2 text-2xl text-[#1a1a2e]">Laisser un avis</h2>
                 <p className="mb-5 text-sm text-gray-500">
-                  Vous avez travaillÃ© avec {nomAffiche} ? Partagez votre expÃ©rience.
+                  Vous avez travaill&eacute; avec {nomAffiche} ? Partagez votre exp&eacute;rience.
                 </p>
                 <AvisForm artisanId={artisan.id} artisanNom={nomAffiche} token={avisToken} />
               </div>
@@ -243,14 +240,14 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
           {/* SIDEBAR CONTACT */}
           <div className="order-1 lg:order-2 lg:col-span-1">
             <div className="bd-card p-5 lg:sticky lg:top-6">
-              <h2 className="bd-titre mb-4 text-2xl text-[#1a1a2e]">CoordonnÃ©es</h2>
+              <h2 className="bd-titre mb-4 text-2xl text-[#1a1a2e]">Coordonn&eacute;es</h2>
 
               {artisan.telephone && (
                 <a
                   href={`tel:${artisan.telephone.replace(/\s/g, "")}`}
                   className="bd-btn bd-btn-primary mb-3 w-full"
                 >
-                  ðŸ“ž {artisan.telephone}
+                  &#128222; {artisan.telephone}
                 </a>
               )}
 
@@ -261,7 +258,7 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                   rel="noopener noreferrer"
                   className="bd-btn bd-btn-outline mb-3 w-full text-sm"
                 >
-                  ðŸŒ Visiter le site
+                  &#127760; Visiter le site
                 </a>
               )}
 
@@ -280,13 +277,13 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
       {/* Footer minimaliste */}
       <footer className="relative z-10 border-t-2 border-[#1a1a1a]/10 px-6 py-3">
         <div className="mx-auto flex max-w-6xl items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
-          <span>Â© 2026 Oyez Artisans !</span>
+          <span>&copy; 2026 Oyez Artisans !</span>
           <div className="flex gap-4">
             <Link href="/mentions-legales" className="hover:text-[#1a1a2e]">
-              Mentions lÃ©gales
+              Mentions l&eacute;gales
             </Link>
             <Link href="/politique-confidentialite" className="hover:text-[#1a1a2e]">
-              ConfidentialitÃ©
+              Confidentialit&eacute;
             </Link>
           </div>
         </div>
