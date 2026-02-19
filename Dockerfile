@@ -35,6 +35,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+# HOME=/tmp permet à npx d'écrire le cache npm sans répertoire home (user système)
+ENV HOME=/tmp
 
 # Utilisateur non-root
 RUN addgroup --system --gid 1001 nodejs
