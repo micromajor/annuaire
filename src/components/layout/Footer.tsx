@@ -20,7 +20,7 @@ export default function Footer() {
             <ul className="space-y-1 text-sm">
               <li>
                 <Link href="/artisans" className="text-gray-300 hover:text-[#ffd93d]">
-                  Trouver un artisan
+                  Trouver votre artisan
                 </Link>
               </li>
               <li>

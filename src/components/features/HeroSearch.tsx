@@ -253,7 +253,7 @@ export default function HeroSearch({ metiers }: HeroSearchProps) {
         <div className="mt-8 w-full">
           {results.length === 0 ? (
             <p className="search-result-enter text-center text-lg font-bold text-[#1a1a2e]">
-              😕 Aucun artisan trouvé pour cette recherche.
+              😕 Aucun artisan trouvé pour votre recherche.
             </p>
           ) : (
             <>

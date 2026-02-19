@@ -15,7 +15,7 @@ interface SearchParams {
 }
 
 export const metadata: Metadata = {
-  title: "Trouver un artisan",
+  title: "Trouver votre artisan",
   description:
     "Annuaire des artisans du bâtiment sur Nantes et l'Est de la Loire-Atlantique. Filtrez par métier et commune.",
 };
@@ -59,7 +59,7 @@ export default async function ArtisansPage({
       <main className="mx-auto max-w-6xl px-4 py-10">
         {/* Titre */}
         <div className="mb-8">
-          <h1 className="bd-titre text-4xl text-[#1a1a2e] sm:text-5xl">🔍 Trouver un artisan</h1>
+          <h1 className="bd-titre text-4xl text-[#1a1a2e] sm:text-5xl">🔍 Trouver votre artisan</h1>
           <p className="mt-2 text-gray-600">
             {total} artisan{total > 1 ? "s" : ""} trouvé{total > 1 ? "s" : ""} dans notre annuaire
           </p>

@@ -177,7 +177,7 @@ export default function InscriptionForm({ communes }: InscriptionFormProps) {
           <textarea
             {...register("description")}
             className="bd-input min-h-[100px] resize-none"
-            placeholder="Artisan depuis 15 ans, spécialisé dans la rénovation de maisons anciennes..."
+            placeholder="Artisan depuis 15 ans, spécialiste de la rénovation de maisons anciennes..."
           />
           {errors.description && (
             <p className="mt-1 text-sm text-[#ff6b6b]">{errors.description.message}</p>

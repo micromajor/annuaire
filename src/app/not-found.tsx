@@ -59,7 +59,7 @@ export default function NotFound() {
       {/* Actions */}
       <div className="flex flex-col gap-3 sm:flex-row">
         <Link href="/artisans" className="bd-btn bd-btn-primary">
-          🔍 Trouver un artisan
+          🔍 Trouver votre artisan
         </Link>
         <Link href="/" className="bd-btn bd-btn-outline">
           🏠 Retour à l&apos;accueil

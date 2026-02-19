@@ -76,7 +76,7 @@ export default function MessagesPage() {
             <p className="mb-2 text-4xl">📭</p>
             <p className="font-bold text-[#1a1a2e]/60">Aucune conversation pour l&apos;instant.</p>
             <Link href="/" className="mt-4 inline-block text-sm font-bold text-[#1a1a2e] underline">
-              Trouver un artisan →
+              Trouver votre artisan →
             </Link>
           </div>
         ) : (

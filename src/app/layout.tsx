@@ -19,11 +19,11 @@ const nunito = Nunito({
 
 export const metadata: Metadata = {
   title: {
-    default: "Oyez Artisans ! — Trouvez un artisan près de chez vous",
+    default: "Oyez Artisans ! — Trouvez votre artisan près de chez vous",
     template: "%s | Oyez Artisans !",
   },
   description:
-    "Oyez Artisans ! : annuaire hyperlocal d'artisans du bâtiment à Nantes et Est Loire-Atlantique. Maçon, plombier, électricien, menuisier… Trouvez et contactez directement le bon artisan près de chez vous.",
+    "Oyez Artisans ! : annuaire hyperlocal d'artisans du bâtiment à Nantes et Est Loire-Atlantique. Maçon, plombier, électricien, menuisier… Trouvez et contactez directement votre artisan près de chez vous.",
   keywords: [
     "artisan",
     "annuaire artisan",

@@ -101,7 +101,8 @@ function BesoinForm({
         </p>
         <p className="mb-2 text-xl font-black text-[#1a1a2e]">Annonce publiée 🎉</p>
         <p className="text-sm font-semibold text-[#1a1a2e]/60">
-          Les artisans de votre zone seront notifiés. Attendez-vous à être contacté rapidement !
+          Les artisans de votre zone seront notifiés. Attendez-vous à recevoir une réponse
+          rapidement !
         </p>
       </div>
     );
@@ -286,7 +287,7 @@ export default function ParticulierHome({ prenom, metiers }: ParticulierHomeProp
                 : { background: "white", color: "#1a1a2e" }
             }
           >
-            🔍 Trouver un artisan
+            🔍 Trouver votre artisan
           </button>
           <button
             onClick={() => setTab("projet")}
