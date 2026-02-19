@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir, unlink } from "fs/promises";
-import { join } from "path";
-import { randomUUID } from "crypto";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
 
 const MAX_TOTAL = 6;
 const MAX_SIZE_MB = 5;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const UPLOAD_DIR = join(process.cwd(), "public", "uploads", "portfolio");
 
 /* ------------------------------------------------------------------ */
 /* POST — upload de nouvelles photos                                    */
@@ -40,8 +36,6 @@ export async function POST(req: Request) {
       { status: 400 }
     );
 
-  await mkdir(UPLOAD_DIR, { recursive: true });
-
   const newUrls: string[] = [];
 
   for (const file of files) {
@@ -53,10 +47,17 @@ export async function POST(req: Request) {
         { status: 400 }
       );
 
-    const ext = file.name.split(".").pop() ?? "jpg";
-    const filename = `${randomUUID()}.${ext}`;
-    await writeFile(join(UPLOAD_DIR, filename), Buffer.from(await file.arrayBuffer()));
-    newUrls.push(`/uploads/portfolio/${filename}`);
+    const record = await prisma.uploadedFile.create({
+      data: {
+        filename: file.name,
+        mimeType: file.type,
+        size: file.size,
+        data: Buffer.from(await file.arrayBuffer()),
+        contexte: "portfolio",
+        uploaderId: userId,
+      },
+    });
+    newUrls.push(`/api/files/${record.id}`);
   }
 
   const updated = [...existing, ...newUrls];
@@ -92,12 +93,12 @@ export async function DELETE(req: Request) {
   if (!existing.includes(url))
     return NextResponse.json({ error: "Photo introuvable" }, { status: 404 });
 
-  // Suppression physique du fichier
-  const filename = url.split("/").pop()!;
-  try {
-    await unlink(join(UPLOAD_DIR, filename));
-  } catch {
-    // fichier déjà absent — on continue
+  // Supprimer le fichier en base (sécurité : vérifier l'uploaderId)
+  const fileId = url.split("/").pop();
+  if (fileId) {
+    await prisma.uploadedFile.deleteMany({
+      where: { id: fileId, uploaderId: userId },
+    });
   }
 
   const updated = existing.filter((u) => u !== url);

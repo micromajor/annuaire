@@ -169,6 +169,21 @@ model Message {
 }
 
 // ---------------------------------------------------------------------------
+// FICHIERS UPLOADÉS (stockés en base PostgreSQL)
+// ---------------------------------------------------------------------------
+
+model UploadedFile {
+  id         String   @id @default(cuid())
+  filename   String
+  mimeType   String
+  size       Int
+  data       Bytes
+  contexte   String   // "portfolio" | "contact" | "besoin"
+  uploaderId String?  // artisanId si upload authentifié, null sinon
+  createdAt  DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
 // NEXTAUTH — OAuth accounts (Google, etc.)
 // ---------------------------------------------------------------------------
 

@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-import { randomUUID } from "crypto";
+import { prisma } from "@/lib/db/client";
 
 const MAX_FILES = 6;
 const MAX_SIZE_MB = 5;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const UPLOAD_DIR = join(process.cwd(), "public", "uploads", "contact");
 
 export async function POST(req: Request) {
   try {
@@ -18,8 +15,6 @@ export async function POST(req: Request) {
 
     if (files.length > MAX_FILES)
       return NextResponse.json({ error: `Maximum ${MAX_FILES} photos` }, { status: 400 });
-
-    await mkdir(UPLOAD_DIR, { recursive: true });
 
     const urls: string[] = [];
 
@@ -33,10 +28,17 @@ export async function POST(req: Request) {
           { status: 400 }
         );
 
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const filename = `${randomUUID()}.${ext}`;
-      await writeFile(join(UPLOAD_DIR, filename), Buffer.from(await file.arrayBuffer()));
-      urls.push(`/uploads/contact/${filename}`);
+      const record = await prisma.uploadedFile.create({
+        data: {
+          filename: file.name,
+          mimeType: file.type,
+          size: file.size,
+          data: Buffer.from(await file.arrayBuffer()),
+          contexte: "contact",
+          uploaderId: null,
+        },
+      });
+      urls.push(`/api/files/${record.id}`);
     }
 
     return NextResponse.json({ urls }, { status: 201 });
