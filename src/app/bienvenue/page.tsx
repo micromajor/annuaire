@@ -4,9 +4,10 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/client";
 import BienvenueChoix from "@/components/features/BienvenueChoix";
+import Link from "next/link";
 
 export const metadata = {
-  title: "Bienvenue — OyezArtisans",
+  title: "Bienvenue | Oyez Artisans !",
 };
 
 export default async function BienvenuePage() {
@@ -37,6 +38,14 @@ export default async function BienvenuePage() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-[#ffd93d] px-4 py-16">
       {/* Demi-teinte déco */}
       <div className="bd-halftone pointer-events-none fixed inset-0 opacity-5" />
+
+      {/* Retour */}
+      <Link
+        href="/"
+        className="absolute top-5 left-5 z-20 rounded-xl border-2 border-[#1a1a2e]/30 px-3 py-1.5 text-sm font-black text-[#1a1a2e]/60 hover:border-[#1a1a2e] hover:text-[#1a1a2e]"
+      >
+        ← Retour
+      </Link>
 
       <div className="relative z-10 w-full max-w-2xl text-center">
         <div
