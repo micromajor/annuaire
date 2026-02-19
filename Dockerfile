@@ -50,13 +50,16 @@ RUN mkdir -p ./public/uploads/besoins && chown nextjs:nodejs ./public/uploads/be
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Schéma Prisma pour les migrations au démarrage
+# Schéma Prisma + config Prisma 7 pour les migrations au démarrage
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 # CLI Prisma (évite de télécharger via npx à chaque démarrage)
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+# dotenv requis par prisma.config.ts
+COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
 
 USER nextjs
 
