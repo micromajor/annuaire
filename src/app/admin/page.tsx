@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import AdminArtisanRow from "@/components/features/AdminArtisanRow";
 import AdminAvisRow from "@/components/features/AdminAvisRow";
 import AdminLogoutButton from "@/components/features/AdminLogoutButton";
+import AdminUserRow from "@/components/features/AdminUserRow";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Admin — OyezArtisans" };
@@ -14,37 +15,66 @@ export default async function AdminPage() {
   const session = await auth();
   if (!session) redirect("/admin/login");
 
-  const [enAttente, avecDraft, valides, rejetes, avisEnAttente, besoinsNouveau] = await Promise.all(
-    [
-      prisma.artisan.findMany({
-        where: { status: "EN_ATTENTE", deletedAt: null },
-        include: {
-          metiers: { include: { metier: true } },
-          communes: { include: { commune: true } },
-        },
-        orderBy: { createdAt: "desc" },
-      }),
-      prisma.artisan.findMany({
-        where: { status: "VALIDE", hasPendingDraft: true, deletedAt: null },
-        include: {
-          metiers: { include: { metier: true } },
-          communes: { include: { commune: true } },
-        },
-        orderBy: { updatedAt: "desc" },
-      }),
-      prisma.artisan.count({ where: { status: "VALIDE", deletedAt: null } }),
-      prisma.artisan.count({ where: { status: "REJETE", deletedAt: null } }),
-      prisma.avis.findMany({
-        where: { status: "EN_ATTENTE" },
-        include: { artisan: { select: { raisonSociale: true, prenom: true, nom: true } } },
-        orderBy: { createdAt: "desc" },
-      }),
-      prisma.besoin.findMany({
-        where: { status: "NOUVEAU" },
-        orderBy: { createdAt: "desc" },
-      }),
-    ]
-  );
+  const [
+    enAttente,
+    avecDraft,
+    valides,
+    rejetes,
+    avisEnAttente,
+    besoinsNouveau,
+    tousLesUtilisateurs,
+  ] = await Promise.all([
+    prisma.artisan.findMany({
+      where: { status: "EN_ATTENTE", deletedAt: null },
+      include: {
+        metiers: { include: { metier: true } },
+        communes: { include: { commune: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.artisan.findMany({
+      where: { status: "VALIDE", hasPendingDraft: true, deletedAt: null },
+      include: {
+        metiers: { include: { metier: true } },
+        communes: { include: { commune: true } },
+      },
+      orderBy: { updatedAt: "desc" },
+    }),
+    prisma.artisan.count({ where: { status: "VALIDE", deletedAt: null } }),
+    prisma.artisan.count({ where: { status: "REJETE", deletedAt: null } }),
+    prisma.avis.findMany({
+      where: { status: "EN_ATTENTE" },
+      include: { artisan: { select: { raisonSociale: true, prenom: true, nom: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.besoin.findMany({
+      where: { status: "NOUVEAU" },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.artisan.findMany({
+      where: { deletedAt: null },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        prenom: true,
+        nom: true,
+        email: true,
+        raisonSociale: true,
+        status: true,
+        draftData: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        logoUrl: true,
+        telephone: true,
+        siret: true,
+        siteWeb: true,
+        description: true,
+        passwordHash: true,
+        hasPendingDraft: true,
+      },
+    }),
+  ]);
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -169,6 +199,16 @@ export default async function AdminPage() {
             </div>
           </>
         )}
+        {/* Section utilisateurs */}
+        <h2 className="bd-titre mt-10 mb-4 text-2xl text-[#1a1a2e]">
+          👥 Tous les utilisateurs ({tousLesUtilisateurs.length})
+        </h2>
+        <div className="space-y-2">
+          {tousLesUtilisateurs.map((u) => (
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            <AdminUserRow key={u.id} artisan={u as any} />
+          ))}
+        </div>
       </main>
     </div>
   );

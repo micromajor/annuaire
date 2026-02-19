@@ -100,3 +100,24 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   return NextResponse.json({ success: true, status: updated.status });
 }
+
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await auth();
+  const role = (session?.user as { role?: string })?.role;
+  if (!session || role !== "admin") {
+    return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  const artisan = await prisma.artisan.findFirst({ where: { id, deletedAt: null } });
+  if (!artisan) {
+    return NextResponse.json({ error: "Utilisateur introuvable." }, { status: 404 });
+  }
+
+  // Suppression définitive — toutes les relations cascadent (avis, messages,
+  // conversations, oAuthAccounts, metiers, communes, besoins)
+  await prisma.artisan.delete({ where: { id } });
+
+  return NextResponse.json({ success: true });
+}
