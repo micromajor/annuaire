@@ -1,15 +1,33 @@
 ﻿export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import nextDynamic from "next/dynamic";
 import Link from "next/link";
 import { prisma } from "@/lib/db/client";
 import { auth, signOut } from "@/lib/auth";
+import { COMMUNES_NANTES_EST } from "@/constants";
 import ContactForm from "@/components/features/ContactForm";
 import AvisList from "@/components/features/AvisList";
 import AvisForm from "@/components/features/AvisForm";
 import MessagerieButton from "@/components/features/MessagerieButton";
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
+import PortfolioPhotos from "@/components/features/PortfolioPhotos";
 import type { Metadata } from "next";
+
+const CarteZone = nextDynamic(() => import("@/components/features/CarteZone"), { ssr: false });
+
+const METIER_EMOJIS: Record<string, string> = {
+  macon: "&#129521;",
+  plombier: "&#128295;",
+  electricien: "&#9889;",
+  menuisier: "&#129717;",
+  peintre: "&#127912;",
+  couvreur: "&#127968;",
+  carreleur: "&#9638;",
+  chauffagiste: "&#128293;",
+  plaquiste: "&#129498;",
+  charpentier: "&#128297;",
+};
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -55,6 +73,19 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
   });
 
   const nomAffiche = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
+  const portfolioPhotos = Array.isArray(artisan.portfolioPhotos)
+    ? (artisan.portfolioPhotos as string[])
+    : [];
+  const communesAvecCoords = artisan.communes
+    .map(({ commune }) => {
+      const found = COMMUNES_NANTES_EST.find((c) => c.nom === commune.nom);
+      return found
+        ? { nom: commune.nom, codePostal: commune.codePostal, lat: found.lat, lng: found.lng }
+        : null;
+    })
+    .filter((c): c is NonNullable<typeof c> => c !== null);
+  const firstSlug = artisan.metiers[0]?.metier.slug ?? "";
+  const artisanEmoji = METIER_EMOJIS[firstSlug] ?? "&#128295;";
   const moyenne =
     avisValides.length > 0
       ? avisValides.reduce((acc, a) => acc + a.note, 0) / avisValides.length
@@ -147,11 +178,32 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
           <div className="order-2 space-y-6 lg:order-1 lg:col-span-2">
             {/* Identite */}
             <div className="bd-card p-6">
-              <div className="mb-5 flex items-start justify-between gap-4">
-                <div>
-                  <h1 className="bd-titre text-3xl text-[#1a1a2e] sm:text-4xl">{nomAffiche}</h1>
+              <div className="mb-5 flex items-start gap-4">
+                {/* Logo / avatar */}
+                <div
+                  className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-2 border-[#1a1a2e] bg-white text-4xl shadow-md"
+                  aria-hidden="true"
+                >
+                  {artisan.logoUrl ? (
+                    <img
+                      src={artisan.logoUrl}
+                      alt={nomAffiche}
+                      className="h-full w-full rounded-2xl object-cover"
+                    />
+                  ) : (
+                    <span dangerouslySetInnerHTML={{ __html: artisanEmoji }} />
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <h1 className="bd-titre text-2xl text-[#1a1a2e] sm:text-3xl">{nomAffiche}</h1>
+                    {artisan.siret && (
+                      <span className="bd-badge bd-badge-vert shrink-0">&#10003; Pro</span>
+                    )}
+                  </div>
                   {artisan.raisonSociale && (
-                    <p className="mt-1 text-gray-500">
+                    <p className="mt-0.5 text-sm text-gray-500">
                       {artisan.prenom} {artisan.nom}
                     </p>
                   )}
@@ -174,9 +226,6 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                     </div>
                   )}
                 </div>
-                {artisan.siret && (
-                  <span className="bd-badge bd-badge-vert shrink-0">&#10003; Pro</span>
-                )}
               </div>
 
               <div className="mb-5 flex flex-wrap gap-2">
@@ -198,6 +247,11 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
 
               <div>
                 <h2 className="mb-3 font-black text-[#1a1a2e]">Zone d&apos;intervention</h2>
+                {communesAvecCoords.length > 0 && (
+                  <div className="mb-3 overflow-hidden rounded-xl border-2 border-[#1a1a2e]">
+                    <CarteZone communes={communesAvecCoords} />
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-2">
                   {artisan.communes.map(({ commune }) => (
                     <span key={commune.id} className="bd-badge bd-badge-bleu">
@@ -207,6 +261,16 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                 </div>
               </div>
             </div>
+
+            {/* Portfolio photos */}
+            {portfolioPhotos.length > 0 && (
+              <div className="bd-card p-6">
+                <h2 className="bd-titre mb-4 text-xl text-[#1a1a2e] sm:text-2xl">
+                  &#128247; R&eacute;alisations
+                </h2>
+                <PortfolioPhotos photos={portfolioPhotos} artisanNom={nomAffiche} />
+              </div>
+            )}
 
             {/* Formulaire de contact */}
             <div id="contact" className="bd-card p-6">
