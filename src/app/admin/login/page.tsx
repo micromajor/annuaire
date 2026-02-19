@@ -19,7 +19,7 @@ function AdminLoginForm() {
     setLoading(true);
     setError("");
 
-    const res = await signIn("credentials", {
+    const res = await signIn("admin", {
       email,
       password,
       redirect: false,
