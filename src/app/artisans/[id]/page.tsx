@@ -1,7 +1,6 @@
 ﻿export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import nextDynamic from "next/dynamic";
 import Link from "next/link";
 import { prisma } from "@/lib/db/client";
 import { auth, signOut } from "@/lib/auth";
@@ -12,9 +11,8 @@ import AvisForm from "@/components/features/AvisForm";
 import MessagerieButton from "@/components/features/MessagerieButton";
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import PortfolioPhotos from "@/components/features/PortfolioPhotos";
+import CarteZoneWrapper from "@/components/features/CarteZoneWrapper";
 import type { Metadata } from "next";
-
-const CarteZone = nextDynamic(() => import("@/components/features/CarteZone"), { ssr: false });
 
 const METIER_EMOJIS: Record<string, string> = {
   macon: "&#129521;",
@@ -249,7 +247,7 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                 <h2 className="mb-3 font-black text-[#1a1a2e]">Zone d&apos;intervention</h2>
                 {communesAvecCoords.length > 0 && (
                   <div className="mb-3 overflow-hidden rounded-xl border-2 border-[#1a1a2e]">
-                    <CarteZone communes={communesAvecCoords} />
+                    <CarteZoneWrapper communes={communesAvecCoords} />
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2">
