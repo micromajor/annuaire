@@ -10,7 +10,8 @@ const patchSchema = z.object({
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) {
+  const role = (session?.user as { role?: string })?.role;
+  if (!session || role !== "admin") {
     return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
   }
 

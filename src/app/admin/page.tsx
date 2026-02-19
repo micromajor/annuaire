@@ -13,7 +13,8 @@ export const metadata: Metadata = { title: "Admin — OyezArtisans" };
 
 export default async function AdminPage() {
   const session = await auth();
-  if (!session) redirect("/admin/login");
+  const role = (session?.user as { role?: string })?.role;
+  if (!session || role !== "admin") redirect("/admin/login");
 
   const [
     enAttente,

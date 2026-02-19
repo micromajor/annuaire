@@ -15,6 +15,7 @@ export default function AdminUserRow({ artisan }: { artisan: Artisan }) {
   const [confirm, setConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const draft = artisan.draftData as Record<string, unknown> | null;
   const isParticulier = draft?.isParticulier === true;
@@ -28,11 +29,15 @@ export default function AdminUserRow({ artisan }: { artisan: Artisan }) {
 
   async function handleDelete() {
     setLoading(true);
+    setDeleteError("");
     try {
       const res = await fetch(`/api/admin/artisans/${artisan.id}`, { method: "DELETE" });
       if (res.ok) {
         setDeleted(true);
         setTimeout(() => router.refresh(), 500);
+      } else {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        setDeleteError(data.error ?? `Erreur ${res.status} — reconnectez-vous en admin.`);
       }
     } finally {
       setLoading(false);
@@ -83,6 +88,11 @@ export default function AdminUserRow({ artisan }: { artisan: Artisan }) {
         </p>
       </div>
 
+      {deleteError && (
+        <p className="rounded-lg bg-[#ff6b6b]/20 px-3 py-2 text-xs font-bold text-[#ff6b6b]">
+          ⚠️ {deleteError}
+        </p>
+      )}
       {/* Bouton supprimer */}
       <div className="flex shrink-0 items-center gap-2">
         {confirm ? (
