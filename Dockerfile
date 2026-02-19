@@ -55,6 +55,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Schéma Prisma pour les migrations au démarrage
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+# Constantes nécessaires pour le seed (prisma/seed.ts importe ../src/constants)
+COPY --from=builder /app/src/constants ./src/constants
 # node_modules complet pour que prisma migrate deploy fonctionne (@prisma/dev + toutes ses dépendances)
 COPY --from=builder /app/node_modules ./node_modules
 
