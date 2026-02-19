@@ -1,6 +1,6 @@
 # Roadmap — OyezArtisans · Réseau local d'artisans
 
-> Dernière mise à jour : 18 février 2026 — features Besoin client + home artisan/particulier différenciée  
+> Dernière mise à jour : 19 février 2026 — espace particulier + toggle BD + carte responsive  
 > Statuts : `[ ]` à faire · `[~]` en cours · `[x]` terminé
 
 ---
@@ -106,6 +106,9 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] API POST `/api/besoins` (Zod, session auth, persist prénom artisan)
 - [x] API POST `/api/upload` (multipart, UUID filenames, validation type + taille)
 - [x] Lightbox photo dans le panneau artisan (overlay `z-[200]`, fermeture fond ou ✕)
+- [x] Toggle Liste/Carte artisan (style BD identique ParticulierHome : border-3, actif #1a1a2e/vert)
+- [x] Carte artisan responsive mobile (flex-col sm:flex-row, panneau mobile séparé sous carte)
+- [x] Page "Mon espace" particulier : liste besoins, header bleu, signOut (fix middleware proxy.ts)
 
 ---
 
@@ -121,6 +124,7 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] **Suppression puis réimplémentation feature Besoin** : supprimée le 18/02/2026 (YAGNI, pas de backend), puis réimplémentée le même jour sous forme de feature complète avec modèle DB, API, upload photos et vue artisan matching.
 - [x] **Simplification header** (18/02/2026) : liens "Trouver un artisan" et "Déposer un besoin" retirés du header. L'accueil est le point d'entrée unique pour les visiteurs.
 - [x] **`prisma generate` obligatoire après migration** : le client Prisma doit être régénéré après toute migration pour que les nouveaux champs soient disponibles en runtime (appris via bug `photos` + `artisanId` inconnus).
+- [x] **Fix middleware proxy.ts** (19/02/2026) : `role !== "artisan"` → `!["artisan","particulier"].includes(role)` sur `/mon-espace`. Cause : le middleware bloquait les particuliers silencieusement avant même l'exécution du Server Component.
 - [ ] Portfolio chantiers sur la fiche artisan (photos + description)
 - [ ] SEO : sitemap.xml, meta dynamiques, pages par commune
 - [ ] RGPD : mentions légales, politique confidentialité, suppression de compte
