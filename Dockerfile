@@ -50,18 +50,17 @@ RUN mkdir -p ./public/uploads/besoins && chown nextjs:nodejs ./public/uploads/be
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Schéma Prisma + config Prisma 7 pour les migrations au démarrage
+# Schéma Prisma pour les migrations au démarrage
+# prisma.config.ts n'est PAS copié (pas disponible en prod sans node_modules/prisma)
+# → npx prisma migrate deploy utilise schema.prisma qui a url = env("DATABASE_URL")
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-# dotenv requis par prisma.config.ts (lu par npx prisma au démarrage)
-COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
 
 USER nextjs
 
 EXPOSE 3000
 
-# npx télécharge prisma avec toutes ses dépendances (dont valibot, @prisma/dev, etc.)
-# prisma.config.ts est présent → DATABASE_URL est lue correctement
+# npx télécharge prisma avec toutes ses dépendances
+# schema.prisma contient url = env("DATABASE_URL") → migration fonctionne sans prisma.config.ts
 CMD ["sh", "-c", "npx --yes prisma@7.4.0 migrate deploy && node server.js"]
