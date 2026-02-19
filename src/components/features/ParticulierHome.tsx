@@ -307,7 +307,7 @@ export default function ParticulierHome({ prenom, metiers }: ParticulierHomeProp
       {tab === "recherche" ? (
         <div className="text-center">
           <h1 className="bd-titre bd-anim-build mb-10 text-5xl leading-tight text-[#1a1a2e] sm:text-7xl">
-            Trouvez le bon artisan
+            Trouvez votre artisan
           </h1>
           <div className="bd-anim-build" style={{ animationDelay: "0.1s" }}>
             <HeroSearch metiers={metiers} />
