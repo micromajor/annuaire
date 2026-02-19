@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db/client";
 import AutoSignOut from "@/components/ui/AutoSignOut";
 import Link from "next/link";
 import MonEspaceEditForm from "@/components/features/MonEspaceEditForm";
+import PortfolioUploader from "@/components/features/PortfolioUploader";
 
 export default async function MonEspacePage() {
   const session = await auth();
@@ -397,6 +398,13 @@ export default async function MonEspacePage() {
               </span>
             )}
           </Link>
+
+          {/* Carte — portfolio photos */}
+          <PortfolioUploader
+            initialPhotos={
+              Array.isArray(artisan.portfolioPhotos) ? (artisan.portfolioPhotos as string[]) : []
+            }
+          />
 
           {/* Carte — demandes de contact */}
           <div
