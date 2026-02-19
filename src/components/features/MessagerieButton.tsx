@@ -15,7 +15,6 @@ export default function MessagerieButton({ artisanId, artisanNom }: Props) {
   const role = (session?.user as { role?: string })?.role;
 
   const [open, setOpen] = useState(false);
-  const [sujet, setSujet] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +36,7 @@ export default function MessagerieButton({ artisanId, artisanNom }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!sujet.trim() || !message.trim()) return;
+    if (!message.trim()) return;
     setSending(true);
     setError(null);
     try {
@@ -46,7 +45,7 @@ export default function MessagerieButton({ artisanId, artisanNom }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           artisanId,
-          sujet: sujet.trim(),
+          sujet: `Contact avec ${artisanNom}`,
           premierMessage: message.trim(),
         }),
       });
@@ -93,21 +92,6 @@ export default function MessagerieButton({ artisanId, artisanNom }: Props) {
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div>
                 <label className="mb-1 block text-sm font-bold text-[#1a1a2e]">
-                  Sujet <span className="text-[#ff6b6b]">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={sujet}
-                  onChange={(e) => setSujet(e.target.value)}
-                  placeholder="Ex : Rénovation salle de bain…"
-                  maxLength={200}
-                  required
-                  className="bd-input"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-bold text-[#1a1a2e]">
                   Votre message <span className="text-[#ff6b6b]">*</span>
                 </label>
                 <textarea
@@ -129,7 +113,7 @@ export default function MessagerieButton({ artisanId, artisanNom }: Props) {
 
               <button
                 type="submit"
-                disabled={sending || !sujet.trim() || !message.trim()}
+                disabled={sending || !message.trim()}
                 className="bd-btn bd-btn-primary disabled:opacity-60"
               >
                 {sending ? "⏳ Envoi…" : "Envoyer le message →"}

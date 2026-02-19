@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const METIER_EMOJIS: Record<string, string> = {
   macon: "🧱",
@@ -24,12 +26,49 @@ export type BesoinItem = {
   prenom: string;
   photos: string[];
   createdAt: string;
+  particulierId: string | null;
+  contact: string | null;
 };
 
 /* ============================================================
    Panneau détail
    ============================================================ */
 function BesoinPanel({ besoin, onClose }: { besoin: BesoinItem; onClose: () => void }) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [msgOpen, setMsgOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+
+  async function handleSend(e: React.FormEvent) {
+    e.preventDefault();
+    if (!message.trim() || !session) return;
+    setSending(true);
+    setSendError(null);
+    try {
+      const res = await fetch("/api/conversations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          particulierId: besoin.particulierId,
+          premierMessage: message.trim(),
+          sujet: `Réponse à votre besoin en ${besoin.metierLabel}`,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setSendError(data.error ?? "Une erreur est survenue");
+        return;
+      }
+      const { conversationId } = await res.json();
+      setSent(true);
+      setTimeout(() => router.push(`/messages/${conversationId}`), 800);
+    } finally {
+      setSending(false);
+    }
+  }
   const emoji = METIER_EMOJIS[besoin.metierSlug] ?? "🔧";
   const date = new Date(besoin.createdAt).toLocaleDateString("fr-FR", {
     day: "numeric",
@@ -132,15 +171,76 @@ function BesoinPanel({ besoin, onClose }: { besoin: BesoinItem; onClose: () => v
           </div>
         )}
 
-        {/* Contacter via le site */}
+        {/* Contacter */}
         <div className="border-t-2 border-[#1a1a1a]/10 pt-4">
-          <button
-            className="bd-btn flex w-full items-center justify-center gap-2"
-            style={{ background: "#6bcb77", color: "#1a1a2e", boxShadow: "3px 3px 0 #1a1a1a" }}
-            onClick={() => alert("Messagerie en cours de développement")}
-          >
-            💬 Contacter {besoin.prenom} →
-          </button>
+          {sent ? (
+            <div className="rounded-xl border-2 border-[#6bcb77] bg-[#f0fff4] p-4 text-center">
+              <p className="font-black text-[#1a1a2e]">✅ Message envoyé !</p>
+              <p className="mt-1 text-xs text-gray-500">Redirection vers vos messages…</p>
+            </div>
+          ) : besoin.particulierId ? (
+            msgOpen ? (
+              <form onSubmit={handleSend} className="flex flex-col gap-3">
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder={`Bonjour ${besoin.prenom}, j'ai vu votre demande et je peux vous aider…`}
+                  rows={4}
+                  maxLength={2000}
+                  required
+                  className="bd-input resize-none text-sm"
+                  autoFocus
+                />
+                {sendError && (
+                  <p className="rounded-lg bg-[#ff6b6b]/10 px-3 py-2 text-xs font-bold text-[#ff6b6b]">
+                    ⚠️ {sendError}
+                  </p>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setMsgOpen(false)}
+                    className="flex-1 rounded-xl border-2 border-[#1a1a1a] bg-white px-3 py-2 text-sm font-bold hover:bg-gray-50"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={sending || !message.trim()}
+                    className="bd-btn flex-1 text-sm disabled:opacity-60"
+                    style={{
+                      background: "#6bcb77",
+                      color: "#1a1a2e",
+                      boxShadow: "3px 3px 0 #1a1a1a",
+                    }}
+                  >
+                    {sending ? "⏳ Envoi…" : "Envoyer →"}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <button
+                className="bd-btn flex w-full items-center justify-center gap-2"
+                style={{ background: "#6bcb77", color: "#1a1a2e", boxShadow: "3px 3px 0 #1a1a1a" }}
+                onClick={() => setMsgOpen(true)}
+              >
+                💬 Contacter {besoin.prenom} →
+              </button>
+            )
+          ) : besoin.contact ? (
+            <div className="rounded-xl border-2 border-[#1a1a1a]/20 bg-[#f5f5f5] px-4 py-3 text-sm">
+              <p className="mb-1 text-xs font-black tracking-widest text-[#1a1a2e]/40 uppercase">
+                Contact direct
+              </p>
+              <p className="font-bold text-[#1a1a2e]">
+                {besoin.prenom} — {besoin.contact}
+              </p>
+            </div>
+          ) : (
+            <p className="text-center text-xs text-gray-400 italic">
+              Pas de coordonnées disponibles.
+            </p>
+          )}
         </div>
       </div>
     </div>

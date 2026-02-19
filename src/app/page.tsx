@@ -68,6 +68,8 @@ export default async function HomePage() {
         prenom: b.prenom,
         photos: Array.isArray(b.photos) ? (b.photos as string[]) : [],
         createdAt: b.createdAt.toISOString(),
+        particulierId: b.artisanId ?? null,
+        contact: (b.contact as string) ?? null,
       }));
     }
   }

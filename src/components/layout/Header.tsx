@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -26,6 +27,7 @@ export default function Header() {
 
         {/* Nav desktop */}
         <nav className="hidden items-center gap-3 sm:flex">
+          <NavMessagerieIcon />
           <Link href="/mon-profil" className="bd-btn bd-btn-outline text-sm">
             Mon profil
           </Link>
@@ -62,6 +64,13 @@ export default function Header() {
       {/* Menu mobile déroulant */}
       {menuOpen && (
         <nav className="flex flex-col gap-3 border-t-2 border-[#ffd93d]/30 bg-[#1a1a2e] px-4 py-4 sm:hidden">
+          <Link
+            href="/messages"
+            className="bd-btn bd-btn-outline w-full text-center text-sm"
+            onClick={() => setMenuOpen(false)}
+          >
+            💬 Messages
+          </Link>
           <Link
             href="/mon-profil"
             className="bd-btn bd-btn-outline w-full text-center text-sm"
