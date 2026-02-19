@@ -57,7 +57,6 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 # CLI Prisma (évite de télécharger via npx à chaque démarrage)
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 # dotenv requis par prisma.config.ts
 COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
 
@@ -66,5 +65,5 @@ USER nextjs
 EXPOSE 3000
 
 # Lance les migrations puis démarre l'app
-# Le test sur DATABASE_URL évite un crash si la var n'est pas encore injectée
-CMD ["sh", "-c", "if [ -n \"$DATABASE_URL\" ]; then node_modules/.bin/prisma migrate deploy; else echo 'WARNING: DATABASE_URL not set, skipping migrations'; fi && node server.js"]
+# node_modules/prisma/build/index.js est le vrai point d'entrée (évite le problème de symlink .bin/)
+CMD ["sh", "-c", "if [ -n \"$DATABASE_URL\" ]; then node node_modules/prisma/build/index.js migrate deploy; else echo 'WARNING: DATABASE_URL not set, skipping migrations'; fi && node server.js"]
