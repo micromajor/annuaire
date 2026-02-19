@@ -35,7 +35,7 @@ export default function FiltresArtisans({
   }));
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3 sm:flex-row">
       <MultiCombobox
         options={metierOptions}
         values={currentMetiers}
@@ -43,6 +43,7 @@ export default function FiltresArtisans({
         placeholder="Tous les métiers"
         allLabel="Tous les métiers"
         label="Corps de métier"
+        className="sm:flex-[2]"
       />
       <Combobox
         options={communeOptions}
@@ -51,6 +52,7 @@ export default function FiltresArtisans({
         placeholder="Toutes les communes"
         allLabel="Toutes les communes"
         label="Commune du projet"
+        className="sm:flex-[1]"
       />
     </div>
   );
