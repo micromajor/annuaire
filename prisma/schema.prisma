@@ -45,6 +45,8 @@ model Artisan {
   editTokens    EditToken[]
   avis          Avis[]
   oauthAccounts OAuthAccount[]
+  convsArtisan     Conversation[] @relation("ConvArtisan")
+  convsParticulier Conversation[] @relation("ConvParticulier")
 }
 
 model Metier {
@@ -130,6 +132,36 @@ model Besoin {
   photos      Json?    // tableau d'URLs (max 6)
   status      String   @default("NOUVEAU")
   createdAt   DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// MESSAGERIE
+// ---------------------------------------------------------------------------
+
+model Conversation {
+  id            String   @id @default(cuid())
+  artisanId     String
+  particulierId String
+  sujet         String   @db.VarChar(200)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  artisan     Artisan   @relation("ConvArtisan", fields: [artisanId], references: [id], onDelete: Cascade)
+  particulier Artisan   @relation("ConvParticulier", fields: [particulierId], references: [id], onDelete: Cascade)
+  messages    Message[]
+
+  @@unique([artisanId, particulierId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  expediteur     String   // "artisan" | "particulier"
+  contenu        String   @db.VarChar(2000)
+  lu             Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }
 
 // ---------------------------------------------------------------------------

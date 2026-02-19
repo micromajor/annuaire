@@ -36,6 +36,15 @@ export default async function MonEspacePage() {
       orderBy: { createdAt: "desc" },
     });
 
+    // Messages non lus (artisan → particulier)
+    const messagesNonLus = await prisma.message.count({
+      where: {
+        conversation: { particulierId: userId },
+        expediteur: "artisan",
+        lu: false,
+      },
+    });
+
     return (
       <div className="min-h-screen bg-[#60c5f1]">
         <header className="border-b-4 border-[#1a1a1a] bg-[#1a1a2e] px-6 py-4">
@@ -66,6 +75,23 @@ export default async function MonEspacePage() {
           <p className="mb-8 text-sm font-semibold text-[#1a1a2e]/60">
             Retrouvez ici vos annonces publiées.
           </p>
+
+          {/* Bouton messages */}
+          <Link
+            href="/messages"
+            className="mb-6 flex items-center justify-between rounded-2xl border-4 border-[#1a1a1a] bg-white px-5 py-3"
+            style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+          >
+            <span className="font-black text-[#1a1a2e]">💬 Mes messages</span>
+            {messagesNonLus > 0 && (
+              <span
+                className="rounded-full bg-[#ff6b6b] px-2.5 py-0.5 text-xs font-black text-white"
+                style={{ border: "2px solid #1a1a1a" }}
+              >
+                {messagesNonLus} nouveau{messagesNonLus > 1 ? "x" : ""}
+              </span>
+            )}
+          </Link>
 
           {besoins.length === 0 ? (
             <div
@@ -143,6 +169,15 @@ export default async function MonEspacePage() {
   if (!artisan) {
     return <AutoSignOut />;
   }
+
+  // Messages non lus (particulier → artisan)
+  const messagesNonLusArtisan = await prisma.message.count({
+    where: {
+      conversation: { artisanId: userId },
+      expediteur: "particulier",
+      lu: false,
+    },
+  });
 
   const nomAffiche = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
   const moyenneAvis =
@@ -338,6 +373,30 @@ export default async function MonEspacePage() {
               )
             )}
           </div>
+
+          {/* Carte — messages */}
+          <Link
+            href="/messages"
+            className="flex items-center justify-between rounded-2xl border-4 border-[#1a1a1a] bg-white p-6 transition-transform hover:-translate-y-0.5 hover:shadow-lg"
+            style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
+          >
+            <div>
+              <h2 className="bd-titre mb-1 text-xl text-[#1a1a2e]">💬 Messages clients</h2>
+              <p className="text-sm text-gray-400">
+                {messagesNonLusArtisan > 0
+                  ? `${messagesNonLusArtisan} non lu${messagesNonLusArtisan > 1 ? "s" : ""}`
+                  : "Aucun nouveau message"}
+              </p>
+            </div>
+            {messagesNonLusArtisan > 0 && (
+              <span
+                className="rounded-full bg-[#ff6b6b] px-3 py-1 text-sm font-black text-white"
+                style={{ border: "2px solid #1a1a1a" }}
+              >
+                {messagesNonLusArtisan}
+              </span>
+            )}
+          </Link>
 
           {/* Carte — demandes de contact */}
           <div

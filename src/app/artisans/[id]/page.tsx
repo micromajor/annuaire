@@ -8,6 +8,7 @@ import Footer from "@/components/layout/Footer";
 import ContactForm from "@/components/features/ContactForm";
 import AvisList from "@/components/features/AvisList";
 import AvisForm from "@/components/features/AvisForm";
+import MessagerieButton from "@/components/features/MessagerieButton";
 import type { Metadata } from "next";
 
 interface Props {
@@ -145,6 +146,10 @@ export default async function FicheArtisanPage({ params }: Props) {
               {artisan.siret && (
                 <p className="mt-3 text-xs text-gray-400">SIRET : {artisan.siret}</p>
               )}
+
+              <div className="mt-4 border-t-2 border-dashed border-gray-200 pt-4">
+                <MessagerieButton artisanId={artisan.id} artisanNom={nomAffiche} />
+              </div>
             </div>
           </div>
         </div>

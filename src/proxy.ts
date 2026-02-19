@@ -15,6 +15,15 @@ export default auth((req) => {
     }
   }
 
+  // --- /messages — artisans et particuliers ---
+  if (pathname.startsWith("/messages")) {
+    if (!["artisan", "particulier"].includes(role ?? "")) {
+      const url = new URL("/connexion", req.nextUrl.origin);
+      url.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(url);
+    }
+  }
+
   // --- /admin — admin uniquement ---
   const isAdminRoute = pathname.startsWith("/admin");
   const isLoginPage = pathname === "/admin/login";
@@ -33,5 +42,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/mon-espace/:path*", "/admin/:path*"],
+  matcher: ["/mon-espace/:path*", "/messages/:path*", "/admin/:path*"],
 };
