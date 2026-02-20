@@ -73,6 +73,7 @@ export default async function ArtisansPage({
 }) {
   const [session, params] = await Promise.all([auth(), searchParams]);
   const isConnected = !!session?.user;
+  const viewerRole = (session?.user as { role?: string })?.role;
   const page = Math.max(1, parseInt(params.page ?? "1", 10));
   const skip = (page - 1) * PAGINATION.ARTISANS_PAR_PAGE;
 
@@ -110,7 +111,9 @@ export default async function ArtisansPage({
   const totalPages = Math.ceil(total / PAGINATION.ARTISANS_PAR_PAGE);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#ffd93d]">
+    <div
+      className={`flex min-h-screen flex-col ${viewerRole === "artisan" ? "bg-[#6bcb77]" : viewerRole === "particulier" ? "bg-[#60c5f1]" : "bg-[#ffd93d]"}`}
+    >
       {/* Header minimaliste */}
       <header className="relative z-50 flex items-center justify-between px-6 py-4">
         <Link

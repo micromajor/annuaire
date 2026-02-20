@@ -1,9 +1,9 @@
-export const revalidate = 3600;
-export const dynamicParams = true;
+export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db/client";
+import { auth } from "@/lib/auth";
 import { METIERS, COMMUNES_NANTES_EST } from "@/constants";
 import { slugify } from "@/lib/utils/slugify";
 import ArtisanCard from "@/components/features/ArtisanCard";
@@ -12,13 +12,6 @@ import type { Metadata } from "next";
 type PageProps = {
   params: Promise<{ metier: string; commune: string }>;
 };
-
-// Pas de pré-rendu au build : la DB n'est pas accessible dans le conteneur Docker.
-// dynamicParams = true + revalidate = 3600 : ISR génère les pages à la 1ère visite,
-// puis les met en cache 1h. Comportement identique au SSG pour l'utilisateur final.
-export function generateStaticParams() {
-  return [];
-}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { metier, commune } = await params;
@@ -52,7 +45,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function LandingMetierCommune({ params }: PageProps) {
-  const { metier, commune } = await params;
+  const [{ metier, commune }, session] = await Promise.all([params, auth()]);
+  const viewerRole = (session?.user as { role?: string })?.role;
   const metierInfo = METIERS.find((m) => m.slug === metier);
   const communeInfo = COMMUNES_NANTES_EST.find((c) => slugify(c.nom) === commune);
   if (!metierInfo || !communeInfo) notFound();
@@ -151,7 +145,9 @@ export default async function LandingMetierCommune({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdItemList) }}
       />
 
-      <div className="flex min-h-screen flex-col bg-[#ffd93d]">
+      <div
+        className={`flex min-h-screen flex-col ${viewerRole === "artisan" ? "bg-[#6bcb77]" : viewerRole === "particulier" ? "bg-[#60c5f1]" : "bg-[#ffd93d]"}`}
+      >
         {/* Header */}
         <header className="relative z-50 flex items-center justify-between px-6 py-4">
           <Link
