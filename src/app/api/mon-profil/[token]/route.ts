@@ -11,7 +11,15 @@ const patchSchema = z.object({
     .or(z.literal("")),
   telephone: z.string().optional(),
   siteWeb: z.string().url("URL invalide").optional().or(z.literal("")),
-  logoUrl: z.string().url("URL de logo invalide").optional().or(z.literal("")),
+  logoUrl: z
+    .string()
+    .max(500)
+    .refine(
+      (v) => v === "" || v.startsWith("/api/files/") || /^https?:\/\//.test(v),
+      "URL de logo invalide"
+    )
+    .optional()
+    .or(z.literal("")),
   description: z.string().max(500).optional(),
   metierSlugs: z.array(z.string()).min(1, "Au moins un métier requis"),
   communeIds: z.array(z.string()).min(1, "Au moins une commune requise"),
