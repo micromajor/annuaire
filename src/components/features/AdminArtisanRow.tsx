@@ -267,9 +267,8 @@ export default function AdminArtisanRow({
                   forceShow: !!draft.communeLabels,
                 },
               ].filter(
-                (d): d is DiffItem =>
-                  !!d.forceShow || (d.after !== undefined && d.before !== d.after)
-              );
+                (d) => !!d.forceShow || (d.after !== undefined && d.before !== d.after)
+              ) as DiffItem[];
 
               if (diffs.length === 0) return null;
               return (
