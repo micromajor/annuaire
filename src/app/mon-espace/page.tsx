@@ -301,21 +301,47 @@ export default async function MonEspacePage() {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {/* Formulaire de modification / complétion */}
-          <MonEspaceEditForm
-            artisan={{
-              prenom: artisan.prenom,
-              nom: artisan.nom,
-              raisonSociale: artisan.raisonSociale,
-              telephone: artisan.telephone,
-              siret: artisan.siret,
-              siteWeb: artisan.siteWeb,
-              description: artisan.description,
-              logoUrl: artisan.logoUrl,
-              metierSlugs: artisan.metiers.map((m: { metier: { slug: string } }) => m.metier.slug),
-              communeNoms: artisan.communes.map((c: { commune: { nom: string } }) => c.commune.nom),
-              status: artisan.status,
-            }}
-          />
+          {(() => {
+            // Si un draft est en attente, pré-remplir le formulaire avec les données du draft
+            // (les dernières modifs de l'artisan, pas les données live validées)
+            const draft =
+              artisan.hasPendingDraft && artisan.draftData
+                ? (artisan.draftData as {
+                    prenom?: string;
+                    nom?: string;
+                    raisonSociale?: string | null;
+                    telephone?: string | null;
+                    siret?: string | null;
+                    siteWeb?: string | null;
+                    description?: string | null;
+                    logoUrl?: string | null;
+                    metierSlugs?: string[];
+                    communeLabels?: string[];
+                  })
+                : null;
+
+            return (
+              <MonEspaceEditForm
+                artisan={{
+                  prenom: draft?.prenom ?? artisan.prenom,
+                  nom: draft?.nom ?? artisan.nom,
+                  raisonSociale: draft?.raisonSociale ?? artisan.raisonSociale,
+                  telephone: draft?.telephone ?? artisan.telephone,
+                  siret: draft?.siret ?? artisan.siret,
+                  siteWeb: draft?.siteWeb ?? artisan.siteWeb,
+                  description: draft?.description ?? artisan.description,
+                  logoUrl: draft?.logoUrl ?? artisan.logoUrl,
+                  metierSlugs:
+                    draft?.metierSlugs ??
+                    artisan.metiers.map((m: { metier: { slug: string } }) => m.metier.slug),
+                  communeNoms:
+                    draft?.communeLabels ??
+                    artisan.communes.map((c: { commune: { nom: string } }) => c.commune.nom),
+                  status: artisan.status,
+                }}
+              />
+            );
+          })()}
 
           {/* Carte — infos (lecture seule, visible quand profil complet) */}
           {artisan.prenom && (
