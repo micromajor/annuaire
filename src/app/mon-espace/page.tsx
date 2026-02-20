@@ -8,6 +8,7 @@ import Link from "next/link";
 import MonEspaceEditForm from "@/components/features/MonEspaceEditForm";
 import PortfolioUploader from "@/components/features/PortfolioUploader";
 import DangerZone from "@/components/features/DangerZone";
+import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapper";
 
 export default async function MonEspacePage() {
   const session = await auth();
@@ -305,12 +306,39 @@ export default async function MonEspacePage() {
                     .map((m: { metier: { label: string } }) => m.metier.label)
                     .join(", ") || <span className="text-gray-300">—</span>}
                 </dd>
-                <dt className="font-bold text-gray-500">Zones</dt>
-                <dd>
-                  {artisan.communes
-                    .map((c: { commune: { nom: string } }) => c.commune.nom)
-                    .join(", ") || <span className="text-gray-300">—</span>}
-                </dd>
+              </dl>
+
+              {/* Carte zones */}
+              {artisan.communes.length > 0 ? (
+                <div className="mt-4">
+                  <p className="mb-2 text-sm font-bold text-gray-500">Zones d&apos;intervention</p>
+                  <div className="mb-3 overflow-hidden rounded-xl border-2 border-[#1a1a1a]">
+                    <CarteZoneLectureWrapper
+                      communeNoms={artisan.communes.map(
+                        (c: { commune: { nom: string } }) => c.commune.nom
+                      )}
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {artisan.communes.map((c: { commune: { nom: string; codePostal: string } }) => (
+                      <span
+                        key={c.commune.nom}
+                        className="rounded-full border-2 border-[#1a1a1a] bg-[#fff8f0] px-2 py-0.5 text-xs font-semibold text-[#1a1a2e]"
+                      >
+                        📍 {c.commune.nom} ({c.commune.codePostal})
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <dl className="mt-2 grid grid-cols-2 gap-x-4 text-sm">
+                  <dt className="font-bold text-gray-500">Zones</dt>
+                  <dd>
+                    <span className="text-gray-300">—</span>
+                  </dd>
+                </dl>
+              )}
+              <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 {artisan.telephone && (
                   <>
                     <dt className="font-bold text-gray-500">Téléphone</dt>
