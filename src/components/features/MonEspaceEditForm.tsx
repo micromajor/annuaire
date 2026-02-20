@@ -369,7 +369,7 @@ export default function MonEspaceEditForm({ artisan }: Props) {
             </legend>
             <MapZoneSelector
               selected={form.communeNoms}
-              onChange={(noms) => setForm({ ...form, communeNoms: noms })}
+              onChange={(noms) => setForm((prev) => ({ ...prev, communeNoms: noms }))}
             />
             {errors.communeNoms && (
               <p className="mt-1 text-xs text-[#ff6b6b]">{errors.communeNoms[0]}</p>
