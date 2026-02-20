@@ -193,9 +193,8 @@ export default async function MonEspacePage() {
       ? artisan.avis.reduce((s: number, a: { note: number }) => s + a.note, 0) / artisan.avis.length
       : null;
 
-  // Profil jamais complété (inscription email/password sans remplir la fiche)
-  const ficheVide =
-    artisan.status === "EN_ATTENTE" && !artisan.prenom && artisan.metiers.length === 0;
+  // Fiche jamais soumise = pas de métier (Google pré-remplit le prénom, mais ça ne signifie rien)
+  const ficheVide = artisan.status === "EN_ATTENTE" && artisan.metiers.length === 0;
 
   const statusLabel: Record<string, string> = {
     EN_ATTENTE: ficheVide ? "⚙️ Profil à compléter" : "⏳ En attente de validation",
