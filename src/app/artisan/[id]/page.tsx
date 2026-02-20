@@ -81,6 +81,8 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
   const avisToken = sp.avisToken;
   const isConnected = !!session?.user;
   const viewerRole = (session?.user as { role?: string })?.role;
+  const viewerId = (session?.user as { id?: string })?.id;
+  const isOwnFiche = viewerRole === "artisan" && viewerId === id;
 
   const artisan = await prisma.artisan.findFirst({
     where: { id, status: "VALIDE", deletedAt: null },
@@ -232,9 +234,21 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
         </header>
 
         <main className="mx-auto w-full max-w-6xl px-4 pt-6 pb-16">
+          {isOwnFiche && (
+            <div className="mb-4 flex items-center gap-3 rounded-xl border-2 border-[#1a1a2e] bg-[#1a1a2e] px-4 py-3 text-sm font-bold text-white">
+              <span>&#128064;</span>
+              <span>Mode pr&eacute;visualisation &mdash; voici ce que voient vos visiteurs.</span>
+              <Link
+                href="/mon-espace"
+                className="ml-auto shrink-0 rounded-lg border-2 border-white/40 px-3 py-1 text-xs hover:bg-white/10"
+              >
+                &larr; Mon espace
+              </Link>
+            </div>
+          )}
           <nav className="mb-6 text-sm font-semibold text-[#1a1a2e]/60">
-            <Link href="/artisans" className="hover:text-[#1a1a2e]">
-              &larr; Retour &agrave; l&apos;annuaire
+            <Link href={isOwnFiche ? "/mon-espace" : "/artisans"} className="hover:text-[#1a1a2e]">
+              {isOwnFiche ? "\u2190 Mon espace" : "\u2190 Retour \u00e0 l\u2019annuaire"}
             </Link>
           </nav>
 
