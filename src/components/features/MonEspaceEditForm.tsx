@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { METIERS, COMMUNES_NANTES_EST } from "@/constants";
+import { METIERS } from "@/constants";
 
 // Leaflet ne fonctionne pas en SSR (uses window)
 const MapZoneSelector = dynamic(() => import("@/components/ui/MapZoneSelector"), {
@@ -18,6 +18,8 @@ const MapZoneSelector = dynamic(() => import("@/components/ui/MapZoneSelector"),
   ),
 });
 
+type CommunePair = { nom: string; codePostal: string };
+
 type Props = {
   artisan: {
     prenom: string | null;
@@ -29,7 +31,7 @@ type Props = {
     description: string | null;
     logoUrl: string | null;
     metierSlugs: string[];
-    communeNoms: string[];
+    communePairs: CommunePair[];
     status: string;
   };
 };
@@ -48,7 +50,7 @@ export default function MonEspaceEditForm({ artisan }: Props) {
     description: artisan.description ?? "",
     logoUrl: artisan.logoUrl ?? "",
     metierSlugs: artisan.metierSlugs,
-    communeNoms: artisan.communeNoms,
+    communePairs: artisan.communePairs,
   });
 
   const [errors, setErrors] = useState<Record<string, string[]>>({});
@@ -368,11 +370,11 @@ export default function MonEspaceEditForm({ artisan }: Props) {
               Zones d&apos;intervention <span className="text-[#ff6b6b]">*</span>
             </legend>
             <MapZoneSelector
-              selected={form.communeNoms}
-              onChange={(noms) => setForm((prev) => ({ ...prev, communeNoms: noms }))}
+              selected={form.communePairs.map((p) => p.nom)}
+              onChange={(pairs) => setForm((prev) => ({ ...prev, communePairs: pairs }))}
             />
-            {errors.communeNoms && (
-              <p className="mt-1 text-xs text-[#ff6b6b]">{errors.communeNoms[0]}</p>
+            {errors.communePairs && (
+              <p className="mt-1 text-xs text-[#ff6b6b]">{errors.communePairs[0]}</p>
             )}
           </fieldset>
 

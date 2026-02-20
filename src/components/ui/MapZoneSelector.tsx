@@ -8,11 +8,11 @@ import "leaflet/dist/leaflet.css";
 
 type Props = {
   selected: string[]; // noms de communes sélectionnées
-  onChange: (noms: string[]) => void;
+  onChange: (communes: { nom: string; codePostal: string }[]) => void;
   departement?: string; // code département INSEE, défaut "44"
 };
 
-type CommuneFeature = Feature<Geometry, { nom: string; code: string }>;
+type CommuneFeature = Feature<Geometry, { nom: string; code: string; codesPostaux?: string[] }>;
 
 function FitBounds() {
   const map = useMap();
@@ -24,6 +24,7 @@ function FitBounds() {
 
 export default function MapZoneSelector({ selected, onChange, departement = "44" }: Props) {
   const [geoData, setGeoData] = useState<GeoJsonObject | null>(null);
+  const [communeMap, setCommuneMap] = useState<Map<string, string>>(new Map()); // nom → codePostal
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [geoJsonKey, setGeoJsonKey] = useState(0);
@@ -33,11 +34,19 @@ export default function MapZoneSelector({ selected, onChange, departement = "44"
     async function fetchDepartement() {
       try {
         const res = await fetch(
-          `https://geo.api.gouv.fr/departements/${departement}/communes?fields=nom,code,contour&format=geojson&geometry=contour`
+          `https://geo.api.gouv.fr/departements/${departement}/communes?fields=nom,code,codesPostaux,contour&format=geojson&geometry=contour`
         );
         if (!res.ok) throw new Error("fetch failed");
         const geojson = await res.json();
-        if (!cancelled) setGeoData(geojson);
+        if (!cancelled) {
+          setGeoData(geojson);
+          // Construire la map nom → codePostal une seule fois
+          const map = new Map<string, string>();
+          (geojson.features as CommuneFeature[]).forEach((f) => {
+            map.set(f.properties.nom, f.properties.codesPostaux?.[0] ?? "");
+          });
+          setCommuneMap(map);
+        }
       } catch {
         if (!cancelled) setError(true);
       } finally {
@@ -75,7 +84,10 @@ export default function MapZoneSelector({ selected, onChange, departement = "44"
     });
 
     layer.on("click", () => {
-      onChange(selected.includes(nom) ? selected.filter((n) => n !== nom) : [...selected, nom]);
+      const newNoms = selected.includes(nom)
+        ? selected.filter((n) => n !== nom)
+        : [...selected, nom];
+      onChange(newNoms.map((n) => ({ nom: n, codePostal: communeMap.get(n) ?? "" })));
     });
 
     layer.on("mouseover", () => {
@@ -166,7 +178,10 @@ export default function MapZoneSelector({ selected, onChange, departement = "44"
               {nom}
               <button
                 type="button"
-                onClick={() => onChange(selected.filter((n) => n !== nom))}
+                onClick={() => {
+                  const newNoms = selected.filter((n) => n !== nom);
+                  onChange(newNoms.map((n) => ({ nom: n, codePostal: communeMap.get(n) ?? "" })));
+                }}
                 className="ml-0.5 font-black hover:text-[#ff6b6b]"
               >
                 ×

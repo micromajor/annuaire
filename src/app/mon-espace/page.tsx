@@ -197,6 +197,7 @@ export default async function MonEspacePage() {
   const ficheVide = artisan.status === "EN_ATTENTE" && artisan.metiers.length === 0;
 
   // Draft en attente → afficher les données du draft dans le formulaire ET dans l'aperçu fiche
+  type CommunePair = { nom: string; codePostal: string };
   type PendingDraft = {
     prenom?: string;
     nom?: string;
@@ -208,7 +209,8 @@ export default async function MonEspacePage() {
     logoUrl?: string | null;
     metierSlugs?: string[];
     metierLabels?: string[];
-    communeLabels?: string[];
+    communePairs?: CommunePair[]; // nouveau format
+    communeLabels?: string[]; // pour l'affichage (les deux formats)
   };
   const pendingDraft: PendingDraft | null =
     artisan.hasPendingDraft && artisan.draftData ? (artisan.draftData as PendingDraft) : null;
@@ -226,7 +228,17 @@ export default async function MonEspacePage() {
     artisan.metiers.map((m: { metier: { label: string } }) => m.metier.label);
   const displayCommuneNoms =
     pendingDraft?.communeLabels ??
+    pendingDraft?.communePairs?.map((p) => p.nom) ??
     artisan.communes.map((c: { commune: { nom: string } }) => c.commune.nom);
+
+  // communePairs pour le formulaire d'édition (avec codePostal pour pouvoir upsert)
+  const formCommunePairs: CommunePair[] =
+    pendingDraft?.communePairs ??
+    artisan.communes.map((c: { commune: { nom: string; codePostal: string } }) => ({
+      nom: c.commune.nom,
+      codePostal: c.commune.codePostal,
+    }));
+
   const displayNomAffiche = displayRaisonSociale ?? `${displayPrenom} ${displayNom}`;
 
   const statusLabel: Record<string, string> = {
@@ -347,7 +359,7 @@ export default async function MonEspacePage() {
               metierSlugs:
                 pendingDraft?.metierSlugs ??
                 artisan.metiers.map((m: { metier: { slug: string } }) => m.metier.slug),
-              communeNoms: displayCommuneNoms,
+              communePairs: formCommunePairs,
               status: artisan.status,
             }}
           />

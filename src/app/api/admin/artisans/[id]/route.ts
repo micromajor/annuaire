@@ -53,15 +53,35 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         logoUrl?: string | null;
         description?: string | null;
         metierSlugs: string[];
-        communeIds: string[];
+        // Nouveau format (depuis refacto communePairs)
+        communePairs?: { nom: string; codePostal: string }[];
+        // Ancien format (legacy)
+        communeIds?: string[];
       };
 
       const metiers = await prisma.metier.findMany({
         where: { slug: { in: draft.metierSlugs } },
       });
-      const communes = await prisma.commune.findMany({
-        where: { id: { in: draft.communeIds } },
-      });
+
+      // Résoudre les communes selon le format du draft
+      let communes: { id: string }[];
+      if (draft.communePairs && draft.communePairs.length > 0) {
+        // Nouveau format : upsert pour garantir l'existence en DB
+        communes = await Promise.all(
+          draft.communePairs.map((pair) =>
+            prisma.commune.upsert({
+              where: { nom_codePostal: { nom: pair.nom, codePostal: pair.codePostal } },
+              create: { nom: pair.nom, codePostal: pair.codePostal },
+              update: {},
+            })
+          )
+        );
+      } else {
+        // Ancien format : lookup par IDs
+        communes = await prisma.commune.findMany({
+          where: { id: { in: draft.communeIds ?? [] } },
+        });
+      }
 
       await prisma.$transaction([
         prisma.artisanMetier.deleteMany({ where: { artisanId: id } }),

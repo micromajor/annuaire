@@ -28,7 +28,9 @@ const UpdateProfileSchema = z.object({
     .optional()
     .or(z.literal("")),
   metierSlugs: z.array(z.string()).min(1, "Au moins un métier requis"),
-  communeNoms: z.array(z.string()).min(1, "Au moins une commune requise"),
+  communePairs: z
+    .array(z.object({ nom: z.string(), codePostal: z.string() }))
+    .min(1, "Au moins une commune requise"),
 });
 
 export async function PUT(req: NextRequest) {
@@ -60,7 +62,7 @@ export async function PUT(req: NextRequest) {
     description,
     logoUrl,
     metierSlugs,
-    communeNoms,
+    communePairs,
   } = parsed.data;
 
   // Résoudre les métiers
@@ -68,10 +70,16 @@ export async function PUT(req: NextRequest) {
     where: { slug: { in: metierSlugs } },
   });
 
-  // Résoudre les communes
-  const communes = await prisma.commune.findMany({
-    where: { nom: { in: communeNoms } },
-  });
+  // Upsert des communes (crée automatiquement les communes inconnues de la DB)
+  const communes = await Promise.all(
+    communePairs.map((pair) =>
+      prisma.commune.upsert({
+        where: { nom_codePostal: { nom: pair.nom, codePostal: pair.codePostal } },
+        create: { nom: pair.nom, codePostal: pair.codePostal },
+        update: {},
+      })
+    )
+  );
 
   // Mise à jour en transaction
   const updated = await prisma.$transaction(async (tx: TxClient) => {
@@ -95,12 +103,11 @@ export async function PUT(req: NextRequest) {
             siteWeb: siteWeb || null,
             description: description || null,
             logoUrl: logoUrl || null,
-            // metierSlugs et communeIds attendus par la route admin de validation
             metierSlugs,
-            communeIds: communes.map((c: { id: string }) => c.id),
+            communePairs, // { nom, codePostal }[] — pour la validation admin
             // labels pour l'affichage diff
             metierLabels: metiers.map((m: { label: string }) => m.label),
-            communeLabels: communes.map((c: { nom: string }) => c.nom),
+            communeLabels: communePairs.map((p) => p.nom),
           },
         },
       });
