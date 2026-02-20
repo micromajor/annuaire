@@ -13,14 +13,11 @@ type PageProps = {
   params: Promise<{ metier: string; commune: string }>;
 };
 
-// Pré-génère les 200 combinaisons métier × commune à la compilation
+// Pas de pré-rendu au build : la DB n'est pas accessible dans le conteneur Docker.
+// dynamicParams = true + revalidate = 3600 : ISR génère les pages à la 1ère visite,
+// puis les met en cache 1h. Comportement identique au SSG pour l'utilisateur final.
 export function generateStaticParams() {
-  return METIERS.flatMap((m) =>
-    COMMUNES_NANTES_EST.map((c) => ({
-      metier: m.slug,
-      commune: slugify(c.nom),
-    }))
-  );
+  return [];
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
