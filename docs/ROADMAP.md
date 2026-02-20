@@ -1,6 +1,6 @@
 # Roadmap — OyezArtisans · Réseau local d'artisans
 
-> Dernière mise à jour : 19 février 2026 — espace particulier + toggle BD + carte responsive  
+> Dernière mise à jour : 20 février 2026 — RGPD livré, bugs prod corrigés, fond role-aware généralisé  
 > Statuts : `[ ]` à faire · `[~]` en cours · `[x]` terminé
 
 ---
@@ -129,9 +129,14 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] **Simplification header** (18/02/2026) : liens "Trouver un artisan" et "Déposer un besoin" retirés du header. L'accueil est le point d'entrée unique pour les visiteurs.
 - [x] **`prisma generate` obligatoire après migration** : le client Prisma doit être régénéré après toute migration pour que les nouveaux champs soient disponibles en runtime (appris via bug `photos` + `artisanId` inconnus).
 - [x] **Fix middleware proxy.ts** (19/02/2026) : `role !== "artisan"` → `!["artisan","particulier"].includes(role)` sur `/mon-espace`. Cause : le middleware bloquait les particuliers silencieusement avant même l'exécution du Server Component.
-- [ ] Portfolio chantiers sur la fiche artisan (photos + description)
-- [ ] SEO : sitemap.xml, meta dynamiques, pages par commune
-- [ ] RGPD : mentions légales, politique confidentialité, suppression de compte
+- [x] **Conflit routing Next.js** (20/02/2026) : `artisans/[id]/page.tsx` et `artisans/[metier]/[commune]/page.tsx` ne peuvent pas coexister — deux noms de segments différents au même niveau. Suppression de `artisans/[id]` (doublon — la fiche canonique est `/artisan/[id]` au singulier).
+- [x] **Validateur Zod `logoUrl`** (20/02/2026) : `z.string().url()` rejetait les chemins relatifs `/api/files/...` retournés par l'upload interne. Remplacé par `.refine()` acceptant URLs absolues ET chemins `/api/files/`.
+- [x] **`generateStaticParams` retourne `[]`** (20/02/2026) : évite l'accès DB au build Docker (ECONNREFUSED). L'ISR prend le relais à la première visite.
+- [x] **Fond de page role-aware** (20/02/2026) : toutes les pages publiques adoptent la couleur du rôle connecté (vert artisan, bleu particulier, jaune visiteur). Les landings SEO passées en `force-dynamic` pour le supporter.
+- [x] **Admin home** (20/02/2026) : le rôle `admin` n'était pas géré sur la home → tombait en vue "visiteur" (fond jaune + "Se connecter"). Fix : branche dédiée avec lien Administration + déconnexion.
+- [~] Portfolio chantiers sur la fiche artisan (photos + description) ← prochain
+- [x] SEO : sitemap.xml, meta dynamiques, pages par commune (commit 9ca7208)
+- [x] RGPD : mentions légales, politique confidentialité, suppression de compte (commit eec52d5)
 
 ---
 

@@ -1,6 +1,6 @@
 # Référentiel Technique — Annuaire Hyperlocal Artisans
 
-> Dernière mise à jour : 18 février 2026 — modèle Besoin, upload photos, rôles multi-profils
+> Dernière mise à jour : 20 février 2026 — RGPD, uploads DB, Coolify/Hetzner, fond role-aware
 
 ---
 
@@ -16,7 +16,7 @@
 
 ### Base de données
 
-**PostgreSQL** (via Supabase ou Neon pour l'hébergement)
+**PostgreSQL** — hébergée sur Hetzner VPS via Coolify (conteneur Docker)
 
 - Structure relationnelle adaptée (Artisan ↔ Métier ↔ Commune)
 - Scalable, requêtes géographiques possibles (PostGIS)
@@ -79,11 +79,12 @@
 
 ### CI/CD
 
-**GitHub Actions**
+**Coolify (auto-deploy via webhook GitHub)**
 
-- Pipeline : lint → typecheck → tests → build
-- Déploiement automatique sur Vercel (branche `main`)
-- Preview deployments sur PRs
+- Push sur `main` → webhook → build Docker sur le VPS Hetzner → deploy
+- Webhook URL : `http://37.27.222.18:8000/webhooks/source/github/events/manual`
+- Pas de GitHub Actions pour l'instant (CI/CD Coolify suffit pour le MVP)
+- Pipeline de build : `prisma migrate deploy` + `prisma generate` + `next build` + `next start`
 
 ---
 
@@ -262,20 +263,34 @@ Voir le dossier `docs/ADR/` pour le détail de chaque décision.
 
 ## API Routes principales
 
-| Méthode        | Route               | Description                                      |
-| -------------- | ------------------- | ------------------------------------------------ |
-| POST           | `/api/inscription`  | Inscription artisan public                       |
-| POST           | `/api/contact`      | Formulaire de contact fiche artisan              |
-| POST           | `/api/besoins`      | Dépôt de besoin particulier (auth)               |
-| POST           | `/api/upload`       | Upload photos chantier (max 6 × 5 Mo, multipart) |
-| GET/PATCH      | `/api/mon-espace/*` | Gestion compte artisan connecté                  |
-| GET/POST/PATCH | `/api/admin/*`      | Back-office admin (protégé)                      |
+| Méthode  | Route                       | Description                                           |
+| -------- | --------------------------- | ----------------------------------------------------- |
+| POST     | `/api/inscription`          | Inscription artisan public                            |
+| POST     | `/api/contact`              | Formulaire de contact fiche artisan                   |
+| POST     | `/api/besoins`              | Dépôt de besoin particulier (auth)                    |
+| POST     | `/api/upload`               | Upload photos chantier (besoin, contact)              |
+| POST     | `/api/upload/logo`          | Upload logo artisan → stockage DB → `/api/files/{id}` |
+| POST     | `/api/upload/portfolio`     | Upload photos portfolio artisan → stockage DB         |
+| GET      | `/api/files/[id]`           | Servir un fichier uploadé depuis la DB                |
+| GET/PUT  | `/api/mon-espace/profile`   | Lecture/mise à jour profil artisan connecté           |
+| DELETE   | `/api/mon-espace/account`   | Suppression de compte (RGPD, soft delete)             |
+| GET/POST | `/api/mon-espace/portfolio` | Gestion photos portfolio artisan                      |
+| GET/POST | `/api/admin/*`              | Back-office admin (protégé)                           |
+| GET/POST | `/api/messagerie/*`         | Messagerie artisan ↔ particulier                      |
+| POST     | `/api/auth/check-email`     | Vérifie si un email existe (flow connexion)           |
+| POST     | `/api/auth/register`        | Crée un compte artisan avec mot de passe              |
 
-### Stockage fichiers
+### Stockage fichiers (uploads)
 
-- Photos uploadées dans `/public/uploads/besoins/{uuid}.ext`
-- Fichiers ignorés par git (`.gitignore` + `.gitkeep`)
-- Après toute migration Prisma : **`npx prisma generate` + redémarrage serveur obligatoires**
+**PostgreSQL — table `UploadedFile`**
+
+- Les fichiers (logos, photos portfolio, photos chantier) sont stockés en binaire dans la DB
+- Servis via la route `/api/files/[id]` avec headers `Content-Type` et cache
+- Pas de stockage sur le filesystem (évite la perte au redéploiement Docker)
+- Compression automatique via `sharp` (JPEG/WebP, qualité 80, max 1200px)
+- Types acceptés : JPEG, PNG, WebP, SVG (logo uniquement)
+- Taille max avant compression : 5 Mo
+- Contextes : `logo` | `portfolio` | `besoin` | `contact`
 
 ---
 
@@ -306,8 +321,9 @@ ADMIN_PASSWORD_HASH=
 
 ## Performance & SEO
 
-- Pages artisans : **SSG** avec revalidation ISR (toutes les heures)
-- Fiche artisan : **SSG** par slug, revalidation à la validation
-- Sitemap dynamique généré automatiquement
-- Métadonnées OpenGraph sur chaque fiche
+- **Pages artisans** (`/artisans`) : `force-dynamic` — SSR à chaque requête (fond role-aware)
+- **Landings SEO** (`/artisans/[metier]/[commune]`) : `force-dynamic` — nécessaire pour fond role-aware
+- **Fiche artisan** (`/artisan/[id]`) : `force-dynamic` — session requise pour bandeau prévisualisation
+- **Sitemap** (`/sitemap.xml`) : généré dynamiquement depuis la DB
+- **Métadonnées OpenGraph** : sur chaque fiche artisan et page landing
 - Core Web Vitals : LCP < 2.5s, CLS < 0.1 (objectif)

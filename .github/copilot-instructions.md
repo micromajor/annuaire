@@ -66,16 +66,17 @@ Tu ne te contentes pas d'exécuter : tu questionnes, proposes des alternatives, 
 
 ---
 
-## Stack & tooling (à affiner selon décisions projet)
+## Stack & tooling
 
-- **Framework** : à définir (Next.js recommandé pour SEO + full-stack)
-- **DB** : à définir (PostgreSQL recommandé pour la structure relationnelle)
-- **ORM** : Prisma
-- **Auth** : NextAuth / Clerk
+- **Framework** : Next.js 16 (App Router) — SSR/ISR/force-dynamic selon la page
+- **DB** : PostgreSQL — hébergée sur Hetzner via Coolify (conteneur Docker)
+- **ORM** : Prisma v7
+- **Auth** : NextAuth v5 — rôles JWT `admin` / `artisan` / `particulier`
 - **Validation** : Zod
 - **Tests** : Vitest + Testing Library
-- **Linter/Format** : ESLint + Prettier
-- **CI/CD** : GitHub Actions
+- **Linter/Format** : ESLint + Prettier + Husky + lint-staged
+- **CI/CD** : Coolify auto-deploy via webhook GitHub (push sur `main` → build + deploy)
+- **Hébergeur** : Hetzner VPS, orchestration Coolify à `37.27.222.18:8000`
 
 ---
 
@@ -124,11 +125,19 @@ Tu ne te contentes pas d'exécuter : tu questionnes, proposes des alternatives, 
 - Aucun script temporaire ne reste dans le repo après sa phase d'utilisation.
 - Un script ponctuel est identifiable par son emplacement dans `scripts/tmp/` — ce dossier est vidé à chaque clôture d'étape.
 
+## Règles techniques issues de l'expérience projet
+
+- **Segments dynamiques Next.js** : impossible d'avoir deux noms différents au même niveau d'arborescence (`[id]` et `[metier]` côte à côte → erreur runtime). Toujours vérifier les conflits de routing avant de créer un fichier `page.tsx`.
+- **Validateurs Zod pour uploads internes** : `z.string().url()` rejette les chemins relatifs `/api/files/...`. Utiliser `.refine()` pour accepter à la fois les URLs absolues et les chemins internes.
+- **Fond de page role-aware** : toutes les pages SSR (publiques et privées) doivent adapter leur fond selon `viewerRole` — vert `#6bcb77` artisan, bleu `#60c5f1` particulier, jaune `#ffd93d` visiteur. Extraire `viewerRole` depuis `session.user` après `auth()`.
+- **Lightbox** : toujours verrouiller le scroll du body avec `useEffect` (`document.body.style.overflow = "hidden"`) à l'ouverture, restaurer à la fermeture.
+- **Upload logo** : la route `/api/upload/logo` retourne une URL relative `/api/files/{id}` (stockage DB PostgreSQL). Ne pas confondre avec des URLs externes.
+- **`generateStaticParams` en ISR** : retourner `[]` pour éviter l'accès DB au build Docker. `dynamicParams = true` + `revalidate` suffisent pour l'ISR.
+- **`artisans/[metier]/[commune]`** : passer en `force-dynamic` dès qu'on a besoin de personnalisation par rôle (sinon la page est mise en cache sans session).
+
 ---
 
-## Contexte projet
-
-**Annuaire hyperlocal d'artisans — "Le Bon Artisan"** _(nom provisoire)_
+**Annuaire hyperlocal d'artisans — "Oyez Artisans !"** (oyezartisans.fr)
 
 ### Périmètre V1
 
