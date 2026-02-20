@@ -8,6 +8,7 @@ import AdminAvisRow from "@/components/features/AdminAvisRow";
 import AdminLogoutButton from "@/components/features/AdminLogoutButton";
 import AdminUserRow from "@/components/features/AdminUserRow";
 import type { Metadata } from "next";
+import { Prisma } from "@prisma/client";
 
 export const metadata: Metadata = { title: "Admin — OyezArtisans" };
 
@@ -29,7 +30,11 @@ export default async function AdminPage() {
       where: {
         status: "EN_ATTENTE",
         deletedAt: null,
-        NOT: { draftData: { path: ["isParticulier"], equals: true } },
+        // NOT + JSON path exclut les NULL en SQL → utiliser OR explicite
+        OR: [
+          { draftData: { equals: Prisma.DbNull } },
+          { NOT: { draftData: { path: ["isParticulier"], equals: true } } },
+        ],
       },
       include: {
         metiers: { include: { metier: true } },
