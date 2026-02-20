@@ -80,6 +80,7 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
   const [{ id }, sp, session] = await Promise.all([params, searchParams, auth()]);
   const avisToken = sp.avisToken;
   const isConnected = !!session?.user;
+  const viewerRole = (session?.user as { role?: string })?.role;
 
   const artisan = await prisma.artisan.findFirst({
     where: { id, status: "VALIDE", deletedAt: null },
@@ -154,7 +155,9 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="flex min-h-screen flex-col bg-[#ffd93d]">
+      <div
+        className={`flex min-h-screen flex-col ${viewerRole === "artisan" ? "bg-[#6bcb77]" : viewerRole === "particulier" ? "bg-[#60c5f1]" : "bg-[#ffd93d]"}`}
+      >
         {/* Header minimaliste */}
         <header className="relative z-50 flex items-center justify-between px-6 py-4">
           <Link

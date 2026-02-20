@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface PortfolioPhotosProps {
   photos: string[];
@@ -10,6 +10,18 @@ interface PortfolioPhotosProps {
 export default function PortfolioPhotos({ photos, artisanNom }: PortfolioPhotosProps) {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [lightboxIdx, setLightboxIdx] = useState(0);
+
+  // Bloquer le scroll du body quand la lightbox est ouverte
+  useEffect(() => {
+    if (lightbox) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [lightbox]);
 
   if (photos.length === 0) return null;
 
@@ -63,10 +75,13 @@ export default function PortfolioPhotos({ photos, artisanNom }: PortfolioPhotosP
       {/* Lightbox */}
       {lightbox && (
         <div
-          className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 p-4"
+          className="fixed inset-0 z-[300] flex cursor-pointer items-center justify-center bg-black/80 p-4"
           onClick={() => setLightbox(null)}
         >
-          <div className="relative max-h-[90vh] max-w-4xl" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="relative max-h-[90vh] max-w-4xl cursor-default"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={lightbox}

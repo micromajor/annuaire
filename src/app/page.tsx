@@ -17,6 +17,7 @@ export default async function HomePage() {
   const role = (session?.user as { role?: string })?.role;
   const isArtisan = role === "artisan";
   const isParticulier = role === "particulier";
+  const isAdmin = role === "admin";
   const userId = (session?.user as { id?: string })?.id;
 
   // Données selon le rôle connecté
@@ -213,6 +214,43 @@ export default async function HomePage() {
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
                   </svg>
+                </Link>
+                <form
+                  action={async () => {
+                    "use server";
+                    await signOut({ redirectTo: "/" });
+                  }}
+                >
+                  <button
+                    type="submit"
+                    aria-label="Se déconnecter"
+                    title="Se déconnecter"
+                    className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                  </button>
+                </form>
+              </>
+            ) : isAdmin ? (
+              <>
+                <Link
+                  href="/admin"
+                  className="text-sm font-bold text-[#1a1a2e] underline-offset-2 hover:underline"
+                >
+                  Administration
                 </Link>
                 <form
                   action={async () => {
