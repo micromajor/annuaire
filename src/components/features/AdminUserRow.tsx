@@ -69,12 +69,14 @@ export default function AdminUserRow({ artisan }: { artisan: Artisan }) {
           {isParticulier ? "👤 Particulier" : "🔨 Artisan"}
         </span>
 
-        {/* Statut */}
-        <span
-          className={`shrink-0 rounded-lg border-2 border-[#1a1a1a] px-2 py-0.5 text-xs font-bold ${statusInfo.color}`}
-        >
-          {statusInfo.label}
-        </span>
+        {/* Statut — non pertinent pour les particuliers */}
+        {!isParticulier && (
+          <span
+            className={`shrink-0 rounded-lg border-2 border-[#1a1a1a] px-2 py-0.5 text-xs font-bold ${statusInfo.color}`}
+          >
+            {statusInfo.label}
+          </span>
+        )}
 
         {/* Nom + email */}
         <div className="min-w-0">
