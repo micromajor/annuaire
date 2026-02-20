@@ -4,8 +4,6 @@ import { useState } from "react";
 import HeroSearch from "@/components/features/HeroSearch";
 import { type METIERS, COMMUNES_NANTES_EST } from "@/constants";
 
-type Tab = "recherche" | "projet";
-
 const MAX_PHOTOS = 6;
 
 interface ParticulierHomeProps {
@@ -258,66 +256,64 @@ function BesoinForm({
 }
 
 export default function ParticulierHome({ prenom, metiers }: ParticulierHomeProps) {
-  const [tab, setTab] = useState<Tab>("recherche");
+  const [showProjet, setShowProjet] = useState(false);
+
+  if (showProjet) {
+    return (
+      <div className="bd-anim-build relative z-10 w-full max-w-lg">
+        <button
+          onClick={() => setShowProjet(false)}
+          className="mb-6 flex items-center gap-2 text-sm font-bold text-[#1a1a2e]/60 hover:text-[#1a1a2e]"
+        >
+          ← Retour à la recherche
+        </button>
+        <BesoinForm prenomInitial={prenom} metiers={metiers} />
+      </div>
+    );
+  }
 
   return (
-    <div className="relative z-10 w-full max-w-5xl">
+    <div className="relative z-10 w-full max-w-5xl text-center">
       {/* Salutation */}
-      <div className="mb-8 text-center">
-        <span
-          className="bd-badge bd-anim-pop inline-flex"
-          style={{ background: "#1a1a2e", color: "#60c5f1" }}
-        >
-          👋 Bonjour {prenom ?? ""} !
+      <span
+        className="bd-badge bd-anim-pop mb-8 inline-flex"
+        style={{ background: "#1a1a2e", color: "#60c5f1" }}
+      >
+        👋 Bonjour {prenom ?? ""} !
+      </span>
+
+      {/* Titre — même style que la home visiteur */}
+      <h1 className="bd-titre bd-anim-build mb-10 flex flex-wrap items-baseline justify-center gap-3 text-6xl leading-tight text-[#1a1a2e] sm:text-8xl">
+        Oyez Artisans&nbsp;!
+        <span className="rounded-xl border-2 border-[#1a1a2e] bg-[#1a1a2e] px-3 py-1 text-2xl font-black text-[#60c5f1] sm:text-3xl">
+          44
         </span>
+      </h1>
+
+      {/* Barre de recherche */}
+      <div className="bd-anim-build" style={{ animationDelay: "0.15s" }}>
+        <HeroSearch metiers={metiers} />
       </div>
 
-      {/* Toggle centré */}
-      <div className="mb-10 flex justify-center">
-        <div
-          className="flex overflow-hidden rounded-2xl border-3 border-[#1a1a1a]"
-          style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+      {/* Mon Projet — CTA autonome, distinct, critique */}
+      <div
+        className="bd-anim-build mx-auto mt-12 flex max-w-md flex-col items-center gap-3 rounded-2xl border-3 border-[#1a1a2e] bg-[#1a1a2e] p-6"
+        style={{ boxShadow: "6px 6px 0 rgba(0,0,0,0.25)", animationDelay: "0.3s" }}
+      >
+        <p className="text-sm font-bold tracking-wide text-[#60c5f1]/70 uppercase">
+          Vous cherchez un artisan pour un chantier précis ?
+        </p>
+        <button
+          onClick={() => setShowProjet(true)}
+          className="bd-titre flex w-full items-center justify-center gap-3 rounded-xl border-3 border-[#60c5f1] bg-[#60c5f1] px-6 py-4 text-xl text-[#1a1a2e] transition-colors hover:bg-[#4db8e8]"
+          style={{ boxShadow: "4px 4px 0 rgba(0,0,0,0.3)" }}
         >
-          <button
-            onClick={() => setTab("recherche")}
-            className="bd-titre px-6 py-3 text-base transition-colors"
-            style={
-              tab === "recherche"
-                ? { background: "#1a1a2e", color: "#60c5f1" }
-                : { background: "white", color: "#1a1a2e" }
-            }
-          >
-            🔍 Trouver votre artisan
-          </button>
-          <button
-            onClick={() => setTab("projet")}
-            className="bd-titre border-l-3 border-[#1a1a1a] px-6 py-3 text-base transition-colors"
-            style={
-              tab === "projet"
-                ? { background: "#1a1a2e", color: "#60c5f1" }
-                : { background: "white", color: "#1a1a2e" }
-            }
-          >
-            📋 Mon projet
-          </button>
-        </div>
+          📋 Déposer mon projet
+        </button>
+        <p className="text-xs text-[#60c5f1]/50">
+          Les artisans de votre zone vous contacteront directement.
+        </p>
       </div>
-
-      {/* Contenu selon l'onglet actif */}
-      {tab === "recherche" ? (
-        <div className="text-center">
-          <h1 className="bd-titre bd-anim-build mb-10 text-5xl leading-tight text-[#1a1a2e] sm:text-7xl">
-            Trouvez votre artisan
-          </h1>
-          <div className="bd-anim-build" style={{ animationDelay: "0.1s" }}>
-            <HeroSearch metiers={metiers} />
-          </div>
-        </div>
-      ) : (
-        <div className="bd-anim-build">
-          <BesoinForm prenomInitial={prenom} metiers={metiers} />
-        </div>
-      )}
     </div>
   );
 }
