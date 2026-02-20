@@ -8,8 +8,29 @@ const schema = z.object({
   password: z.string().min(8),
 });
 
+// Rate limiting : 5 tentatives / heure / IP
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + 60 * 60 * 1000 });
+    return true;
+  }
+  if (entry.count >= 5) return false;
+  entry.count++;
+  return true;
+}
+
 /** Inscription rapide depuis la page /connexion — crée un artisan EN_ATTENTE avec juste email + password */
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json(
+      { error: "Trop de tentatives. Réessayez dans une heure." },
+      { status: 429 }
+    );
+  }
   const body = (await request.json()) as unknown;
   const result = schema.safeParse(body);
   if (!result.success) {

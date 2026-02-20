@@ -26,7 +26,11 @@ export default async function AdminPage() {
     tousLesUtilisateurs,
   ] = await Promise.all([
     prisma.artisan.findMany({
-      where: { status: "EN_ATTENTE", deletedAt: null },
+      where: {
+        status: "EN_ATTENTE",
+        deletedAt: null,
+        NOT: { draftData: { path: ["isParticulier"], equals: true } },
+      },
       include: {
         metiers: { include: { metier: true } },
         communes: { include: { commune: true } },
