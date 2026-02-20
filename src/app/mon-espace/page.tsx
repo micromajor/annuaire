@@ -193,13 +193,17 @@ export default async function MonEspacePage() {
       ? artisan.avis.reduce((s: number, a: { note: number }) => s + a.note, 0) / artisan.avis.length
       : null;
 
+  // Profil jamais complété (inscription email/password sans remplir la fiche)
+  const ficheVide =
+    artisan.status === "EN_ATTENTE" && !artisan.prenom && artisan.metiers.length === 0;
+
   const statusLabel: Record<string, string> = {
-    EN_ATTENTE: "⏳ En attente de validation",
+    EN_ATTENTE: ficheVide ? "⚙️ Profil à compléter" : "⏳ En attente de validation",
     VALIDE: "✅ Fiche en ligne",
     REJETE: "❌ Fiche rejetée",
   };
   const statusColor: Record<string, string> = {
-    EN_ATTENTE: "bg-[#ffd93d] text-[#1a1a2e]",
+    EN_ATTENTE: ficheVide ? "bg-gray-200 text-gray-600" : "bg-[#ffd93d] text-[#1a1a2e]",
     VALIDE: "bg-[#6bcb77] text-white",
     REJETE: "bg-[#ff6b6b] text-white",
   };
@@ -234,7 +238,9 @@ export default async function MonEspacePage() {
       <main className="mx-auto max-w-5xl px-4 py-10">
         {/* Titre */}
         <div className="mb-8">
-          <h1 className="bd-titre text-4xl text-[#1a1a2e]">Bonjour, {artisan.prenom} 👋</h1>
+          <h1 className="bd-titre text-4xl text-[#1a1a2e]">
+            {artisan.prenom ? `Bonjour, ${artisan.prenom} 👋` : "Mon espace artisan"}
+          </h1>
           <span
             className={`mt-2 inline-block rounded-full px-4 py-1.5 text-sm font-black ${statusColor[artisan.status]}`}
             style={{ border: "2px solid #1a1a1a" }}
