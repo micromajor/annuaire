@@ -109,9 +109,9 @@ export default async function LandingMetierCommune({ params }: PageProps) {
       position: i + 1,
       item: {
         "@type": "LocalBusiness",
-        "@id": `https://oyezartisans.fr/artisans/${a.id}`,
+        "@id": `https://oyezartisans.fr/artisan/${a.id}`,
         name: a.raisonSociale ?? `${a.prenom} ${a.nom}`,
-        url: `https://oyezartisans.fr/artisans/${a.id}`,
+        url: `https://oyezartisans.fr/artisan/${a.id}`,
         address: {
           "@type": "PostalAddress",
           addressLocality: nom,

@@ -18,6 +18,10 @@ interface ComboboxProps {
   className?: string;
   /** "default" = blanc avec bordure BD | "ghost" = fond transparent, soulignement seul */
   variant?: "default" | "ghost";
+  /** Mode multi-sélection */
+  multi?: boolean;
+  values?: string[];
+  onToggle?: (value: string) => void;
 }
 
 /** Normalise une chaîne : minuscules + sans accents */
@@ -37,6 +41,9 @@ export default function Combobox({
   label,
   className = "",
   variant = "default",
+  multi = false,
+  values = [],
+  onToggle,
 }: ComboboxProps) {
   const id = useId();
   const [query, setQuery] = useState("");
@@ -48,6 +55,15 @@ export default function Combobox({
 
   const selectedLabel =
     value === "" ? "" : (options.find((o) => o.value === value)?.label ?? value);
+
+  // Libellé affiché en mode multi
+  const multiDisplayLabel = multi
+    ? values.length === 0
+      ? ""
+      : values.length === 1
+        ? (options.find((o) => o.value === values[0])?.label ?? values[0])
+        : `${values.length} métiers`
+    : "";
 
   // Filtre : inclusion normalisée — tolère les fautes partielles
   const nq = normalize(query);
@@ -78,9 +94,20 @@ export default function Combobox({
   }, [highlighted]);
 
   function selectOption(val: string) {
-    onChange(val);
-    setQuery("");
-    setOpen(false);
+    if (multi && onToggle) {
+      if (val === "") {
+        // "tout" → vide la sélection
+        values.forEach((v) => onToggle(v));
+      } else {
+        onToggle(val);
+      }
+      setQuery("");
+      // reste ouvert en multi
+    } else {
+      onChange(val);
+      setQuery("");
+      setOpen(false);
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -102,7 +129,7 @@ export default function Combobox({
     }
   }
 
-  const displayValue = open ? query : selectedLabel;
+  const displayValue = open ? query : multi ? multiDisplayLabel : selectedLabel;
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
@@ -151,7 +178,7 @@ export default function Combobox({
           />
         </div>
         {/* Chevron / reset */}
-        {value ? (
+        {(!multi && value) || (multi && values.length > 0) ? (
           <button
             type="button"
             onClick={(e) => {
@@ -207,7 +234,7 @@ export default function Combobox({
 
           {filtered.map((opt, idx) => {
             const i = (allLabel ? 1 : 0) + idx;
-            const isSelected = opt.value === value;
+            const isSelected = multi ? values.includes(opt.value) : opt.value === value;
             const isHigh = i === highlighted;
             return (
               <li

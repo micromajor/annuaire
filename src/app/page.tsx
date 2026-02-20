@@ -131,14 +131,7 @@ export default async function HomePage() {
         className={`flex min-h-screen flex-col ${isArtisan ? "bg-[#6bcb77]" : isParticulier ? "bg-[#60c5f1]" : "bg-[#ffd93d]"}`}
       >
         {/* Header minimaliste */}
-        <header className="relative z-50 flex items-center justify-between px-6 py-4">
-          <Link
-            href="/"
-            className="bd-titre text-2xl text-[#1a1a2e] no-underline"
-            style={{ textShadow: "2px 2px 0 rgba(0,0,0,0.15)" }}
-          >
-            Oyez Artisans !
-          </Link>
+        <header className="relative z-50 flex items-center justify-end px-6 py-4">
           <nav className="flex items-center gap-3">
             {isArtisan ? (
               <>
@@ -323,11 +316,11 @@ export default async function HomePage() {
           ) : (
             /* --- Vue visiteur --- */
             <div className="relative z-10 w-full max-w-5xl text-center">
-              <span className="bd-badge bd-badge-bleu bd-anim-pop mb-8 inline-flex">
-                📍 Nantes &amp; Est Loire-Atlantique
-              </span>
-              <h1 className="bd-titre bd-anim-build mb-10 text-5xl leading-tight text-[#1a1a2e] sm:text-7xl">
-                Trouvez votre artisan
+              <h1 className="bd-titre bd-anim-build mb-10 flex flex-wrap items-baseline justify-center gap-3 text-6xl leading-tight text-[#1a1a2e] sm:text-8xl">
+                Oyez Artisans&nbsp;!
+                <span className="rounded-xl border-2 border-[#1a1a2e] bg-[#1a1a2e] px-3 py-1 text-2xl font-black text-[#ffd93d] sm:text-3xl">
+                  44
+                </span>
               </h1>
               <div className="bd-anim-build" style={{ animationDelay: "0.15s" }}>
                 <HeroSearch metiers={METIERS} />

@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { METIERS } from "@/constants";
 import Combobox from "@/components/ui/Combobox";
 import { COMMUNES_NANTES_EST } from "@/constants";
@@ -12,8 +12,16 @@ interface HeroSearchProps {
 
 export default function HeroSearch({ metiers }: HeroSearchProps) {
   const router = useRouter();
-  const [metier, setMetier] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [selectedMetiers, setSelectedMetiers] = useState<string[]>([]);
   const [commune, setCommune] = useState("");
+
+  function handleFocus() {
+    // Sur mobile, fait remonter la barre au-dessus du clavier natif
+    setTimeout(() => {
+      containerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  }
 
   const metierOptions = metiers.map((m) => ({ value: m.slug, label: m.label }));
   const communeOptions = COMMUNES_NANTES_EST.map((c) => ({
@@ -22,41 +30,76 @@ export default function HeroSearch({ metiers }: HeroSearchProps) {
     sub: c.codePostal,
   }));
 
+  function toggleMetier(slug: string) {
+    setSelectedMetiers((prev) =>
+      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]
+    );
+  }
+
   function handleSearch() {
     const params = new URLSearchParams();
-    if (metier) params.set("metier", metier);
+    selectedMetiers.forEach((m) => params.append("metier", m));
     if (commune) params.set("commune", commune);
     router.push(`/artisans${params.toString() ? "?" + params : ""}`);
   }
 
   return (
-    <div className="w-full">
-      <div className="flex flex-col items-center gap-3 sm:flex-row sm:flex-nowrap sm:justify-center sm:gap-x-3">
-        <span className="bd-titre text-3xl text-[#1a1a2e] sm:shrink-0 sm:text-4xl">Trouver</span>
+    <div ref={containerRef} className="w-full" onFocus={handleFocus}>
+      <div className="flex flex-col items-center gap-3 sm:flex-row sm:flex-nowrap sm:items-start sm:justify-center sm:gap-x-3">
+        <span className="bd-titre pt-2 text-3xl text-[#1a1a2e] sm:shrink-0 sm:text-4xl">
+          Trouver
+        </span>
 
-        <div className="flex w-full items-center gap-3 sm:contents">
+        {/* Colonne métier : combobox + chips */}
+        <div className="w-full sm:w-52 sm:shrink-0">
           <Combobox
             options={metierOptions}
-            value={metier}
-            onChange={setMetier}
-            placeholder="m&#233;tier"
-            allLabel="tous les m&#233;tiers"
-            className="min-w-0 flex-1 sm:w-52 sm:flex-none sm:shrink-0"
+            value=""
+            onChange={() => {}}
+            multi
+            values={selectedMetiers}
+            onToggle={toggleMetier}
+            placeholder="métier"
+            allLabel="tous les métiers"
+            className="w-full"
             variant="ghost"
           />
-
-          <span className="bd-titre shrink-0 text-3xl text-[#1a1a2e] sm:text-4xl">sur</span>
-
-          <Combobox
-            options={communeOptions}
-            value={commune}
-            onChange={setCommune}
-            placeholder="commune"
-            allLabel="toute la zone"
-            className="min-w-0 flex-1 sm:w-60 sm:flex-none sm:shrink-0"
-            variant="ghost"
-          />
+          {selectedMetiers.length > 1 && (
+            <div className="mt-1.5 flex flex-wrap gap-1">
+              {selectedMetiers.map((slug) => {
+                const lbl = metierOptions.find((o) => o.value === slug)?.label ?? slug;
+                return (
+                  <span
+                    key={slug}
+                    className="inline-flex items-center gap-1 rounded-lg border-2 border-[#1a1a2e] bg-[#1a1a2e] px-2 py-0.5 text-xs font-bold text-[#ffd93d]"
+                  >
+                    {lbl}
+                    <button
+                      type="button"
+                      onClick={() => toggleMetier(slug)}
+                      className="ml-0.5 leading-none hover:text-[#ff6b6b]"
+                      aria-label={`Retirer ${lbl}`}
+                    >
+                      ✕
+                    </button>
+                  </span>
+                );
+              })}
+            </div>
+          )}
         </div>
+
+        <span className="bd-titre shrink-0 pt-2 text-3xl text-[#1a1a2e] sm:text-4xl">sur</span>
+
+        <Combobox
+          options={communeOptions}
+          value={commune}
+          onChange={setCommune}
+          placeholder="commune"
+          allLabel="toute la zone"
+          className="w-full sm:w-60 sm:shrink-0"
+          variant="ghost"
+        />
 
         <button
           onClick={handleSearch}
