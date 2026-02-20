@@ -75,17 +75,40 @@ export async function PUT(req: NextRequest) {
 
   // Mise à jour en transaction
   const updated = await prisma.$transaction(async (tx: TxClient) => {
-    // Supprimer les anciennes liaisons
-    await tx.artisanMetier.deleteMany({ where: { artisanId } });
-    await tx.artisanCommune.deleteMany({ where: { artisanId } });
-
     const current = await tx.artisan.findUnique({
       where: { id: artisanId },
       select: { status: true },
     });
 
-    // Si déjà validé, repasser en attente pour re-validation
-    const newStatus = current?.status === "VALIDE" ? "EN_ATTENTE" : current?.status;
+    // Si la fiche est déjà en ligne (VALIDE) → draft en attente, ne pas toucher aux données live
+    if (current?.status === "VALIDE") {
+      return tx.artisan.update({
+        where: { id: artisanId },
+        data: {
+          hasPendingDraft: true,
+          draftData: {
+            prenom,
+            nom,
+            raisonSociale: raisonSociale || null,
+            telephone: telephone || null,
+            siret: siret || null,
+            siteWeb: siteWeb || null,
+            description: description || null,
+            logoUrl: logoUrl || null,
+            // metierSlugs et communeIds attendus par la route admin de validation
+            metierSlugs,
+            communeIds: communes.map((c: { id: string }) => c.id),
+            // labels pour l'affichage diff
+            metierLabels: metiers.map((m: { label: string }) => m.label),
+            communeLabels: communes.map((c: { nom: string }) => c.nom),
+          },
+        },
+      });
+    }
+
+    // Sinon (EN_ATTENTE, REJETE) → écraser directement, la fiche n'est pas live
+    await tx.artisanMetier.deleteMany({ where: { artisanId } });
+    await tx.artisanCommune.deleteMany({ where: { artisanId } });
 
     return tx.artisan.update({
       where: { id: artisanId },
@@ -98,7 +121,6 @@ export async function PUT(req: NextRequest) {
         siteWeb: siteWeb || null,
         description: description || null,
         logoUrl: logoUrl || null,
-        status: newStatus,
         metiers: {
           create: metiers.map((m: { id: string }) => ({ metierId: m.id })),
         },

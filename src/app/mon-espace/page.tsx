@@ -243,6 +243,57 @@ export default async function MonEspacePage() {
           </span>
         </div>
 
+        {/* Bandeau draft en attente */}
+        {artisan.hasPendingDraft &&
+          artisan.draftData &&
+          (() => {
+            const draft = artisan.draftData as {
+              prenom?: string;
+              nom?: string;
+              raisonSociale?: string | null;
+              telephone?: string | null;
+              siret?: string | null;
+              siteWeb?: string | null;
+              description?: string | null;
+              logoUrl?: string | null;
+              metierLabels?: string[];
+              communeLabels?: string[];
+            };
+            type DraftEntry = { label: string; value: string | null | undefined };
+            const champs: DraftEntry[] = [
+              { label: "Raison sociale", value: draft.raisonSociale },
+              { label: "Téléphone", value: draft.telephone },
+              { label: "SIRET", value: draft.siret },
+              { label: "Site web", value: draft.siteWeb },
+              { label: "Description", value: draft.description },
+              { label: "Logo", value: draft.logoUrl ? "Nouveau logo soumis" : null },
+              { label: "Métiers", value: draft.metierLabels?.join(", ") },
+              { label: "Zones", value: draft.communeLabels?.join(", ") },
+            ].filter((c): c is DraftEntry => c.value != null && c.value !== "");
+            return (
+              <div
+                className="mb-6 rounded-2xl border-4 border-[#a78bfa] bg-[#f5f0ff] p-5"
+                style={{ boxShadow: "5px 5px 0 #a78bfa" }}
+              >
+                <p className="bd-titre mb-1 text-lg text-[#7c3aed]">⏳ Modifications en attente</p>
+                <p className="mb-4 text-sm text-gray-600">
+                  Vos modifications sont en cours de vérification. Votre fiche reste visible en
+                  ligne avec vos informations actuelles.
+                </p>
+                {champs.length > 0 && (
+                  <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
+                    {champs.map(({ label, value }) => (
+                      <div key={label} className="contents">
+                        <dt className="font-bold text-[#7c3aed]">{label}</dt>
+                        <dd className="break-words text-gray-700">{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </div>
+            );
+          })()}
+
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {/* Formulaire de modification / complétion */}
           <MonEspaceEditForm
