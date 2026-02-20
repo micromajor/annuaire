@@ -43,7 +43,8 @@ model Artisan {
   metiers    ArtisanMetier[]
   communes   ArtisanCommune[]
   contacts   ContactRequest[]
-  editTokens    EditToken[]
+  editTokens         EditToken[]
+  passwordResetTokens PasswordResetToken[]
   avis          Avis[]
   oauthAccounts OAuthAccount[]
   convsArtisan     Conversation[] @relation("ConvArtisan")
@@ -121,6 +122,17 @@ model EditToken {
   expiresAt  DateTime
   usedAt     DateTime?
   createdAt  DateTime  @default(now())
+
+  artisan Artisan @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  token     String    @unique @default(cuid())
+  artisanId String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
 
   artisan Artisan @relation(fields: [artisanId], references: [id], onDelete: Cascade)
 }

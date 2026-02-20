@@ -10,13 +10,14 @@ function ConnexionForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/mon-espace";
 
-  const [step, setStep] = useState<"email" | "password">("email");
+  const [step, setStep] = useState<"email" | "confirm" | "password" | "forgot-sent">("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isNew, setIsNew] = useState(false);
   const [googleOnly, setGoogleOnly] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   async function handleEmailNext(e: React.FormEvent) {
     e.preventDefault();
@@ -31,11 +32,27 @@ function ConnexionForm() {
     setLoading(false);
     if (data.exists && data.googleOnly) {
       setGoogleOnly(true);
-      setStep("password"); // on réutilise l'écran pour afficher le message
+      setStep("password");
       return;
     }
-    setIsNew(!data.exists);
-    setStep("password");
+    if (data.exists) {
+      setIsNew(false);
+      setStep("password");
+    } else {
+      // Email inconnu → étape de confirmation pour éviter les fautes de frappe
+      setStep("confirm");
+    }
+  }
+
+  async function handleForgotPassword() {
+    setForgotLoading(true);
+    await fetch("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    setForgotLoading(false);
+    setStep("forgot-sent");
   }
 
   async function handlePasswordSubmit(e: React.FormEvent) {
@@ -84,13 +101,70 @@ function ConnexionForm() {
         <p className="mt-1 text-sm text-gray-500">
           {step === "email"
             ? "Connexion à votre espace"
-            : googleOnly
-              ? `Compte Google détecté pour ${email}`
-              : isNew
-                ? `Créer un compte pour ${email}`
-                : `Connexion en tant que ${email}`}
+            : step === "confirm"
+              ? `Aucun compte pour ${email}`
+              : step === "forgot-sent"
+                ? "Vérifiez vos emails"
+                : googleOnly
+                  ? `Compte Google détecté pour ${email}`
+                  : isNew
+                    ? `Créer un compte pour ${email}`
+                    : `Connexion en tant que ${email}`}
         </p>
       </div>
+
+      {step === "confirm" && (
+        <div className="flex flex-col gap-3">
+          <p className="rounded-lg bg-[#ffd93d]/30 px-4 py-3 text-sm font-semibold text-[#1a1a2e]">
+            ❓ Aucun compte trouvé pour cet email.
+            <br />
+            <span className="text-xs font-normal text-[#1a1a2e]/70">
+              Vérifiez l&apos;adresse ou créez un nouveau compte.
+            </span>
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setIsNew(true);
+              setStep("password");
+            }}
+            className="w-full rounded-xl border-2 border-[#1a1a2e] bg-[#1a1a2e] py-3 text-sm font-bold text-white hover:bg-[#2a2a4e]"
+          >
+            Créer ce compte →
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setStep("email");
+              setError("");
+            }}
+            className="text-xs text-gray-400 underline hover:text-gray-600"
+          >
+            ← Corriger l&apos;email
+          </button>
+        </div>
+      )}
+
+      {step === "forgot-sent" && (
+        <div className="flex flex-col items-center gap-4 text-center">
+          <p className="text-4xl">📧</p>
+          <p className="font-bold text-[#1a1a2e]">Email envoyé !</p>
+          <p className="text-xs text-gray-500">
+            Si un compte existe pour <strong>{email}</strong>, vous recevrez un lien de
+            réinitialisation dans quelques minutes.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setStep("email");
+              setError("");
+            }}
+            className="text-xs text-gray-400 underline hover:text-gray-600"
+          >
+            ← Retour à la connexion
+          </button>
+        </div>
+      )}
 
       {step === "email" && (
         <>
@@ -233,6 +307,16 @@ function ConnexionForm() {
           >
             ← Changer d&apos;email
           </button>
+          {!isNew && (
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={forgotLoading}
+              className="text-xs text-[#1a1a2e]/50 underline hover:text-[#1a1a2e] disabled:opacity-60"
+            >
+              {forgotLoading ? "Envoi…" : "Mot de passe oublié ?"}
+            </button>
+          )}
         </form>
       )}
 
