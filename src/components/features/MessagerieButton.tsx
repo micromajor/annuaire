@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -18,6 +19,18 @@ export default function MessagerieButton({ artisanId, artisanNom }: Props) {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Verrouiller le scroll du body quand la modale est ouverte
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   // Pas chargé encore
   if (status === "loading") return null;
@@ -67,61 +80,63 @@ export default function MessagerieButton({ artisanId, artisanNom }: Props) {
         💬 Écrire un message
       </button>
 
-      {/* Modal */}
-      {open && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setOpen(false);
-          }}
-        >
+      {/* Modal — rendue via Portal pour éviter le bug fixed/transform */}
+      {open &&
+        createPortal(
           <div
-            className="w-full max-w-md rounded-2xl border-4 border-[#1a1a1a] bg-white p-6"
-            style={{ boxShadow: "6px 6px 0 #1a1a1a" }}
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setOpen(false);
+            }}
           >
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="bd-titre text-xl text-[#1a1a2e]">✉️ Message à {artisanNom}</h3>
-              <button
-                onClick={() => setOpen(false)}
-                className="text-xl font-black text-gray-400 hover:text-[#1a1a2e]"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div>
-                <label className="mb-1 block text-sm font-bold text-[#1a1a2e]">
-                  Votre message <span className="text-[#ff6b6b]">*</span>
-                </label>
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Décrivez votre projet, la localisation, vos disponibilités…"
-                  rows={4}
-                  maxLength={2000}
-                  required
-                  className="bd-input resize-none"
-                />
+            <div
+              className="w-full max-w-md rounded-2xl border-4 border-[#1a1a1a] bg-white p-6"
+              style={{ boxShadow: "6px 6px 0 #1a1a1a" }}
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="bd-titre text-xl text-[#1a1a2e]">✉️ Message à {artisanNom}</h3>
+                <button
+                  onClick={() => setOpen(false)}
+                  className="text-xl font-black text-gray-400 hover:text-[#1a1a2e]"
+                >
+                  ✕
+                </button>
               </div>
 
-              {error && (
-                <p className="rounded-lg bg-[#ff6b6b]/10 px-3 py-2 text-sm font-bold text-[#ff6b6b]">
-                  ⚠️ {error}
-                </p>
-              )}
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div>
+                  <label className="mb-1 block text-sm font-bold text-[#1a1a2e]">
+                    Votre message <span className="text-[#ff6b6b]">*</span>
+                  </label>
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Décrivez votre projet, la localisation, vos disponibilités…"
+                    rows={4}
+                    maxLength={2000}
+                    required
+                    className="bd-input resize-none"
+                  />
+                </div>
 
-              <button
-                type="submit"
-                disabled={sending || !message.trim()}
-                className="bd-btn bd-btn-primary disabled:opacity-60"
-              >
-                {sending ? "⏳ Envoi…" : "Envoyer le message →"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+                {error && (
+                  <p className="rounded-lg bg-[#ff6b6b]/10 px-3 py-2 text-sm font-bold text-[#ff6b6b]">
+                    ⚠️ {error}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={sending || !message.trim()}
+                  className="bd-btn bd-btn-primary disabled:opacity-60"
+                >
+                  {sending ? "⏳ Envoi…" : "Envoyer le message →"}
+                </button>
+              </form>
+            </div>
+          </div>,
+          document.body
+        )}
     </>
   );
 }
