@@ -196,6 +196,39 @@ export default async function MonEspacePage() {
   // Fiche jamais soumise = pas de métier (Google pré-remplit le prénom, mais ça ne signifie rien)
   const ficheVide = artisan.status === "EN_ATTENTE" && artisan.metiers.length === 0;
 
+  // Draft en attente → afficher les données du draft dans le formulaire ET dans l'aperçu fiche
+  type PendingDraft = {
+    prenom?: string;
+    nom?: string;
+    raisonSociale?: string | null;
+    telephone?: string | null;
+    siret?: string | null;
+    siteWeb?: string | null;
+    description?: string | null;
+    logoUrl?: string | null;
+    metierSlugs?: string[];
+    metierLabels?: string[];
+    communeLabels?: string[];
+  };
+  const pendingDraft: PendingDraft | null =
+    artisan.hasPendingDraft && artisan.draftData ? (artisan.draftData as PendingDraft) : null;
+
+  const displayPrenom = pendingDraft?.prenom ?? artisan.prenom;
+  const displayNom = pendingDraft?.nom ?? artisan.nom;
+  const displayRaisonSociale = pendingDraft?.raisonSociale ?? artisan.raisonSociale;
+  const displayTelephone = pendingDraft?.telephone ?? artisan.telephone;
+  const displaySiret = pendingDraft?.siret ?? artisan.siret;
+  const displaySiteWeb = pendingDraft?.siteWeb ?? artisan.siteWeb;
+  const displayDescription = pendingDraft?.description ?? artisan.description;
+  const displayLogoUrl = pendingDraft?.logoUrl ?? artisan.logoUrl;
+  const displayMetierLabels =
+    pendingDraft?.metierLabels ??
+    artisan.metiers.map((m: { metier: { label: string } }) => m.metier.label);
+  const displayCommuneNoms =
+    pendingDraft?.communeLabels ??
+    artisan.communes.map((c: { commune: { nom: string } }) => c.commune.nom);
+  const displayNomAffiche = displayRaisonSociale ?? `${displayPrenom} ${displayNom}`;
+
   const statusLabel: Record<string, string> = {
     EN_ATTENTE: ficheVide ? "⚙️ Profil à compléter" : "⏳ En attente de validation",
     VALIDE: "✅ Fiche en ligne",
@@ -301,62 +334,45 @@ export default async function MonEspacePage() {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {/* Formulaire de modification / complétion */}
-          {(() => {
-            // Si un draft est en attente, pré-remplir le formulaire avec les données du draft
-            // (les dernières modifs de l'artisan, pas les données live validées)
-            const draft =
-              artisan.hasPendingDraft && artisan.draftData
-                ? (artisan.draftData as {
-                    prenom?: string;
-                    nom?: string;
-                    raisonSociale?: string | null;
-                    telephone?: string | null;
-                    siret?: string | null;
-                    siteWeb?: string | null;
-                    description?: string | null;
-                    logoUrl?: string | null;
-                    metierSlugs?: string[];
-                    communeLabels?: string[];
-                  })
-                : null;
-
-            return (
-              <MonEspaceEditForm
-                artisan={{
-                  prenom: draft?.prenom ?? artisan.prenom,
-                  nom: draft?.nom ?? artisan.nom,
-                  raisonSociale: draft?.raisonSociale ?? artisan.raisonSociale,
-                  telephone: draft?.telephone ?? artisan.telephone,
-                  siret: draft?.siret ?? artisan.siret,
-                  siteWeb: draft?.siteWeb ?? artisan.siteWeb,
-                  description: draft?.description ?? artisan.description,
-                  logoUrl: draft?.logoUrl ?? artisan.logoUrl,
-                  metierSlugs:
-                    draft?.metierSlugs ??
-                    artisan.metiers.map((m: { metier: { slug: string } }) => m.metier.slug),
-                  communeNoms:
-                    draft?.communeLabels ??
-                    artisan.communes.map((c: { commune: { nom: string } }) => c.commune.nom),
-                  status: artisan.status,
-                }}
-              />
-            );
-          })()}
+          <MonEspaceEditForm
+            artisan={{
+              prenom: displayPrenom,
+              nom: displayNom,
+              raisonSociale: displayRaisonSociale,
+              telephone: displayTelephone,
+              siret: displaySiret,
+              siteWeb: displaySiteWeb,
+              description: displayDescription,
+              logoUrl: displayLogoUrl,
+              metierSlugs:
+                pendingDraft?.metierSlugs ??
+                artisan.metiers.map((m: { metier: { slug: string } }) => m.metier.slug),
+              communeNoms: displayCommuneNoms,
+              status: artisan.status,
+            }}
+          />
 
           {/* Carte — infos (lecture seule, visible quand profil complet) */}
-          {artisan.prenom && (
+          {displayPrenom && (
             <div
               className="col-span-full rounded-2xl border-4 border-[#1a1a1a] bg-white p-6"
               style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
             >
-              <h2 className="bd-titre mb-4 text-xl text-[#1a1a2e]">Ma fiche</h2>
+              <div className="mb-4 flex items-center justify-between gap-2">
+                <h2 className="bd-titre text-xl text-[#1a1a2e]">Ma fiche</h2>
+                {pendingDraft && (
+                  <span className="rounded-full border-2 border-[#1a1a1a] bg-[#ffd93d] px-3 py-0.5 text-xs font-bold text-[#1a1a2e]">
+                    ⏳ Modifications en attente de validation
+                  </span>
+                )}
+              </div>
 
               {/* Logo + identité */}
               <div className="mb-4 flex items-center gap-4">
-                {artisan.logoUrl ? (
+                {displayLogoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={artisan.logoUrl}
+                    src={displayLogoUrl}
                     alt="Logo"
                     className="h-16 w-16 shrink-0 rounded-xl object-contain"
                     style={{ border: "3px solid #1a1a1a" }}
@@ -370,12 +386,10 @@ export default async function MonEspacePage() {
                   </div>
                 )}
                 <div>
-                  <p className="font-black text-[#1a1a2e]">
-                    {artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`}
-                  </p>
-                  {artisan.raisonSociale && (
+                  <p className="font-black text-[#1a1a2e]">{displayNomAffiche}</p>
+                  {displayRaisonSociale && (
                     <p className="text-sm text-gray-500">
-                      {artisan.prenom} {artisan.nom}
+                      {displayPrenom} {displayNom}
                     </p>
                   )}
                 </div>
@@ -384,30 +398,24 @@ export default async function MonEspacePage() {
               <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 <dt className="font-bold text-gray-500">Métiers</dt>
                 <dd>
-                  {artisan.metiers
-                    .map((m: { metier: { label: string } }) => m.metier.label)
-                    .join(", ") || <span className="text-gray-300">—</span>}
+                  {displayMetierLabels.join(", ") || <span className="text-gray-300">—</span>}
                 </dd>
               </dl>
 
               {/* Carte zones */}
-              {artisan.communes.length > 0 ? (
+              {displayCommuneNoms.length > 0 ? (
                 <div className="mt-4">
                   <p className="mb-2 text-sm font-bold text-gray-500">Zones d&apos;intervention</p>
                   <div className="mb-3 overflow-hidden rounded-xl border-2 border-[#1a1a1a]">
-                    <CarteZoneLectureWrapper
-                      communeNoms={artisan.communes.map(
-                        (c: { commune: { nom: string } }) => c.commune.nom
-                      )}
-                    />
+                    <CarteZoneLectureWrapper communeNoms={displayCommuneNoms} />
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {artisan.communes.map((c: { commune: { nom: string; codePostal: string } }) => (
+                    {displayCommuneNoms.map((nom: string) => (
                       <span
-                        key={c.commune.nom}
+                        key={nom}
                         className="rounded-full border-2 border-[#1a1a1a] bg-[#fff8f0] px-2 py-0.5 text-xs font-semibold text-[#1a1a2e]"
                       >
-                        📍 {c.commune.nom} ({c.commune.codePostal})
+                        📍 {nom}
                       </span>
                     ))}
                   </div>
@@ -421,37 +429,37 @@ export default async function MonEspacePage() {
                 </dl>
               )}
               <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                {artisan.telephone && (
+                {displayTelephone && (
                   <>
                     <dt className="font-bold text-gray-500">Téléphone</dt>
-                    <dd>{artisan.telephone}</dd>
+                    <dd>{displayTelephone}</dd>
                   </>
                 )}
-                {artisan.siret && (
+                {displaySiret && (
                   <>
                     <dt className="font-bold text-gray-500">SIRET</dt>
-                    <dd className="font-mono">{artisan.siret}</dd>
+                    <dd className="font-mono">{displaySiret}</dd>
                   </>
                 )}
-                {artisan.siteWeb && (
+                {displaySiteWeb && (
                   <>
                     <dt className="font-bold text-gray-500">Site web</dt>
                     <dd>
                       <a
-                        href={artisan.siteWeb}
+                        href={displaySiteWeb}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[#1a1a2e] underline"
                       >
-                        {artisan.siteWeb.replace(/^https?:\/\//, "")}
+                        {displaySiteWeb.replace(/^https?:\/\//, "")}
                       </a>
                     </dd>
                   </>
                 )}
               </dl>
 
-              {artisan.description && (
-                <p className="mt-4 border-t pt-3 text-sm text-gray-600">{artisan.description}</p>
+              {displayDescription && (
+                <p className="mt-4 border-t pt-3 text-sm text-gray-600">{displayDescription}</p>
               )}
               {artisan.status === "VALIDE" && (
                 <Link
