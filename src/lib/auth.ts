@@ -40,6 +40,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
+        // Bloquer le compte admin de ce provider
+        if (String(credentials.email) === process.env.ADMIN_EMAIL) return null;
+
         const artisan = await prisma.artisan.findFirst({
           where: { email: String(credentials.email), deletedAt: null },
         });
@@ -48,11 +51,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const valid = await bcrypt.compare(String(credentials.password), artisan.passwordHash);
         if (!valid) return null;
 
+        const draft = artisan.draftData as Record<string, unknown> | null;
+        const isParticulier = draft?.isParticulier === true;
+
         return {
           id: artisan.id,
           name: artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`,
           email: artisan.email,
-          role: "artisan",
+          role: isParticulier ? "particulier" : "artisan",
         };
       },
     }),
