@@ -7,6 +7,7 @@ import AutoSignOut from "@/components/ui/AutoSignOut";
 import Link from "next/link";
 import MonEspaceEditForm from "@/components/features/MonEspaceEditForm";
 import PortfolioUploader from "@/components/features/PortfolioUploader";
+import DangerZone from "@/components/features/DangerZone";
 
 export default async function MonEspacePage() {
   const session = await auth();
@@ -148,6 +149,11 @@ export default async function MonEspacePage() {
               ))}
             </div>
           )}
+
+          {/* Suppression de compte */}
+          <div className="mt-10">
+            <DangerZone />
+          </div>
         </main>
       </div>
     );
@@ -405,6 +411,9 @@ export default async function MonEspacePage() {
               Array.isArray(artisan.portfolioPhotos) ? (artisan.portfolioPhotos as string[]) : []
             }
           />
+
+          {/* Suppression de compte */}
+          <DangerZone />
 
           {/* Carte — demandes de contact */}
           <div
