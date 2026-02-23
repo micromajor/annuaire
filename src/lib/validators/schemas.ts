@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+export const feedbackSchema = z.object({
+  type: z.enum(["BUG", "SUGGESTION", "AUTRE"]),
+  message: z
+    .string()
+    .min(10, "Message trop court (10 caractères min)")
+    .max(1000, "Message trop long (1000 caractères max)"),
+  pageUrl: z.string().max(500).optional(),
+  email: z.string().email("Email invalide").optional().or(z.literal("")),
+});
+
 export const contactFormSchema = z.object({
   clientPrenom: z.string().min(2, "Prénom requis"),
   clientNom: z.string().min(2, "Nom requis"),

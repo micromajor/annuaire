@@ -25,6 +25,7 @@ export default async function AdminPage() {
     avisEnAttente,
     besoinsNouveau,
     tousLesUtilisateurs,
+    feedbacksNouveau,
   ] = await Promise.all([
     prisma.artisan.findMany({
       where: {
@@ -84,6 +85,10 @@ export default async function AdminPage() {
         hasPendingDraft: true,
       },
     }),
+    prisma.feedback.findMany({
+      where: { status: "NOUVEAU" },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
   return (
@@ -98,7 +103,7 @@ export default async function AdminPage() {
 
       <main className="mx-auto max-w-5xl px-4 py-8">
         {/* Stats */}
-        <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
           {[
             { label: "En attente", count: enAttente.length, color: "bg-[#ffd93d]", emoji: "⏳" },
             {
@@ -118,6 +123,12 @@ export default async function AdminPage() {
               count: besoinsNouveau.length,
               color: "bg-[#fb923c]",
               emoji: "📋",
+            },
+            {
+              label: "Retours beta",
+              count: feedbacksNouveau.length,
+              color: "bg-[#f9a8d4]",
+              emoji: "📨",
             },
             { label: "Validés", count: valides, color: "bg-[#6bcb77]", emoji: "✅" },
             { label: "Rejetés", count: rejetes, color: "bg-[#ff6b6b]", emoji: "❌" },
@@ -209,6 +220,61 @@ export default async function AdminPage() {
             </div>
           </>
         )}
+        {/* Retours beta */}
+        <h2 className="bd-titre mt-10 mb-4 text-2xl text-[#1a1a2e]">
+          📨 Retours beta ({feedbacksNouveau.length})
+        </h2>
+        {feedbacksNouveau.length === 0 ? (
+          <div className="bd-card p-8 text-center text-gray-400">
+            <div className="mb-2 text-3xl">🎉</div>
+            <p className="font-bold">Aucun retour utilisateur pour l&apos;instant.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {feedbacksNouveau.map((f) => (
+              <div
+                key={f.id}
+                className="rounded-xl border-2 border-[#1a1a1a] bg-white p-5"
+                style={{ boxShadow: "3px 3px 0 #1a1a1a" }}
+              >
+                <div className="mb-2 flex flex-wrap items-center gap-3">
+                  <span
+                    className={`rounded-full border-2 border-[#1a1a1a] px-3 py-0.5 text-sm font-bold ${
+                      f.type === "BUG"
+                        ? "bg-[#ff6b6b]"
+                        : f.type === "SUGGESTION"
+                          ? "bg-[#ffd93d]"
+                          : "bg-[#f9a8d4]"
+                    }`}
+                  >
+                    {f.type === "BUG"
+                      ? "🐛 Bug"
+                      : f.type === "SUGGESTION"
+                        ? "💡 Suggestion"
+                        : "💬 Autre"}
+                  </span>
+                  {f.pageUrl && <span className="text-xs text-gray-500">📍 {f.pageUrl}</span>}
+                  <span className="ml-auto text-xs text-gray-400">
+                    {new Date(f.createdAt).toLocaleDateString("fr-FR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+                <p className="mb-2 text-sm text-gray-700">{f.message}</p>
+                {f.email && (
+                  <p className="text-xs font-bold text-[#1a1a2e]">
+                    ✉️ <span className="font-normal text-gray-600">{f.email}</span>
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Section utilisateurs */}
         <h2 className="bd-titre mt-10 mb-4 text-2xl text-[#1a1a2e]">
           👥 Tous les utilisateurs ({tousLesUtilisateurs.length})

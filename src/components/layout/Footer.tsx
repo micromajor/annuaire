@@ -53,6 +53,12 @@ export default function Footer() {
         </div>
 
         <hr className="bd-separator my-8 opacity-30" />
+        <div className="mb-3 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border-2 border-[#ffd93d]/60 bg-[#ffd93d]/10 px-4 py-1.5 text-xs font-bold text-[#ffd93d]">
+            <span>🚀</span>
+            Oyez Artisans ! est en cours de lancement — vos retours nous aident à nous améliorer !
+          </span>
+        </div>
         <p className="text-center text-xs text-gray-400">
           © {new Date().getFullYear()} Oyez Artisans ! — Nantes & Est Loire-Atlantique
         </p>

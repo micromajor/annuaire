@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bangers, Nunito } from "next/font/google";
 import "./globals.css";
 import SessionProvider from "@/components/providers/SessionProvider";
+import FeedbackWidget from "@/components/features/FeedbackWidget";
 
 const bangers = Bangers({
   weight: "400",
@@ -84,7 +85,10 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body className={`${bangers.variable} ${nunito.variable}`}>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          {children}
+          <FeedbackWidget />
+        </SessionProvider>
       </body>
     </html>
   );

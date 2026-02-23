@@ -196,6 +196,20 @@ model UploadedFile {
 }
 
 // ---------------------------------------------------------------------------
+// FEEDBACK BETA — Retours utilisateurs / signalements de bugs
+// ---------------------------------------------------------------------------
+
+model Feedback {
+  id        String   @id @default(cuid())
+  type      String   // "BUG" | "SUGGESTION" | "AUTRE"
+  message   String   @db.VarChar(1000)
+  pageUrl   String?  @db.VarChar(500) // page depuis laquelle le retour a été envoyé
+  email     String?  // optionnel — pour pouvoir recontacter
+  status    String   @default("NOUVEAU") // "NOUVEAU" | "LU" | "TRAITE"
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
 // NEXTAUTH — OAuth accounts (Google, etc.)
 // ---------------------------------------------------------------------------
 
