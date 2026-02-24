@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 
 interface PortfolioPhotosProps {
   photos: string[];
@@ -78,8 +79,8 @@ export default function PortfolioPhotos({ photos, artisanNom }: PortfolioPhotosP
         ))}
       </div>
 
-      {/* Lightbox plein écran */}
-      {isOpen && lightboxIdx !== null && (
+      {/* Lightbox plein écran — Portal sur document.body pour échapper aux transforms CSS parents */}
+      {isOpen && lightboxIdx !== null && typeof document !== "undefined" && createPortal(
         <div
           className="fixed inset-0 z-[300] flex items-center justify-center bg-black"
           onClick={close}
@@ -126,7 +127,8 @@ export default function PortfolioPhotos({ photos, artisanNom }: PortfolioPhotosP
               </button>
             </>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
