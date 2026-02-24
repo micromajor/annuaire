@@ -1,5 +1,5 @@
-// OG image dynamique par fiche artisan
-// Rendu côté serveur (Node runtime) pour accès Prisma
+// OG image dynamique par fiche artisan — theme BD
+// Rendu cote serveur (Node runtime) pour acces Prisma
 import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/db/client";
 
@@ -8,19 +8,19 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 const METIER_EMOJI: Record<string, string> = {
-  macon: "🧱",
-  plombier: "🔧",
-  electricien: "⚡",
-  menuisier: "🪵",
-  peintre: "🎨",
-  couvreur: "🏠",
-  carreleur: "🔲",
-  chauffagiste: "🔥",
-  plaquiste: "🪚",
-  charpentier: "🔩",
-  terrassier: "⛏️",
-  paysagiste: "🌿",
-  ramoneur: "🏭",
+  macon: "\u{1F9F1}",
+  plombier: "\u{1F527}",
+  electricien: "\u26A1",
+  menuisier: "\u{1FAB5}",
+  peintre: "\u{1F3A8}",
+  couvreur: "\u{1F3E0}",
+  carreleur: "\u{1F532}",
+  chauffagiste: "\u{1F525}",
+  plaquiste: "\u{1FA9A}",
+  charpentier: "\u{1F529}",
+  terrassier: "\u26CF\uFE0F",
+  paysagiste: "\u{1F33F}",
+  ramoneur: "\u{1F3ED}",
 };
 
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
@@ -28,32 +28,41 @@ export default async function Image({ params }: { params: Promise<{ id: string }
 
   const artisan = await prisma.artisan.findFirst({
     where: { id, status: "VALIDE", deletedAt: null },
-    include: {
+    select: {
+      prenom: true,
+      nom: true,
+      raisonSociale: true,
+      siret: true,
+      telephone: true,
+      logoUrl: true,
+      description: true,
       metiers: { include: { metier: true } },
       communes: { include: { commune: true } },
       avis: { where: { status: "VALIDE" }, select: { note: true } },
     },
   });
 
-  // Fiche inconnue → image générique
+  // Fiche inconnue -> image generique BD
   if (!artisan) {
     return new ImageResponse(
       <div
         style={{
           width: "100%",
           height: "100%",
-          background: "#ffd93d",
+          background: "#fef9e7",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           fontFamily: "Impact, Arial Black, sans-serif",
-          fontSize: 64,
+          fontSize: 72,
           color: "#1a1a2e",
-          border: "16px solid #1a1a2e",
+          border: "14px solid #1a1a2e",
           boxSizing: "border-box",
+          letterSpacing: 4,
+          textTransform: "uppercase",
         }}
       >
-        Oyez Artisans !
+        {"\u{1F528}"} Oyez Artisans !
       </div>,
       { width: 1200, height: 630 }
     );
@@ -61,217 +70,112 @@ export default async function Image({ params }: { params: Promise<{ id: string }
 
   const nom = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
   const metiersLabels = artisan.metiers.map((m) => m.metier.label);
-  const communeNoms = artisan.communes.map((c) => c.commune.nom).slice(0, 3);
+  const communeNoms = artisan.communes.map((c) => c.commune.nom).slice(0, 4);
   const firstSlug = artisan.metiers[0]?.metier.slug ?? "";
-  const emoji = METIER_EMOJI[firstSlug] ?? "🔨";
+  const emoji = METIER_EMOJI[firstSlug] ?? "\u{1F528}";
   const avisCount = artisan.avis.length;
   const moyenne =
     avisCount > 0 ? artisan.avis.reduce((acc, a) => acc + a.note, 0) / avisCount : null;
   const stars = moyenne !== null ? Math.round(moyenne) : 0;
   const isPro = !!artisan.siret;
+  const tel = artisan.telephone;
+  const logoAbsolu = artisan.logoUrl && artisan.logoUrl.startsWith("http") ? artisan.logoUrl : null;
 
   return new ImageResponse(
     <div
       style={{
         width: "100%",
         height: "100%",
-        background: "#1a1a2e",
+        background: "#fef9e7",
         display: "flex",
         flexDirection: "column",
         fontFamily: "Impact, Arial Black, sans-serif",
+        border: "14px solid #1a1a2e",
+        boxSizing: "border-box",
         position: "relative",
         overflow: "hidden",
-        boxSizing: "border-box",
       }}
     >
-      {/* Fond demi-teinte BD (points simulés par un dégradé) */}
+      {/* Demi-teinte BD — points rouge-orange en arriere-plan */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          background: "radial-gradient(circle, rgba(255,217,61,0.06) 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
+          backgroundImage: "radial-gradient(circle, rgba(255,107,107,0.18) 2px, transparent 2px)",
+          backgroundSize: "22px 22px",
           display: "flex",
         }}
       />
 
-      {/* Bordure jaune gauche */}
-      <div
-        style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 12,
-          background: "#ffd93d",
-          display: "flex",
-        }}
-      />
-
-      {/* Contenu principal */}
+      {/* HEADER */}
       <div
         style={{
           display: "flex",
-          flex: 1,
-          alignItems: "stretch",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: "#1a1a2e",
+          borderBottom: "8px solid #1a1a2e",
           paddingLeft: 36,
+          paddingRight: 36,
+          height: 74,
+          flexShrink: 0,
+          zIndex: 1,
         }}
       >
-        {/* Colonne gauche — infos artisan */}
-        <div
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <span style={{ fontSize: 34 }}>{"\u{1F528}"}</span>
+          <span
+            style={{
+              fontSize: 32,
+              fontWeight: 900,
+              color: "#ffd93d",
+              textTransform: "uppercase",
+              letterSpacing: 3,
+            }}
+          >
+            Oyez Artisans !
+          </span>
+        </div>
+        <span
           style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            flex: 1,
-            paddingRight: 40,
-            paddingTop: 48,
-            paddingBottom: 48,
+            fontSize: 18,
+            color: "rgba(255,217,61,0.75)",
+            fontWeight: 700,
+            letterSpacing: 1,
           }}
         >
-          {/* Badge métier */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              marginBottom: 20,
-            }}
-          >
-            <span style={{ fontSize: 36 }}>{emoji}</span>
-            <div
-              style={{
-                background: "#ffd93d",
-                color: "#1a1a2e",
-                fontSize: 20,
-                fontWeight: 900,
-                padding: "6px 20px",
-                borderRadius: 40,
-                border: "3px solid #1a1a1a",
-                display: "flex",
-                textTransform: "uppercase",
-                letterSpacing: 2,
-              }}
-            >
-              {metiersLabels.slice(0, 2).join(" · ")}
-            </div>
-            {isPro && (
-              <div
-                style={{
-                  background: "#6bcb77",
-                  color: "#1a1a2e",
-                  fontSize: 16,
-                  fontWeight: 900,
-                  padding: "6px 16px",
-                  borderRadius: 40,
-                  border: "3px solid #1a1a1a",
-                  display: "flex",
-                }}
-              >
-                PRO VERIFIE
-              </div>
-            )}
-          </div>
+          Annuaire artisans du batiment &mdash; Nantes &amp; Loire-Atlantique
+        </span>
+      </div>
 
-          {/* Nom */}
-          <div
-            style={{
-              fontSize: nom.length > 24 ? 58 : 72,
-              fontWeight: 900,
-              color: "#ffffff",
-              lineHeight: 1.05,
-              marginBottom: 16,
-              textShadow: "4px 4px 0 #ffd93d",
-              display: "flex",
-              flexWrap: "wrap",
-            }}
-          >
-            {nom}
-          </div>
-
-          {/* Avis étoiles */}
-          {moyenne !== null && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                marginBottom: 20,
-              }}
-            >
-              <div style={{ display: "flex", gap: 4 }}>
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <span
-                    key={i}
-                    style={{
-                      fontSize: 28,
-                      color: i <= stars ? "#ffd93d" : "#555",
-                    }}
-                  >
-                    ★
-                  </span>
-                ))}
-              </div>
-              <span
-                style={{
-                  fontSize: 22,
-                  color: "#ffffff",
-                  fontWeight: 700,
-                }}
-              >
-                {moyenne.toFixed(1)} ({avisCount} avis)
-              </span>
-            </div>
-          )}
-
-          {/* Communes */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              flexWrap: "wrap",
-            }}
-          >
-            <span style={{ fontSize: 24, color: "#60c5f1" }}>📍</span>
-            <span
-              style={{
-                fontSize: 22,
-                color: "#60c5f1",
-                fontWeight: 700,
-              }}
-            >
-              {communeNoms.join(" · ")}
-              {artisan.communes.length > 3 ? ` +${artisan.communes.length - 3}` : ""}
-            </span>
-          </div>
-        </div>
-
-        {/* Colonne droite — branding */}
+      {/* CORPS */}
+      <div style={{ display: "flex", flex: 1, zIndex: 1 }}>
+        {/* Colonne gauche — avatar / note */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            width: 280,
+            width: 260,
             background: "#ffd93d",
-            borderLeft: "6px solid #1a1a1a",
-            padding: "40px 28px",
-            gap: 16,
+            borderRight: "8px solid #1a1a2e",
+            gap: 20,
+            padding: "28px 24px",
+            flexShrink: 0,
           }}
         >
-          {/* Logo artisan si disponible, sinon emoji géant */}
-          {artisan.logoUrl && artisan.logoUrl.startsWith("http") ? (
+          {/* Logo ou emoji dans encadre BD */}
+          {logoAbsolu ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={artisan.logoUrl}
+              src={logoAbsolu}
               alt={nom}
-              width={140}
-              height={140}
+              width={144}
+              height={144}
               style={{
-                borderRadius: 24,
-                border: "4px solid #1a1a1a",
+                borderRadius: 20,
+                border: "6px solid #1a1a2e",
                 objectFit: "cover",
                 background: "#fff",
               }}
@@ -279,95 +183,213 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           ) : (
             <div
               style={{
-                fontSize: 80,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: 140,
-                height: 140,
+                width: 144,
+                height: 144,
                 background: "#fff",
-                borderRadius: 24,
-                border: "4px solid #1a1a1a",
+                borderRadius: 20,
+                border: "6px solid #1a1a2e",
+                fontSize: 72,
+                boxShadow: "5px 5px 0 #1a1a2e",
               }}
             >
               {emoji}
             </div>
           )}
 
-          {/* Site name */}
-          <div
-            style={{
-              fontSize: 22,
-              fontWeight: 900,
-              color: "#1a1a2e",
-              textAlign: "center",
-              lineHeight: 1.2,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <span style={{ fontSize: 28 }}>🔨</span>
-            <span>Oyez</span>
-            <span>Artisans !</span>
+          {/* Note etoiles */}
+          {moyenne !== null && (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 4,
+                background: "#fff",
+                border: "4px solid #1a1a2e",
+                borderRadius: 16,
+                padding: "10px 18px",
+                boxShadow: "4px 4px 0 #1a1a2e",
+              }}
+            >
+              <div style={{ display: "flex", gap: 3 }}>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <span key={i} style={{ fontSize: 22, color: i <= stars ? "#ff9500" : "#ddd" }}>
+                    &#9733;
+                  </span>
+                ))}
+              </div>
+              <span style={{ fontSize: 22, fontWeight: 900, color: "#1a1a2e" }}>
+                {moyenne.toFixed(1)}/5
+              </span>
+              <span style={{ fontSize: 14, color: "#666", fontWeight: 700 }}>{avisCount} avis</span>
+            </div>
+          )}
+        </div>
+
+        {/* Colonne droite — infos artisan */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            flex: 1,
+            padding: "32px 44px",
+            gap: 18,
+          }}
+        >
+          {/* Badges metier + pro */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                background: "#ffd93d",
+                color: "#1a1a2e",
+                fontSize: 20,
+                fontWeight: 900,
+                padding: "7px 22px",
+                border: "4px solid #1a1a2e",
+                borderRadius: 50,
+                textTransform: "uppercase",
+                letterSpacing: 2,
+                boxShadow: "4px 4px 0 #1a1a2e",
+              }}
+            >
+              <span style={{ fontSize: 24 }}>{emoji}</span>
+              {metiersLabels.slice(0, 2).join("  /  ")}
+            </div>
+            {isPro && (
+              <div
+                style={{
+                  display: "flex",
+                  background: "#6bcb77",
+                  color: "#1a1a2e",
+                  fontSize: 16,
+                  fontWeight: 900,
+                  padding: "7px 18px",
+                  border: "4px solid #1a1a2e",
+                  borderRadius: 50,
+                  letterSpacing: 1,
+                  textTransform: "uppercase",
+                  boxShadow: "3px 3px 0 #1a1a2e",
+                }}
+              >
+                &#10003; PRO VERIFIE
+              </div>
+            )}
           </div>
 
-          {/* Zone géo */}
+          {/* Nom artisan */}
           <div
             style={{
-              fontSize: 13,
+              fontSize: nom.length > 30 ? 52 : nom.length > 22 ? 62 : 72,
+              fontWeight: 900,
               color: "#1a1a2e",
-              background: "rgba(26,26,46,0.12)",
-              borderRadius: 12,
-              padding: "6px 12px",
-              textAlign: "center",
+              lineHeight: 1.05,
+              textShadow: "4px 4px 0 #ffd93d",
               display: "flex",
             }}
           >
-            Nantes & Loire-Atlantique
+            {nom}
           </div>
+
+          {/* Zones d'intervention */}
+          {communeNoms.length > 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  background: "#dbeeff",
+                  border: "3px solid #1a1a2e",
+                  borderRadius: 12,
+                  padding: "6px 16px",
+                  boxShadow: "3px 3px 0 #1a1a2e",
+                }}
+              >
+                <span style={{ fontSize: 22 }}>{"\u{1F4CD}"}</span>
+                <span style={{ fontSize: 20, fontWeight: 900, color: "#1a4080" }}>
+                  {communeNoms.join("  \u00B7  ")}
+                  {artisan.communes.length > 4 ? `  +${artisan.communes.length - 4}` : ""}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Telephone — info cle pour le particulier */}
+          {tel && (
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  background: "#e8f9ed",
+                  border: "3px solid #1a1a2e",
+                  borderRadius: 12,
+                  padding: "6px 20px",
+                  boxShadow: "3px 3px 0 #1a1a2e",
+                }}
+              >
+                <span style={{ fontSize: 22 }}>{"\u{1F4DE}"}</span>
+                <span style={{ fontSize: 24, fontWeight: 900, color: "#1a5c30", letterSpacing: 1 }}>
+                  {tel}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Bande basse — CTA */}
+      {/* FOOTER */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           background: "#ffd93d",
-          borderTop: "6px solid #1a1a1a",
-          paddingLeft: 48,
-          paddingRight: 48,
-          paddingTop: 16,
-          paddingBottom: 16,
+          borderTop: "8px solid #1a1a2e",
+          paddingLeft: 44,
+          paddingRight: 44,
+          height: 72,
+          flexShrink: 0,
+          zIndex: 1,
         }}
       >
         <span
           style={{
-            fontSize: 20,
+            fontSize: 24,
             fontWeight: 900,
             color: "#1a1a2e",
             textTransform: "uppercase",
-            letterSpacing: 2,
+            letterSpacing: 3,
           }}
         >
           oyezartisans.fr
         </span>
-        <span
+        <div
           style={{
-            fontSize: 18,
-            fontWeight: 700,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
             background: "#1a1a2e",
             color: "#ffd93d",
-            padding: "8px 24px",
-            borderRadius: 40,
-            border: "3px solid #1a1a1a",
-            display: "flex",
+            fontSize: 20,
+            fontWeight: 900,
+            padding: "12px 32px",
+            borderRadius: 50,
+            border: "4px solid #1a1a2e",
+            boxShadow: "4px 4px 0 rgba(0,0,0,0.2)",
+            letterSpacing: 1,
           }}
         >
-          Voir la fiche →
-        </span>
+          Contacter cet artisan &#x2192;
+        </div>
       </div>
     </div>,
     { width: 1200, height: 630 }
