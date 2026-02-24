@@ -48,9 +48,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const metiers = artisan.metiers.map((m) => m.metier.label).join(", ");
   const communes = artisan.communes.map((c) => c.commune.nom).join(", ");
   const title = `${nom} — ${metiers}`;
-  const description =
+  const rawDescription =
     artisan.description ??
     `Fiche de ${nom}, ${metiers} à ${communes || "Loire-Atlantique"}. Contactez-le directement sur Oyez Artisans !`;
+  const description =
+    rawDescription.length > 155 ? rawDescription.slice(0, 152) + "…" : rawDescription;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://oyezartisans.fr";
   const url = `${appUrl}/artisan/${id}`;
   const carteUrl = `${appUrl}/api/artisan/${id}/carte`;

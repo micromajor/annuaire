@@ -44,6 +44,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       telephone: true,
       siteWeb: true,
       logoUrl: true,
+      description: true,
       metiers: { include: { metier: true } },
       communes: { include: { commune: true } },
       avis: { where: { status: "VALIDE" }, select: { note: true } },
@@ -65,318 +66,312 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const logoAbsolu = artisan.logoUrl?.startsWith("http") ? artisan.logoUrl : null;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://oyezartisans.fr";
   const ficheUrl = `${appUrl}/artisan/${id}`;
+  const rawDesc = artisan.description ?? "";
+  const descSnippet = rawDesc.length > 110 ? rawDesc.slice(0, 107) + "…" : rawDesc;
 
   const avisCount = artisan.avis.length;
   const moyenne =
     avisCount > 0
       ? artisan.avis.reduce((acc: number, a: { note: number }) => acc + a.note, 0) / avisCount
       : null;
+  const stars = moyenne !== null ? Math.round(moyenne) : 0;
 
-  const nomFontSize = nom.length > 28 ? 66 : nom.length > 20 ? 80 : 96;
+  const nomFontSize = nom.length > 28 ? 58 : nom.length > 20 ? 70 : 84;
   const download = req.nextUrl.searchParams.get("dl") === "1";
 
   const image = new ImageResponse(
-    (
+    <div
+      style={{
+        width: W,
+        height: H,
+        background: "#fef9e7",
+        display: "flex",
+        flexDirection: "column",
+        fontFamily: "Bangers, Impact, Arial Black, sans-serif",
+        border: "12px solid #1a1a2e",
+        boxSizing: "border-box",
+        overflow: "hidden",
+      }}
+    >
+      {/* HEADER — bandeau sombre */}
       <div
         style={{
-          width: W,
-          height: H,
-          background: "#ffd93d",
           display: "flex",
-          flexDirection: "column",
-          fontFamily: "Bangers, Impact, Arial Black, sans-serif",
-          border: "12px solid #1a1a2e",
-          boxSizing: "border-box",
-          position: "relative",
-          overflow: "hidden",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: "#1a1a2e",
+          paddingLeft: 40,
+          paddingRight: 40,
+          height: 68,
+          flexShrink: 0,
         }}
       >
-        {/* Fond halftone BD */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage:
-              "radial-gradient(circle, rgba(26,26,46,0.12) 2px, transparent 2px)",
-            backgroundSize: "20px 20px",
-            display: "flex",
-          }}
-        />
-
-        {/* CORPS PRINCIPAL */}
-        <div style={{ display: "flex", flex: 1 }}>
-          {/* COLONNE GAUCHE — identité */}
+        {/* Logo marque */}
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div
             style={{
+              background: "#ffd93d",
+              color: "#1a1a2e",
+              fontSize: 20,
+              fontWeight: 400,
+              width: 40,
+              height: 40,
+              borderRadius: 8,
               display: "flex",
-              flexDirection: "column",
-              flex: 1,
-              padding: "42px 48px 32px 48px",
-              gap: 0,
+              alignItems: "center",
+              justifyContent: "center",
+              letterSpacing: 1,
+              flexShrink: 0,
             }}
           >
-            {/* Bandeau OYEZ ARTISANS en haut */}
+            O!
+          </div>
+          <span
+            style={{
+              fontSize: 26,
+              fontWeight: 400,
+              color: "#ffd93d",
+              textTransform: "uppercase",
+              letterSpacing: 6,
+              display: "flex",
+            }}
+          >
+            Oyez Artisans !
+          </span>
+        </div>
+        {/* Badge métier dans le header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            background: "#ffd93d",
+            color: "#1a1a2e",
+            fontSize: 20,
+            fontWeight: 400,
+            padding: "6px 20px",
+            borderRadius: 50,
+            letterSpacing: 4,
+            textTransform: "uppercase",
+          }}
+        >
+          <span style={{ fontSize: 18 }}>{emoji}</span>
+          {metiersLabels.slice(0, 2).join(" / ")}
+        </div>
+      </div>
+
+      {/* CORPS */}
+      <div style={{ display: "flex", flex: 1 }}>
+        {/* Colonne gauche — identité + description */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            flex: 1,
+            padding: "36px 48px",
+            gap: 16,
+          }}
+        >
+          {/* Nom artisan */}
+          <div
+            style={{
+              fontSize: nomFontSize,
+              fontWeight: 400,
+              color: "#1a1a2e",
+              lineHeight: 1.0,
+              letterSpacing: 3,
+              display: "flex",
+              textTransform: "uppercase",
+            }}
+          >
+            {nom}
+          </div>
+
+          {/* Description courte */}
+          {descSnippet && (
             <div
               style={{
+                fontSize: 22,
+                fontFamily: "Arial, sans-serif",
+                fontWeight: 400,
+                color: "#444",
+                lineHeight: 1.4,
                 display: "flex",
-                alignItems: "center",
-                gap: 12,
-                marginBottom: 28,
+                maxWidth: 640,
               }}
             >
+              {descSnippet}
+            </div>
+          )}
+
+          {/* Zones + note */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            {communeNoms.length > 0 && (
               <div
                 style={{
-                  background: "#1a1a2e",
-                  color: "#ffd93d",
-                  fontSize: 22,
-                  fontWeight: 900,
-                  width: 44,
-                  height: 44,
-                  borderRadius: 8,
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
+                  gap: 8,
+                  background: "#dbeeff",
+                  border: "3px solid #1a1a2e",
+                  borderRadius: 50,
+                  padding: "5px 18px",
+                  boxShadow: "3px 3px 0 #1a1a2e",
+                  fontSize: 18,
+                  fontWeight: 400,
+                  color: "#1a4080",
                   letterSpacing: 2,
-                  flexShrink: 0,
                 }}
               >
-                O!
+                📍 {communeNoms.join(" · ")}
+                {artisan.communes.length > 3 ? ` +${artisan.communes.length - 3}` : ""}
               </div>
-              <span
-                style={{
-                  fontSize: 24,
-                  fontWeight: 900,
-                  color: "#1a1a2e",
-                  textTransform: "uppercase",
-                  letterSpacing: 6,
-                }}
-              >
-                Oyez Artisans !
-              </span>
-            </div>
-
-            {/* Badge métier */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                background: "#1a1a2e",
-                color: "#ffd93d",
-                fontSize: 24,
-                fontWeight: 400,
-                padding: "8px 24px",
-                borderRadius: 50,
-                letterSpacing: 5,
-                textTransform: "uppercase",
-                marginBottom: 14,
-                boxShadow: "4px 4px 0 rgba(0,0,0,0.25)",
-              }}
-            >
-              <span style={{ fontSize: 22 }}>{emoji}</span>
-              {metiersLabels.slice(0, 2).join("  /  ")}
-            </div>
-
-            {/* Nom artisan — très grand */}
-            <div
-              style={{
-                fontSize: nomFontSize,
-                fontWeight: 400,
-                color: "#1a1a2e",
-                lineHeight: 1.0,
-                letterSpacing: 3,
-                display: "flex",
-              }}
-            >
-              {nom}
-            </div>
-
-            {/* Note étoiles si dispo */}
+            )}
             {moyenne !== null && (
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
-                  marginTop: 14,
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: 22,
-                    color: "#ff9500",
-                    letterSpacing: 2,
-                    display: "flex",
-                  }}
-                >
-                  {"★".repeat(Math.round(moyenne))}
-                  {"☆".repeat(5 - Math.round(moyenne))}
-                </span>
-                <span style={{ fontSize: 20, fontWeight: 900, color: "#1a1a2e" }}>
-                  {moyenne.toFixed(1)}/5
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* COLONNE DROITE — logo + infos */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 280,
-              background: "#1a1a2e",
-              padding: "36px 28px",
-              gap: 20,
-              flexShrink: 0,
-            }}
-          >
-            {/* Logo ou emoji */}
-            {logoAbsolu ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={logoAbsolu}
-                alt={nom}
-                width={130}
-                height={130}
-                style={{
-                  borderRadius: 18,
-                  border: "5px solid #ffd93d",
-                  objectFit: "cover",
-                  background: "#fff",
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: 130,
-                  height: 130,
-                  background: "#ffd93d",
-                  borderRadius: 18,
-                  border: "5px solid #ffd93d",
-                  fontSize: 64,
-                  boxShadow: "5px 5px 0 rgba(255,217,61,0.3)",
-                }}
-              >
-                {emoji}
-              </div>
-            )}
-
-            {/* Téléphone */}
-            {tel && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  background: "#6bcb77",
-                  color: "#1a1a2e",
+                  gap: 6,
+                  background: "#fff8e1",
+                  border: "3px solid #1a1a2e",
+                  borderRadius: 50,
+                  padding: "5px 18px",
+                  boxShadow: "3px 3px 0 #1a1a2e",
                   fontSize: 18,
-                  fontWeight: 900,
-                  padding: "8px 16px",
-                  borderRadius: 10,
-                  border: "3px solid #ffd93d",
+                  color: "#1a1a2e",
                   letterSpacing: 1,
-                  width: "100%",
-                  justifyContent: "center",
                 }}
               >
-                📞 {tel}
-              </div>
-            )}
-
-            {/* Zones */}
-            {communeNoms.length > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 4,
-                  width: "100%",
-                }}
-              >
-                {communeNoms.map((c: string) => (
-                  <div
-                    key={c}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      color: "rgba(255,217,61,0.9)",
-                      fontSize: 15,
-                      fontWeight: 700,
-                    }}
-                  >
-                    📍 {c}
-                  </div>
-                ))}
-                {artisan.communes.length > 3 && (
-                  <div
-                    style={{
-                      color: "rgba(255,217,61,0.5)",
-                      fontSize: 13,
-                      fontWeight: 700,
-                      display: "flex",
-                    }}
-                  >
-                    +{artisan.communes.length - 3} autres zones
-                  </div>
-                )}
+                <span style={{ color: "#ff9500", fontSize: 20, display: "flex" }}>
+                  {"★".repeat(stars)}
+                  {"☆".repeat(5 - stars)}
+                </span>
+                <span style={{ fontWeight: 400, display: "flex" }}>{moyenne.toFixed(1)}/5</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* FOOTER — URL */}
+        {/* Colonne droite — logo + téléphone */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 240,
+            background: "#ffd93d",
+            borderLeft: "8px solid #1a1a2e",
+            padding: "28px 24px",
+            gap: 18,
+            flexShrink: 0,
+          }}
+        >
+          {/* Logo ou emoji */}
+          {logoAbsolu ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoAbsolu}
+              alt={nom}
+              width={120}
+              height={120}
+              style={{
+                borderRadius: 16,
+                border: "5px solid #1a1a2e",
+                objectFit: "cover",
+                background: "#fff",
+                boxShadow: "5px 5px 0 #1a1a2e",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 120,
+                height: 120,
+                background: "#fff",
+                borderRadius: 16,
+                border: "5px solid #1a1a2e",
+                fontSize: 58,
+                boxShadow: "5px 5px 0 #1a1a2e",
+              }}
+            >
+              {emoji}
+            </div>
+          )}
+
+          {/* Téléphone */}
+          {tel && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                background: "#1a1a2e",
+                color: "#6bcb77",
+                fontSize: 17,
+                fontWeight: 400,
+                padding: "8px 14px",
+                borderRadius: 10,
+                border: "3px solid #1a1a2e",
+                letterSpacing: 1,
+                justifyContent: "center",
+                width: "100%",
+              }}
+            >
+              📞 {tel}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: "#1a1a2e",
+          paddingLeft: 40,
+          paddingRight: 40,
+          height: 56,
+          flexShrink: 0,
+        }}
+      >
+        <span
+          style={{
+            fontSize: 18,
+            fontWeight: 400,
+            color: "rgba(255,217,61,0.6)",
+            textTransform: "uppercase",
+            letterSpacing: 4,
+            display: "flex",
+          }}
+        >
+          {ficheUrl.replace("https://", "")}
+        </span>
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            background: "#1a1a2e",
-            paddingLeft: 44,
-            paddingRight: 44,
-            height: 60,
-            flexShrink: 0,
+            background: "#ffd93d",
+            color: "#1a1a2e",
+            fontSize: 20,
+            fontWeight: 400,
+            padding: "8px 24px",
+            borderRadius: 50,
+            letterSpacing: 3,
+            textTransform: "uppercase",
           }}
         >
-          <span
-            style={{
-              fontSize: 19,
-              fontWeight: 400,
-              color: "rgba(255,217,61,0.7)",
-              textTransform: "uppercase",
-              letterSpacing: 5,
-              display: "flex",
-            }}
-          >
-            {ficheUrl.replace("https://", "")}
-          </span>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              background: "#ffd93d",
-              color: "#1a1a2e",
-              fontSize: 22,
-              fontWeight: 400,
-              padding: "10px 28px",
-              borderRadius: 50,
-              letterSpacing: 4,
-              textTransform: "uppercase",
-            }}
-          >
-            Contactez-moi →
-          </div>
+          Voir la fiche →
         </div>
       </div>
-    ),
+    </div>,
     {
       width: W,
       height: H,
