@@ -22,13 +22,16 @@ export default function PortfolioPhotos({ photos, artisanNom }: PortfolioPhotosP
 
   const close = useCallback(() => setLightboxIdx(null), []);
 
-  // Scroll lock + navigation clavier
+  // Scroll lock sans layout shift (compense la scrollbar)
   useEffect(() => {
     if (!isOpen) {
       document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
       return;
     }
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = "hidden";
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
 
     function onKey(e: KeyboardEvent) {
       if (e.key === "ArrowLeft") prev();
@@ -39,6 +42,7 @@ export default function PortfolioPhotos({ photos, artisanNom }: PortfolioPhotosP
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     };
   }, [isOpen, prev, next, close]);
 
