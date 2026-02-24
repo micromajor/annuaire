@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface PortfolioPhotosProps {
   photos: string[];
@@ -8,39 +8,41 @@ interface PortfolioPhotosProps {
 }
 
 export default function PortfolioPhotos({ photos, artisanNom }: PortfolioPhotosProps) {
-  const [lightbox, setLightbox] = useState<string | null>(null);
-  const [lightboxIdx, setLightboxIdx] = useState(0);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
-  // Bloquer le scroll du body quand la lightbox est ouverte
+  const isOpen = lightboxIdx !== null;
+
+  const prev = useCallback(() => {
+    setLightboxIdx((i) => (i === null ? 0 : (i - 1 + photos.length) % photos.length));
+  }, [photos.length]);
+
+  const next = useCallback(() => {
+    setLightboxIdx((i) => (i === null ? 0 : (i + 1) % photos.length));
+  }, [photos.length]);
+
+  const close = useCallback(() => setLightboxIdx(null), []);
+
+  // Scroll lock + navigation clavier
   useEffect(() => {
-    if (lightbox) {
-      document.body.style.overflow = "hidden";
-    } else {
+    if (!isOpen) {
       document.body.style.overflow = "";
+      return;
     }
+    document.body.style.overflow = "hidden";
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "ArrowLeft") prev();
+      else if (e.key === "ArrowRight") next();
+      else if (e.key === "Escape") close();
+    }
+    window.addEventListener("keydown", onKey);
     return () => {
+      window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [lightbox]);
+  }, [isOpen, prev, next, close]);
 
   if (photos.length === 0) return null;
-
-  function openAt(idx: number) {
-    setLightboxIdx(idx);
-    setLightbox(photos[idx]);
-  }
-
-  function prev() {
-    const idx = (lightboxIdx - 1 + photos.length) % photos.length;
-    setLightboxIdx(idx);
-    setLightbox(photos[idx]);
-  }
-
-  function next() {
-    const idx = (lightboxIdx + 1) % photos.length;
-    setLightboxIdx(idx);
-    setLightbox(photos[idx]);
-  }
 
   return (
     <>
@@ -48,7 +50,7 @@ export default function PortfolioPhotos({ photos, artisanNom }: PortfolioPhotosP
         {photos.slice(0, 6).map((url, i) => (
           <button
             key={url}
-            onClick={() => openAt(i)}
+            onClick={() => setLightboxIdx(i)}
             className="group relative aspect-square overflow-hidden rounded-lg border-2 border-[#1a1a1a] focus:outline-none"
             style={{ boxShadow: "2px 2px 0 #1a1a1a" }}
           >
@@ -72,48 +74,58 @@ export default function PortfolioPhotos({ photos, artisanNom }: PortfolioPhotosP
         ))}
       </div>
 
-      {/* Lightbox */}
-      {lightbox && (
+      {/* Lightbox plein écran */}
+      {isOpen && lightboxIdx !== null && (
         <div
-          className="fixed inset-0 z-[300] flex cursor-pointer items-center justify-center bg-black/80 p-4"
-          onClick={() => setLightbox(null)}
+          className="fixed inset-0 z-[300] flex items-center justify-center bg-black"
+          onClick={close}
         >
+          {/* Image */}
           <div
-            className="relative max-h-[90vh] max-w-4xl cursor-default"
+            className="relative flex h-full w-full items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={lightbox}
+              src={photos[lightboxIdx]}
               alt={`Chantier ${lightboxIdx + 1} - ${artisanNom}`}
-              className="max-h-[80vh] max-w-full rounded-xl border-3 border-white object-contain"
+              className="h-full w-full object-contain"
             />
-            <button
-              onClick={() => setLightbox(null)}
-              className="absolute -top-4 -right-4 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-black/60 text-sm font-bold text-white hover:bg-black"
-            >
-              &#10005;
-            </button>
-            {photos.length > 1 && (
-              <>
-                <button
-                  onClick={prev}
-                  className="absolute top-1/2 -left-12 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-black/60 text-white hover:bg-black"
-                >
-                  &#8249;
-                </button>
-                <button
-                  onClick={next}
-                  className="absolute top-1/2 -right-12 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-black/60 text-white hover:bg-black"
-                >
-                  &#8250;
-                </button>
-              </>
-            )}
-            <p className="mt-2 text-center text-xs font-semibold text-white/60">
-              {lightboxIdx + 1} / {photos.length}
-            </p>
           </div>
+
+          {/* Fermer */}
+          <button
+            onClick={close}
+            className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/40 bg-black/60 text-lg font-bold text-white hover:bg-black"
+            aria-label="Fermer"
+          >
+            &#10005;
+          </button>
+
+          {/* Compteur */}
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-1 text-sm font-bold text-white/80">
+            {lightboxIdx + 1} / {photos.length}
+          </div>
+
+          {/* Navigation */}
+          {photos.length > 1 && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); prev(); }}
+                className="absolute left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white/40 bg-black/60 text-2xl text-white hover:bg-black"
+                aria-label="Photo précédente"
+              >
+                &#8249;
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); next(); }}
+                className="absolute right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white/40 bg-black/60 text-2xl text-white hover:bg-black"
+                aria-label="Photo suivante"
+              >
+                &#8250;
+              </button>
+            </>
+          )}
         </div>
       )}
     </>
