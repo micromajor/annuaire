@@ -1,6 +1,6 @@
 # Roadmap — OyezArtisans · Réseau local d'artisans
 
-> Dernière mise à jour : 24 février 2026 — Métiers DB-driven, metierLibre, admin dashboard redesign  
+> Dernière mise à jour : 24 février 2026 — SIRET badge mon-espace + header + whitespace-pre-wrap  
 > Statuts : `[ ]` à faire · `[~]` en cours · `[x]` terminé
 
 ---
@@ -139,6 +139,10 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] **`generateStaticParams` retourne `[]`** (20/02/2026) : évite l'accès DB au build Docker (ECONNREFUSED). L'ISR prend le relais à la première visite.
 - [x] **Fond de page role-aware** (20/02/2026) : toutes les pages publiques adoptent la couleur du rôle connecté (vert artisan, bleu particulier, jaune visiteur). Les landings SEO passées en `force-dynamic` pour le supporter.
 - [x] **Admin home** (20/02/2026) : le rôle `admin` n'était pas géré sur la home → tombait en vue "visiteur" (fond jaune + "Se connecter"). Fix : branche dédiée avec lien Administration + déconnexion.
+- [x] **SiretVerifBadge React Strict Mode** (24/02/2026) : le `cancelled` flag bloquait la 2ème invocation de l'effet en dev Strict Mode (cleanup run1 → cancelled=true → run2 ignore la réponse). Fix : suppression du flag, les deux fetches se terminent avec les mêmes données (idempotent). En production (pas de Strict Mode) → 1 seul fetch.
+- [x] **Header mon-espace artisan** (24/02/2026) : header opaque avec nom artisan et bouton "Déconnexion" remplacé par header transparent "Oyez Artisans !" + icône messages + icône logout — cohérent avec `artisan/[id]/page.tsx`.
+- [x] **SiretVerifBadge dans MonEspaceEditForm** (24/02/2026) : le badge était uniquement dans `EditProfilForm` (`/mon-profil/[token]`). Ajouté à `MonEspaceEditForm` (`/mon-espace`).
+- [x] **whitespace-pre-wrap description mon-espace** (24/02/2026) : la description restituée sur `/mon-espace` n'avait pas `whitespace-pre-wrap` — les retours à la ligne du textarea étaient ignorés.
 - [~] Portfolio chantiers sur la fiche artisan (photos + description) ← prochain
 - [x] SEO : sitemap.xml, meta dynamiques, pages par commune (commit 9ca7208)
 - [x] RGPD : mentions légales, politique confidentialité, suppression de compte (commit eec52d5)
