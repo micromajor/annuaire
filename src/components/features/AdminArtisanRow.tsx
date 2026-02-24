@@ -48,6 +48,7 @@ export default function AdminArtisanRow({
   const router = useRouter();
   const [loading, setLoading] = useState<"valider" | "rejeter" | null>(null);
   const [done, setDone] = useState<"VALIDE" | "REJETE" | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [assignLoading, setAssignLoading] = useState(false);
   const [assignedLabel, setAssignedLabel] = useState<string | null>(null);
 
@@ -57,6 +58,7 @@ export default function AdminArtisanRow({
 
   async function handleAction(action: "valider" | "rejeter") {
     setLoading(action);
+    setActionError(null);
     try {
       const res = await fetch(`/api/admin/artisans/${artisan.id}`, {
         method: "PATCH",
@@ -66,7 +68,12 @@ export default function AdminArtisanRow({
       if (res.ok) {
         setDone(action === "valider" ? "VALIDE" : "REJETE");
         setTimeout(() => router.refresh(), 600);
+      } else {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        setActionError(data.error ?? `Erreur ${res.status} — réessaie.`);
       }
+    } catch {
+      setActionError("Erreur réseau — vérifie que le serveur tourne.");
     } finally {
       setLoading(null);
     }
@@ -353,6 +360,11 @@ export default function AdminArtisanRow({
           >
             {loading === "rejeter" ? "..." : "❌ Rejeter"}
           </button>
+          {actionError && (
+            <p className="mt-1 rounded border border-red-300 bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
+              ⚠️ {actionError}
+            </p>
+          )}
         </div>
       </div>
     </article>

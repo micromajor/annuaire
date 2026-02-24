@@ -46,12 +46,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (artisan.status === "VALIDE" && artisan.hasPendingDraft && artisan.draftData) {
     if (action === "valider") {
       const draft = artisan.draftData as {
+        prenom?: string | null;
+        nom?: string | null;
         raisonSociale?: string | null;
         siret?: string | null;
         telephone?: string | null;
         siteWeb?: string | null;
         logoUrl?: string | null;
         description?: string | null;
+        metierLibre?: string | null;
         metierSlugs: string[];
         // Nouveau format (depuis refacto communePairs)
         communePairs?: { nom: string; codePostal: string }[];
@@ -90,12 +93,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         await tx.artisan.update({
           where: { id },
           data: {
+            prenom: draft.prenom ?? artisan.prenom,
+            nom: draft.nom ?? artisan.nom,
             raisonSociale: draft.raisonSociale ?? null,
             siret: draft.siret || null,
             telephone: draft.telephone ?? null,
             siteWeb: draft.siteWeb || null,
             logoUrl: draft.logoUrl || null,
             description: draft.description ?? null,
+            metierLibre: draft.metierLibre ?? null,
             hasPendingDraft: false,
             draftData: Prisma.DbNull,
           },

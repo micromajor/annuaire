@@ -349,17 +349,43 @@ export default async function MonEspacePage() {
               metierLabels?: string[];
               communeLabels?: string[];
             };
-            type DraftEntry = { label: string; value: string | null | undefined };
+            type DraftEntry = { label: string; value: string };
+            const liveMetierLabels = artisan.metiers
+              .map((m) => m.metier.label)
+              .sort()
+              .join(", ");
+            const liveCommuneLabels = artisan.communes
+              .map((c) => c.commune.nom)
+              .sort()
+              .join(", ");
+            const changed = <T extends string | null | undefined>(live: T, next: T): boolean =>
+              (live ?? "") !== (next ?? "");
             const champs: DraftEntry[] = [
-              { label: "Raison sociale", value: draft.raisonSociale },
-              { label: "Téléphone", value: draft.telephone },
-              { label: "SIRET", value: draft.siret },
-              { label: "Site web", value: draft.siteWeb },
-              { label: "Description", value: draft.description },
-              { label: "Logo", value: draft.logoUrl ? "Nouveau logo soumis" : null },
-              { label: "Métiers", value: draft.metierLabels?.join(", ") },
-              { label: "Zones", value: draft.communeLabels?.join(", ") },
-            ].filter((c): c is DraftEntry => c.value != null && c.value !== "");
+              changed(artisan.raisonSociale, draft.raisonSociale)
+                ? { label: "Raison sociale", value: draft.raisonSociale || "(supprimée)" }
+                : null,
+              changed(artisan.telephone, draft.telephone)
+                ? { label: "Téléphone", value: draft.telephone || "(supprimé)" }
+                : null,
+              changed(artisan.siret, draft.siret)
+                ? { label: "SIRET", value: draft.siret || "(supprimé)" }
+                : null,
+              changed(artisan.siteWeb, draft.siteWeb)
+                ? { label: "Site web", value: draft.siteWeb || "(supprimé)" }
+                : null,
+              changed(artisan.description, draft.description)
+                ? { label: "Description", value: draft.description || "(supprimée)" }
+                : null,
+              changed(artisan.logoUrl, draft.logoUrl)
+                ? { label: "Logo", value: "Nouveau logo soumis" }
+                : null,
+              changed(liveMetierLabels, draft.metierLabels?.slice().sort().join(", "))
+                ? { label: "Métiers", value: draft.metierLabels?.join(", ") || "(aucun)" }
+                : null,
+              changed(liveCommuneLabels, draft.communeLabels?.slice().sort().join(", "))
+                ? { label: "Zones", value: draft.communeLabels?.join(", ") || "(aucune)" }
+                : null,
+            ].filter(Boolean) as DraftEntry[];
             return (
               <div
                 className="mb-6 rounded-2xl border-4 border-[#a78bfa] bg-[#f5f0ff] p-5"
