@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db/client";
-import { METIERS, COMMUNES_NANTES_EST } from "@/constants";
+import { COMMUNES_NANTES_EST } from "@/constants";
 import { slugify } from "@/lib/utils/slugify";
 
 const BASE = "https://oyezartisans.fr";
@@ -25,7 +25,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Landing pages métier × commune
-  const landingPages: MetadataRoute.Sitemap = METIERS.flatMap((m) =>
+  const allMetiers = await prisma.metier.findMany({
+    select: { slug: true },
+    orderBy: { label: "asc" },
+  });
+  const landingPages: MetadataRoute.Sitemap = allMetiers.flatMap((m) =>
     COMMUNES_NANTES_EST.map((c) => ({
       url: `${BASE}/artisans/${m.slug}/${slugify(c.nom)}`,
       lastModified: now,

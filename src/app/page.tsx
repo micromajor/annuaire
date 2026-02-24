@@ -6,7 +6,6 @@ import HeroSearch from "@/components/features/HeroSearch";
 import { type BesoinItem } from "@/components/features/MatchingBesoins";
 import ArtisanHomeView from "@/components/features/ArtisanHomeView";
 import ParticulierHome from "@/components/features/ParticulierHome";
-import { METIERS } from "@/constants";
 import { auth, signOut } from "@/lib/auth";
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import { prisma } from "@/lib/db/client";
@@ -25,6 +24,12 @@ export default async function HomePage() {
   let particulierPrenom: string | null = null;
   let matchingBesoins: BesoinItem[] = [];
   let artisanCommunes: string[] = [];
+
+  // Métiers depuis la DB (nécessaire pour ParticulierHome et HeroSearch)
+  const allMetiers = await prisma.metier.findMany({
+    select: { slug: true, label: true },
+    orderBy: { label: "asc" },
+  });
 
   if (isArtisan && userId) {
     const artisan = await prisma.artisan.findUnique({
@@ -49,7 +54,7 @@ export default async function HomePage() {
     artisanCommunes = communes;
 
     if (slugs.length > 0 || communes.length > 0) {
-      const metierMap = Object.fromEntries(METIERS.map((m) => [m.slug, m.label]));
+      const metierMap = Object.fromEntries(allMetiers.map((m) => [m.slug, m.label]));
       const rawBesoins = await prisma.besoin.findMany({
         where: {
           status: "NOUVEAU",
@@ -312,7 +317,7 @@ export default async function HomePage() {
             </div>
           ) : isParticulier ? (
             /* --- Vue particulier connecté --- */
-            <ParticulierHome prenom={particulierPrenom} metiers={METIERS} />
+            <ParticulierHome prenom={particulierPrenom} metiers={allMetiers} />
           ) : (
             /* --- Vue visiteur --- */
             <div className="relative z-10 w-full max-w-5xl text-center">
@@ -323,7 +328,7 @@ export default async function HomePage() {
                 </span>
               </h1>
               <div className="bd-anim-build" style={{ animationDelay: "0.15s" }}>
-                <HeroSearch metiers={METIERS} />
+                <HeroSearch metiers={allMetiers} />
               </div>
             </div>
           )}

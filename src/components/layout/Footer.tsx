@@ -24,7 +24,10 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/inscription" className="text-gray-300 hover:text-[#ffd93d]">
+                <Link
+                  href="/connexion?callbackUrl=/mon-espace"
+                  className="text-gray-300 hover:text-[#ffd93d]"
+                >
                   Inscrire mon entreprise
                 </Link>
               </li>

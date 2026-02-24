@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { METIERS, COMMUNES_NANTES_EST } from "@/constants";
+import { COMMUNES_NANTES_EST } from "@/constants";
 import Image from "next/image";
 
 interface Commune {
@@ -29,6 +29,7 @@ interface EditProfilFormProps {
   token: string;
   initialData: InitialData;
   communes: Commune[];
+  metiers: { slug: string; label: string }[];
 }
 
 interface FormValues {
@@ -40,7 +41,12 @@ interface FormValues {
   description: string;
 }
 
-export default function EditProfilForm({ token, initialData, communes }: EditProfilFormProps) {
+export default function EditProfilForm({
+  token,
+  initialData,
+  communes,
+  metiers,
+}: EditProfilFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [selectedMetiers, setSelectedMetiers] = useState<string[]>(initialData.metierSlugs);
@@ -206,7 +212,7 @@ export default function EditProfilForm({ token, initialData, communes }: EditPro
       <section className="bd-card p-6">
         <h2 className="bd-titre mb-2 text-xl text-[#1a1a2e]">🔧 Métiers</h2>
         <div className="flex flex-wrap gap-2">
-          {METIERS.map((m) => {
+          {metiers.map((m) => {
             const isSelected = selectedMetiers.includes(m.slug);
             return (
               <button

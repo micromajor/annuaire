@@ -1,12 +1,12 @@
 ﻿"use client";
 
 import { useRouter } from "next/navigation";
-import type { METIERS, COMMUNES_NANTES_EST } from "@/constants";
+import type { COMMUNES_NANTES_EST } from "@/constants";
 import MultiCombobox from "@/components/ui/MultiCombobox";
 import Combobox from "@/components/ui/Combobox";
 
 interface FiltresArtisansProps {
-  metiers: typeof METIERS;
+  metiers: { slug: string; label: string }[];
   communes: typeof COMMUNES_NANTES_EST;
   currentMetiers: string[];
   currentCommune?: string;

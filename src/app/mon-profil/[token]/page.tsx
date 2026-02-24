@@ -33,10 +33,13 @@ export default async function EditProfilPage({ params }: PageProps) {
 
   const { artisan } = editToken;
 
-  const communes = await prisma.commune.findMany({
-    orderBy: { nom: "asc" },
-    select: { id: true, nom: true, codePostal: true },
-  });
+  const [communes, allMetiers] = await Promise.all([
+    prisma.commune.findMany({
+      orderBy: { nom: "asc" },
+      select: { id: true, nom: true, codePostal: true },
+    }),
+    prisma.metier.findMany({ orderBy: { label: "asc" } }),
+  ]);
 
   const initialData = {
     prenom: artisan.prenom,
@@ -70,7 +73,12 @@ export default async function EditProfilPage({ params }: PageProps) {
       </section>
 
       <section className="mx-auto max-w-3xl px-4 pt-10">
-        <EditProfilForm token={token} initialData={initialData} communes={communes} />
+        <EditProfilForm
+          token={token}
+          initialData={initialData}
+          communes={communes}
+          metiers={allMetiers}
+        />
       </section>
     </main>
   );

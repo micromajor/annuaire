@@ -47,6 +47,8 @@ export default function AdminArtisanRow({
   const router = useRouter();
   const [loading, setLoading] = useState<"valider" | "rejeter" | null>(null);
   const [done, setDone] = useState<"VALIDE" | "REJETE" | null>(null);
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [assignedLabel, setAssignedLabel] = useState<string | null>(null);
 
   const nomAffiche = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
   const metierLabels = artisan.metiers.map((m) => m.metier.label);
@@ -66,6 +68,22 @@ export default function AdminArtisanRow({
       }
     } finally {
       setLoading(null);
+    }
+  }
+
+  async function handleAssignerMetierLibre() {
+    setAssignLoading(true);
+    try {
+      const res = await fetch(`/api/admin/artisans/${artisan.id}/metier-libre`, {
+        method: "POST",
+      });
+      const data = (await res.json()) as { ok?: boolean; metier?: { label: string } };
+      if (res.ok && data.metier) {
+        setAssignedLabel(data.metier.label);
+        setTimeout(() => router.refresh(), 800);
+      }
+    } finally {
+      setAssignLoading(false);
     }
   }
 
@@ -171,22 +189,42 @@ export default function AdminArtisanRow({
           {/* Métiers */}
           <div>
             <p className="mb-1 text-xs font-bold tracking-wide text-gray-400 uppercase">Métiers</p>
-            {metierLabels.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5">
-                {metierLabels.map((label) => (
-                  <span
-                    key={label}
-                    className="rounded-full border-2 border-[#1a1a1a] bg-[#ffd93d] px-2.5 py-0.5 text-xs font-bold text-[#1a1a2e]"
-                  >
-                    🔧 {label}
+            <div className="flex flex-wrap gap-1.5">
+              {metierLabels.length > 0
+                ? metierLabels.map((label) => (
+                    <span
+                      key={label}
+                      className="rounded-full border-2 border-[#1a1a1a] bg-[#ffd93d] px-2.5 py-0.5 text-xs font-bold text-[#1a1a2e]"
+                    >
+                      🔧 {label}
+                    </span>
+                  ))
+                : null}
+              {artisan.metierLibre && !assignedLabel ? (
+                <>
+                  <span className="rounded-full border-2 border-orange-400 bg-orange-50 px-2.5 py-0.5 text-xs font-bold text-orange-700">
+                    📝 Métier suggéré : « {artisan.metierLibre} »
                   </span>
-                ))}
-              </div>
-            ) : (
-              <span className="rounded-full border-2 border-orange-300 bg-orange-50 px-2.5 py-0.5 text-xs font-bold text-orange-500">
-                ⚠️ Aucun métier renseigné
-              </span>
-            )}
+                  <button
+                    type="button"
+                    onClick={handleAssignerMetierLibre}
+                    disabled={assignLoading}
+                    className="rounded-full border-2 border-[#6bcb77] bg-[#6bcb77] px-2.5 py-0.5 text-xs font-bold text-[#1a1a2e] hover:bg-[#5ab868] disabled:opacity-60"
+                  >
+                    {assignLoading ? "⏳" : "✅ Créer & assigner"}
+                  </button>
+                </>
+              ) : assignedLabel ? (
+                <span className="rounded-full border-2 border-green-400 bg-green-50 px-2.5 py-0.5 text-xs font-bold text-green-700">
+                  ✅ « {assignedLabel} » créé et assigné
+                </span>
+              ) : null}
+              {metierLabels.length === 0 && !artisan.metierLibre ? (
+                <span className="rounded-full border-2 border-orange-300 bg-orange-50 px-2.5 py-0.5 text-xs font-bold text-orange-500">
+                  ⚠️ Aucun métier renseigné
+                </span>
+              ) : null}
+            </div>
           </div>
 
           {/* Zones */}
@@ -228,7 +266,7 @@ export default function AdminArtisanRow({
             <CheckBadge ok={!!artisan.logoUrl} label="Logo" />
             <CheckBadge ok={!!artisan.description} label="Description" />
             <CheckBadge ok={!!artisan.siteWeb} label="Site web" />
-            <CheckBadge ok={metierLabels.length > 0} label="Métier(s)" />
+            <CheckBadge ok={metierLabels.length > 0 || !!artisan.metierLibre} label="Métier(s)" />
             <CheckBadge ok={communeLabels.length > 0} label="Zone(s)" />
           </div>
 

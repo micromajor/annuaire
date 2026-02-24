@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db/client";
 import { auth } from "@/lib/auth";
-import { METIERS, COMMUNES_NANTES_EST } from "@/constants";
+import { COMMUNES_NANTES_EST } from "@/constants";
 import { slugify } from "@/lib/utils/slugify";
 import ArtisanCard from "@/components/features/ArtisanCard";
 import type { Metadata } from "next";
@@ -15,7 +15,7 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { metier, commune } = await params;
-  const metierInfo = METIERS.find((m) => m.slug === metier);
+  const metierInfo = await prisma.metier.findFirst({ where: { slug: metier } });
   const communeInfo = COMMUNES_NANTES_EST.find((c) => slugify(c.nom) === commune);
   if (!metierInfo || !communeInfo) return { title: "Page introuvable" };
 
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function LandingMetierCommune({ params }: PageProps) {
   const [{ metier, commune }, session] = await Promise.all([params, auth()]);
   const viewerRole = (session?.user as { role?: string })?.role;
-  const metierInfo = METIERS.find((m) => m.slug === metier);
+  const metierInfo = await prisma.metier.findFirst({ where: { slug: metier } });
   const communeInfo = COMMUNES_NANTES_EST.find((c) => slugify(c.nom) === commune);
   if (!metierInfo || !communeInfo) notFound();
 
@@ -271,7 +271,7 @@ export default async function LandingMetierCommune({ params }: PageProps) {
                 Annuaire complet
               </Link>
               <Link
-                href="/inscription"
+                href="/connexion?callbackUrl=/mon-espace"
                 className="rounded-xl border-2 border-[#6bcb77] bg-[#6bcb77] px-4 py-2 text-sm font-black text-white hover:bg-[#5ab868]"
               >
                 Vous êtes {labelLow} ? Rejoignez-nous

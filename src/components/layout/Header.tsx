@@ -31,7 +31,7 @@ export default function Header() {
           <Link href="/mon-profil" className="bd-btn bd-btn-outline text-sm">
             Mon profil
           </Link>
-          <Link href="/inscription" className="bd-btn bd-btn-primary text-sm">
+          <Link href="/connexion?callbackUrl=/mon-espace" className="bd-btn bd-btn-primary text-sm">
             + Inscrire mon entreprise
           </Link>
         </nav>
@@ -79,7 +79,7 @@ export default function Header() {
             👤 Mon profil
           </Link>
           <Link
-            href="/inscription"
+            href="/connexion?callbackUrl=/mon-espace"
             className="bd-btn bd-btn-primary w-full text-center text-sm"
             onClick={() => setMenuOpen(false)}
           >

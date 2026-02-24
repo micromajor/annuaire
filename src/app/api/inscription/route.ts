@@ -69,7 +69,9 @@ export async function POST(request: NextRequest) {
     where: { id: { in: data.communeIds } },
   });
 
-  if (metiers.length === 0) {
+  // Le refine Zod garantit déjà qu'au moins un des deux est rempli,
+  // mais on vérifie quand même en double-sécurité côté serveur
+  if (metiers.length === 0 && !data.metierLibre?.trim()) {
     return NextResponse.json({ error: "Aucun métier valide trouvé." }, { status: 422 });
   }
   if (communes.length === 0) {
@@ -89,6 +91,7 @@ export async function POST(request: NextRequest) {
       siret: data.siret ?? null,
       siteWeb: data.siteWeb ?? null,
       description: data.description ?? null,
+      metierLibre: data.metierLibre?.trim() || null,
       passwordHash,
       status: "EN_ATTENTE",
       metiers: {
@@ -105,6 +108,9 @@ export async function POST(request: NextRequest) {
     const adminEmail = process.env.ADMIN_EMAIL ?? "contact@oyezartisans.fr";
     const nomAffiche = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
     const metierLabels = metiers.map((m: { label: string }) => m.label).join(", ");
+    const metierLibreInfo = artisan.metierLibre
+      ? `<li><strong>⚠️ Métier suggéré (libre) :</strong> <em>${artisan.metierLibre}</em></li>`
+      : "";
 
     await Promise.allSettled([
       // Notification admin
@@ -120,7 +126,8 @@ export async function POST(request: NextRequest) {
             ${artisan.siret ? `<li><strong>SIRET :</strong> ${artisan.siret}</li>` : ""}
             <li><strong>Email :</strong> ${artisan.email}</li>
             ${artisan.telephone ? `<li><strong>Tél :</strong> ${artisan.telephone}</li>` : ""}
-            <li><strong>Métiers :</strong> ${metierLabels}</li>
+            <li><strong>Métiers :</strong> ${metierLabels || "(aucun slug sélectionné)"}</li>
+            ${metierLibreInfo}
             <li><strong>Communes :</strong> ${communes.map((c: { nom: string }) => c.nom).join(", ")}</li>
             ${artisan.description ? `<li><strong>Description :</strong> ${artisan.description}</li>` : ""}
           </ul>

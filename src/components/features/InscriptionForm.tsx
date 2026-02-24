@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { inscriptionArtisanSchema, type InscriptionArtisanData } from "@/lib/validators/schemas";
-import { METIERS, COMMUNES_NANTES_EST } from "@/constants";
+import { COMMUNES_NANTES_EST } from "@/constants";
 import ToolsConfetti from "@/components/ui/ToolsConfetti";
 
 // Les communes seront passées depuis le server component (avec leurs IDs réels)
@@ -16,11 +16,13 @@ interface Commune {
 
 interface InscriptionFormProps {
   communes: Commune[];
+  metiers: { slug: string; label: string }[];
 }
 
-export default function InscriptionForm({ communes }: InscriptionFormProps) {
+export default function InscriptionForm({ communes, metiers }: InscriptionFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
+  const [showMetierLibre, setShowMetierLibre] = useState(false);
 
   const {
     register,
@@ -38,11 +40,20 @@ export default function InscriptionForm({ communes }: InscriptionFormProps) {
 
   const selectedMetiers = watch("metierSlugs") ?? [];
   const selectedCommunes = watch("communeIds") ?? [];
+  const metierLibreValue = watch("metierLibre") ?? "";
 
   function toggleMetier(slug: string) {
     const current = selectedMetiers;
     const updated = current.includes(slug) ? current.filter((s) => s !== slug) : [...current, slug];
     setValue("metierSlugs", updated, { shouldValidate: true });
+  }
+
+  function toggleAutre() {
+    const next = !showMetierLibre;
+    setShowMetierLibre(next);
+    if (!next) {
+      setValue("metierLibre", "", { shouldValidate: true });
+    }
   }
 
   function toggleCommune(id: string) {
@@ -190,7 +201,7 @@ export default function InscriptionForm({ communes }: InscriptionFormProps) {
         <h2 className="bd-titre mb-2 text-xl text-[#1a1a2e]">🔧 Votre / vos métiers</h2>
         <p className="mb-4 text-sm text-gray-500">Sélectionnez un ou plusieurs métiers.</p>
         <div className="flex flex-wrap gap-2">
-          {METIERS.map((m) => {
+          {metiers.map((m) => {
             const isSelected = selectedMetiers.includes(m.slug);
             return (
               <button
@@ -209,8 +220,47 @@ export default function InscriptionForm({ communes }: InscriptionFormProps) {
               </button>
             );
           })}
+          {/* Bouton Autre */}
+          <button
+            type="button"
+            onClick={toggleAutre}
+            className={`bd-badge cursor-pointer transition-all ${
+              showMetierLibre
+                ? "bd-badge-jaune scale-105 shadow-md"
+                : "bd-badge-rouge opacity-60 hover:opacity-100"
+            }`}
+            style={{ border: "2px solid #1a1a1a" }}
+          >
+            {showMetierLibre ? "✓ " : ""}Autre…
+          </button>
         </div>
-        {errors.metierSlugs && (
+
+        {/* Champ texte libre métier */}
+        {showMetierLibre && (
+          <div className="mt-4">
+            <label className="mb-1 block text-sm font-bold">
+              Précisez votre métier <span className="text-[#ff6b6b]">*</span>
+            </label>
+            <input
+              {...register("metierLibre")}
+              className="bd-input"
+              placeholder="Ex : Ramoneur, Cuisiniste, Cordiste…"
+              maxLength={80}
+            />
+            <p className="mt-1 text-xs text-gray-400">
+              Notre équipe examinera votre métier — votre fiche sera validée normalement.
+            </p>
+            {errors.metierLibre && (
+              <p className="mt-1 text-sm text-[#ff6b6b]">{errors.metierLibre.message}</p>
+            )}
+          </div>
+        )}
+
+        {/* Erreur métier (refine) — visible seulement si ni slug ni libre */}
+        {!showMetierLibre && errors.metierSlugs && (
+          <p className="mt-2 text-sm text-[#ff6b6b]">{errors.metierSlugs.message}</p>
+        )}
+        {showMetierLibre && !metierLibreValue?.trim() && errors.metierSlugs && (
           <p className="mt-2 text-sm text-[#ff6b6b]">{errors.metierSlugs.message}</p>
         )}
       </section>

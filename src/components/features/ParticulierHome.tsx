@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import HeroSearch from "@/components/features/HeroSearch";
-import { type METIERS, COMMUNES_NANTES_EST } from "@/constants";
+import { COMMUNES_NANTES_EST } from "@/constants";
 
 const MAX_PHOTOS = 6;
 
 interface ParticulierHomeProps {
   prenom: string | null;
-  metiers: typeof METIERS;
+  metiers: { slug: string; label: string }[];
 }
 
 /* ============================================================
@@ -19,7 +19,7 @@ function BesoinForm({
   metiers,
 }: {
   prenomInitial: string | null;
-  metiers: typeof METIERS;
+  metiers: { slug: string; label: string }[];
 }) {
   const [step, setStep] = useState<"form" | "success">("form");
   const [loading, setLoading] = useState(false);

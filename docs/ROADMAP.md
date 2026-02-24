@@ -56,7 +56,7 @@ V4 — Communauté locale (clients, assos, territorio)
 
 - [x] Modélisation DB : Artisan, Métier, Commune, Contact
 - [x] Mise en place Prisma + migrations initiales
-- [x] Seed de données : 6 artisans zone Nantes Est + 10 métiers + 20 communes
+- [x] Seed de données : 6 artisans zone Nantes Est + 12 métiers + 20 communes (ajout terrassier + paysagiste 24/02/2026)
 
 ### Front — Consultation
 

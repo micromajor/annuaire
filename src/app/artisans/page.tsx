@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { prisma } from "@/lib/db/client";
-import { METIERS, COMMUNES_NANTES_EST, PAGINATION } from "@/constants";
+import { COMMUNES_NANTES_EST, PAGINATION } from "@/constants";
 import { auth, signOut } from "@/lib/auth";
 import ArtisanCard from "@/components/features/ArtisanCard";
 import FiltresArtisans from "@/components/features/FiltresArtisans";
@@ -25,7 +25,9 @@ export async function generateMetadata({
   const metierSlug = Array.isArray(params.metier) ? params.metier[0] : params.metier;
   const commune = params.commune;
 
-  const metierInfo = metierSlug ? METIERS.find((m) => m.slug === metierSlug) : null;
+  const metierInfo = metierSlug
+    ? await prisma.metier.findFirst({ where: { slug: metierSlug } })
+    : null;
 
   if (metierInfo && commune) {
     const title = `${metierInfo.label} à ${commune} — Annuaire artisans`;
@@ -93,7 +95,7 @@ export default async function ArtisansPage({
     ...(params.commune ? { communes: { some: { commune: { nom: params.commune } } } } : {}),
   };
 
-  const [artisans, total] = await Promise.all([
+  const [artisans, total, allMetiers] = await Promise.all([
     prisma.artisan.findMany({
       where,
       include: {
@@ -106,6 +108,7 @@ export default async function ArtisansPage({
       skip,
     }),
     prisma.artisan.count({ where }),
+    prisma.metier.findMany({ orderBy: { label: "asc" } }),
   ]);
 
   const totalPages = Math.ceil(total / PAGINATION.ARTISANS_PAR_PAGE);
@@ -206,7 +209,7 @@ export default async function ArtisansPage({
 
           {/* Filtres */}
           <FiltresArtisans
-            metiers={METIERS}
+            metiers={allMetiers}
             communes={COMMUNES_NANTES_EST}
             currentMetiers={metierSlugs}
             currentCommune={params.commune}

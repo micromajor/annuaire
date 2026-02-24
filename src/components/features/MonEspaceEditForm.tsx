@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { METIERS } from "@/constants";
 
 // Leaflet ne fonctionne pas en SSR (uses window)
 const MapZoneSelector = dynamic(() => import("@/components/ui/MapZoneSelector"), {
@@ -31,12 +30,14 @@ type Props = {
     description: string | null;
     logoUrl: string | null;
     metierSlugs: string[];
+    metierLibre?: string | null;
     communePairs: CommunePair[];
     status: string;
   };
+  metiers: { slug: string; label: string }[];
 };
 
-export default function MonEspaceEditForm({ artisan }: Props) {
+export default function MonEspaceEditForm({ artisan, metiers }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(!artisan.prenom); // Auto-ouvert si profil incomplet
 
@@ -50,6 +51,7 @@ export default function MonEspaceEditForm({ artisan }: Props) {
     description: artisan.description ?? "",
     logoUrl: artisan.logoUrl ?? "",
     metierSlugs: artisan.metierSlugs,
+    metierLibre: artisan.metierLibre ?? "",
     communePairs: artisan.communePairs,
   });
 
@@ -57,6 +59,7 @@ export default function MonEspaceEditForm({ artisan }: Props) {
   const [loading, setLoading] = useState(false);
   const [logoLoading, setLogoLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showMetierLibre, setShowMetierLibre] = useState(!!artisan.metierLibre);
 
   async function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -337,7 +340,7 @@ export default function MonEspaceEditForm({ artisan }: Props) {
               Métiers <span className="text-[#ff6b6b]">*</span>
             </legend>
             <div className="flex flex-wrap gap-2">
-              {METIERS.map((m) => {
+              {metiers.map((m) => {
                 const selected = form.metierSlugs.includes(m.slug);
                 return (
                   <button
@@ -358,7 +361,43 @@ export default function MonEspaceEditForm({ artisan }: Props) {
                   </button>
                 );
               })}
+              {/* Bouton Autre */}
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !showMetierLibre;
+                  setShowMetierLibre(next);
+                  if (!next) setForm((f) => ({ ...f, metierLibre: "" }));
+                }}
+                className="rounded-full px-4 py-1.5 text-sm font-bold transition-all"
+                style={{
+                  border: "3px solid #1a1a1a",
+                  background: showMetierLibre ? "#1a1a2e" : "#fff",
+                  color: showMetierLibre ? "#ffd93d" : "#1a1a2e",
+                  boxShadow: showMetierLibre ? "2px 2px 0 #1a1a1a" : "none",
+                }}
+              >
+                Autre…
+              </button>
             </div>
+
+            {showMetierLibre && (
+              <div className="mt-3">
+                <input
+                  type="text"
+                  value={form.metierLibre}
+                  onChange={(e) => setForm((f) => ({ ...f, metierLibre: e.target.value }))}
+                  placeholder="Ex : Ramoneur, Cuisiniste, Cordiste…"
+                  maxLength={80}
+                  className="w-full rounded-xl border-3 border-[#1a1a1a] px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-[#6bcb77]"
+                  style={{ border: "3px solid #1a1a1a" }}
+                />
+                <p className="mt-1 text-xs text-gray-400">
+                  Notre équipe examinera votre métier — votre fiche sera validée normalement.
+                </p>
+              </div>
+            )}
+
             {errors.metierSlugs && (
               <p className="mt-1 text-xs text-[#ff6b6b]">{errors.metierSlugs[0]}</p>
             )}

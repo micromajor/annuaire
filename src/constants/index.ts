@@ -1,18 +1,3 @@
-export const METIERS = [
-  { slug: "macon", label: "Maçon" },
-  { slug: "plombier", label: "Plombier" },
-  { slug: "electricien", label: "Électricien" },
-  { slug: "menuisier", label: "Menuisier" },
-  { slug: "peintre", label: "Peintre" },
-  { slug: "couvreur", label: "Couvreur" },
-  { slug: "carreleur", label: "Carreleur" },
-  { slug: "chauffagiste", label: "Chauffagiste" },
-  { slug: "plaquiste", label: "Plaquiste" },
-  { slug: "charpentier", label: "Charpentier" },
-] as const;
-
-export type MetierSlug = (typeof METIERS)[number]["slug"];
-
 export const COMMUNES_NANTES_EST = [
   { nom: "Nantes", codePostal: "44000", lat: 47.2184, lng: -1.5536 },
   { nom: "Saint-Herblain", codePostal: "44800", lat: 47.2139, lng: -1.6483 },

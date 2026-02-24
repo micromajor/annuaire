@@ -31,6 +31,7 @@ model Artisan {
   siteWeb       String?
   logoUrl       String?       // URL du logo fournie par l'artisan
   description   String?       @db.VarChar(500)
+  metierLibre   String?       // métier libre soumis par l'artisan s'il n'est pas dans la liste
   portfolioPhotos Json?        // tableau d'URLs de photos de chantier
   passwordHash  String?       // null = artisan sans compte (flux token uniquement)
   status          ArtisanStatus @default(EN_ATTENTE)

@@ -178,6 +178,8 @@ export default async function MonEspacePage() {
     return <AutoSignOut />;
   }
 
+  const allMetiers = await prisma.metier.findMany({ orderBy: { label: "asc" } });
+
   // Messages non lus (particulier → artisan)
   const messagesNonLusArtisan = await prisma.message.count({
     where: {
@@ -209,6 +211,7 @@ export default async function MonEspacePage() {
     logoUrl?: string | null;
     metierSlugs?: string[];
     metierLabels?: string[];
+    metierLibre?: string | null;
     communePairs?: CommunePair[]; // nouveau format
     communeLabels?: string[]; // pour l'affichage (les deux formats)
   };
@@ -347,6 +350,7 @@ export default async function MonEspacePage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {/* Formulaire de modification / complétion */}
           <MonEspaceEditForm
+            metiers={allMetiers}
             artisan={{
               prenom: displayPrenom,
               nom: displayNom,
@@ -359,6 +363,7 @@ export default async function MonEspacePage() {
               metierSlugs:
                 pendingDraft?.metierSlugs ??
                 artisan.metiers.map((m: { metier: { slug: string } }) => m.metier.slug),
+              metierLibre: pendingDraft?.metierLibre ?? artisan.metierLibre,
               communePairs: formCommunePairs,
               status: artisan.status,
             }}

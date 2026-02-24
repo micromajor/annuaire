@@ -6,32 +6,38 @@ import { z } from "zod";
 // Extraire le type du client de transaction depuis la signature de $transaction
 type TxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
-const UpdateProfileSchema = z.object({
-  prenom: z.string().min(1, "Prénom requis").max(100),
-  nom: z.string().min(1, "Nom requis").max(100),
-  raisonSociale: z.string().max(200).optional().or(z.literal("")),
-  telephone: z.string().max(20).optional().or(z.literal("")),
-  siret: z
-    .string()
-    .regex(/^\d{14}$/, "SIRET invalide (14 chiffres)")
-    .optional()
-    .or(z.literal("")),
-  siteWeb: z.string().url("URL invalide").max(300).optional().or(z.literal("")),
-  description: z.string().max(2000).optional().or(z.literal("")),
-  logoUrl: z
-    .string()
-    .max(500)
-    .refine(
-      (v) => v === "" || v.startsWith("/api/files/") || /^https?:\/\//.test(v),
-      "URL de logo invalide"
-    )
-    .optional()
-    .or(z.literal("")),
-  metierSlugs: z.array(z.string()).min(1, "Au moins un métier requis"),
-  communePairs: z
-    .array(z.object({ nom: z.string(), codePostal: z.string() }))
-    .min(1, "Au moins une commune requise"),
-});
+const UpdateProfileSchema = z
+  .object({
+    prenom: z.string().min(1, "Prénom requis").max(100),
+    nom: z.string().min(1, "Nom requis").max(100),
+    raisonSociale: z.string().max(200).optional().or(z.literal("")),
+    telephone: z.string().max(20).optional().or(z.literal("")),
+    siret: z
+      .string()
+      .regex(/^\d{14}$/, "SIRET invalide (14 chiffres)")
+      .optional()
+      .or(z.literal("")),
+    siteWeb: z.string().url("URL invalide").max(300).optional().or(z.literal("")),
+    description: z.string().max(2000).optional().or(z.literal("")),
+    logoUrl: z
+      .string()
+      .max(500)
+      .refine(
+        (v) => v === "" || v.startsWith("/api/files/") || /^https?:\/\//.test(v),
+        "URL de logo invalide"
+      )
+      .optional()
+      .or(z.literal("")),
+    metierSlugs: z.array(z.string()).default([]),
+    metierLibre: z.string().max(80).optional().or(z.literal("")),
+    communePairs: z
+      .array(z.object({ nom: z.string(), codePostal: z.string() }))
+      .min(1, "Au moins une commune requise"),
+  })
+  .refine((d) => d.metierSlugs.length > 0 || !!d.metierLibre?.trim(), {
+    message: "Au moins un métier requis (ou précisez le vôtre)",
+    path: ["metierSlugs"],
+  });
 
 export async function PUT(req: NextRequest) {
   const session = await auth();
@@ -62,6 +68,7 @@ export async function PUT(req: NextRequest) {
     description,
     logoUrl,
     metierSlugs,
+    metierLibre,
     communePairs,
   } = parsed.data;
 
@@ -104,6 +111,7 @@ export async function PUT(req: NextRequest) {
             description: description || null,
             logoUrl: logoUrl || null,
             metierSlugs,
+            metierLibre: metierLibre || null,
             communePairs, // { nom, codePostal }[] — pour la validation admin
             // labels pour l'affichage diff
             metierLabels: metiers.map((m: { label: string }) => m.label),
@@ -128,6 +136,7 @@ export async function PUT(req: NextRequest) {
         siteWeb: siteWeb || null,
         description: description || null,
         logoUrl: logoUrl || null,
+        metierLibre: metierLibre || null,
         metiers: {
           create: metiers.map((m: { id: string }) => ({ metierId: m.id })),
         },

@@ -2,12 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import type { METIERS } from "@/constants";
 import Combobox from "@/components/ui/Combobox";
 import { COMMUNES_NANTES_EST } from "@/constants";
 
 interface HeroSearchProps {
-  metiers: typeof METIERS;
+  metiers: { slug: string; label: string }[];
 }
 
 export default function HeroSearch({ metiers }: HeroSearchProps) {
