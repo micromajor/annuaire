@@ -82,7 +82,8 @@ export default function PortfolioPhotos({ photos, artisanNom }: PortfolioPhotosP
       {/* Lightbox plein écran — Portal sur document.body pour échapper aux transforms CSS parents */}
       {isOpen && lightboxIdx !== null && typeof document !== "undefined" && createPortal(
         <div
-          className="fixed inset-0 z-[300] flex items-center justify-center bg-black"
+          className="fixed inset-0 z-[300] flex items-center justify-center"
+          style={{ backgroundColor: "#000" }}
           onClick={close}
         >
           {/* Image — sizing ancré sur le viewport, indépendant du DOM dessous */}
@@ -97,14 +98,15 @@ export default function PortfolioPhotos({ photos, artisanNom }: PortfolioPhotosP
           {/* Fermer */}
           <button
             onClick={close}
-            className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/40 bg-black/60 text-lg font-bold text-white hover:bg-black"
+            className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/40 text-lg font-bold text-white"
+            style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
             aria-label="Fermer"
           >
             &#10005;
           </button>
 
           {/* Compteur */}
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-1 text-sm font-bold text-white/80">
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-sm font-bold text-white/80" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
             {lightboxIdx + 1} / {photos.length}
           </div>
 
@@ -113,14 +115,16 @@ export default function PortfolioPhotos({ photos, artisanNom }: PortfolioPhotosP
             <>
               <button
                 onClick={(e) => { e.stopPropagation(); prev(); }}
-                className="absolute left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white/40 bg-black/60 text-2xl text-white hover:bg-black"
+                className="absolute left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white/40 text-2xl text-white"
+                style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
                 aria-label="Photo précédente"
               >
                 &#8249;
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); next(); }}
-                className="absolute right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white/40 bg-black/60 text-2xl text-white hover:bg-black"
+                className="absolute right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white/40 text-2xl text-white"
+                style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
                 aria-label="Photo suivante"
               >
                 &#8250;
