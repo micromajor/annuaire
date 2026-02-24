@@ -97,7 +97,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         />
 
         {/* CORPS PRINCIPAL */}
-        <div style={{ display: "flex", flex: 1, zIndex: 1 }}>
+        <div style={{ display: "flex", flex: 1 }}>
           {/* COLONNE GAUCHE — identité */}
           <div
             style={{
@@ -160,7 +160,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                 fontWeight: 900,
                 padding: "7px 20px",
                 borderRadius: 50,
-                width: "fit-content",
                 letterSpacing: 2,
                 textTransform: "uppercase",
                 marginBottom: 14,
@@ -337,7 +336,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             paddingRight: 44,
             height: 60,
             flexShrink: 0,
-            zIndex: 1,
           }}
         >
           <span
