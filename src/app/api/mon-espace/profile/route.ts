@@ -122,10 +122,12 @@ export async function PUT(req: NextRequest) {
     }
 
     // Sinon (EN_ATTENTE, REJETE) → écraser directement, la fiche n'est pas live
+    // NOTE: PrismaPg + composite @@id → nested creates échouent silencieusement.
+    // Pattern: deleteMany + update scalaires + creates séparés.
     await tx.artisanMetier.deleteMany({ where: { artisanId } });
     await tx.artisanCommune.deleteMany({ where: { artisanId } });
 
-    return tx.artisan.update({
+    const updatedArtisan = await tx.artisan.update({
       where: { id: artisanId },
       data: {
         prenom,
@@ -137,14 +139,17 @@ export async function PUT(req: NextRequest) {
         description: description || null,
         logoUrl: logoUrl || null,
         metierLibre: metierLibre || null,
-        metiers: {
-          create: metiers.map((m: { id: string }) => ({ metierId: m.id })),
-        },
-        communes: {
-          create: communes.map((c: { id: string }) => ({ communeId: c.id })),
-        },
       },
     });
+
+    for (const m of metiers) {
+      await tx.artisanMetier.create({ data: { artisanId, metierId: m.id } });
+    }
+    for (const c of communes) {
+      await tx.artisanCommune.create({ data: { artisanId, communeId: c.id } });
+    }
+
+    return updatedArtisan;
   });
 
   return NextResponse.json({ ok: true, artisanId: updated.id });

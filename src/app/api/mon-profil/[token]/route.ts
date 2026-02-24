@@ -138,10 +138,11 @@ export async function PATCH(
     ]);
   } else {
     // Nouvelle inscription EN_ATTENTE → modifier directement
-    await prisma.$transaction([
-      prisma.artisanMetier.deleteMany({ where: { artisanId } }),
-      prisma.artisanCommune.deleteMany({ where: { artisanId } }),
-      prisma.artisan.update({
+    // NOTE: PrismaPg + composite @@id → nested creates échouent silencieusement.
+    await prisma.$transaction(async (tx) => {
+      await tx.artisanMetier.deleteMany({ where: { artisanId } });
+      await tx.artisanCommune.deleteMany({ where: { artisanId } });
+      await tx.artisan.update({
         where: { id: artisanId },
         data: {
           raisonSociale: data.raisonSociale ?? null,
@@ -150,15 +151,19 @@ export async function PATCH(
           siteWeb: data.siteWeb || null,
           logoUrl: data.logoUrl || null,
           description: data.description ?? null,
-          metiers: { create: metiers.map((m) => ({ metierId: m.id })) },
-          communes: { create: communes.map((c) => ({ communeId: c.id })) },
         },
-      }),
-      prisma.editToken.update({
+      });
+      for (const m of metiers) {
+        await tx.artisanMetier.create({ data: { artisanId, metierId: m.id } });
+      }
+      for (const c of communes) {
+        await tx.artisanCommune.create({ data: { artisanId, communeId: c.id } });
+      }
+      await tx.editToken.update({
         where: { id: editToken.id },
         data: { usedAt: new Date() },
-      }),
-    ]);
+      });
+    });
   }
 
   return NextResponse.json({ success: true });

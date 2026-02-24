@@ -83,10 +83,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         });
       }
 
-      await prisma.$transaction([
-        prisma.artisanMetier.deleteMany({ where: { artisanId: id } }),
-        prisma.artisanCommune.deleteMany({ where: { artisanId: id } }),
-        prisma.artisan.update({
+      // NOTE: PrismaPg + composite @@id → nested creates échouent silencieusement.
+      await prisma.$transaction(async (tx) => {
+        await tx.artisanMetier.deleteMany({ where: { artisanId: id } });
+        await tx.artisanCommune.deleteMany({ where: { artisanId: id } });
+        await tx.artisan.update({
           where: { id },
           data: {
             raisonSociale: draft.raisonSociale ?? null,
@@ -97,11 +98,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             description: draft.description ?? null,
             hasPendingDraft: false,
             draftData: Prisma.DbNull,
-            metiers: { create: metiers.map((m) => ({ metierId: m.id })) },
-            communes: { create: communes.map((c) => ({ communeId: c.id })) },
           },
-        }),
-      ]);
+        });
+        for (const m of metiers) {
+          await tx.artisanMetier.create({ data: { artisanId: id, metierId: m.id } });
+        }
+        for (const c of communes) {
+          await tx.artisanCommune.create({ data: { artisanId: id, communeId: c.id } });
+        }
+      });
     } else {
       // Rejeter le draft → fiche live intacte, on efface juste le draft
       await prisma.artisan.update({

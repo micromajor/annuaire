@@ -81,6 +81,8 @@ export async function POST(request: NextRequest) {
   // Créer l'artisan en statut EN_ATTENTE
   const passwordHash = data.password ? await bcrypt.hash(data.password, 12) : null;
 
+  // NOTE: PrismaPg + composite @@id → les nested creates échouent silencieusement.
+  // On crée d'abord l'artisan, puis les jonctions séparément.
   const artisan = await prisma.artisan.create({
     data: {
       prenom: data.prenom,
@@ -94,14 +96,26 @@ export async function POST(request: NextRequest) {
       metierLibre: data.metierLibre?.trim() || null,
       passwordHash,
       status: "EN_ATTENTE",
-      metiers: {
-        create: metiers.map((m: { id: string }) => ({ metierId: m.id })),
-      },
-      communes: {
-        create: communes.map((c: { id: string }) => ({ communeId: c.id })),
-      },
     },
   });
+
+  // Créer les liens ArtisanMetier et ArtisanCommune séparément
+  for (const m of metiers) {
+    const existing = await prisma.artisanMetier.findFirst({
+      where: { artisanId: artisan.id, metierId: m.id },
+    });
+    if (!existing) {
+      await prisma.artisanMetier.create({ data: { artisanId: artisan.id, metierId: m.id } });
+    }
+  }
+  for (const c of communes) {
+    const existing = await prisma.artisanCommune.findFirst({
+      where: { artisanId: artisan.id, communeId: c.id },
+    });
+    if (!existing) {
+      await prisma.artisanCommune.create({ data: { artisanId: artisan.id, communeId: c.id } });
+    }
+  }
 
   // Notification email admin + confirmation artisan (si Resend configuré)
   if (resend) {
