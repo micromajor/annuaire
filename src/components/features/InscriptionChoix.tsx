@@ -10,13 +10,19 @@ interface Commune {
   codePostal: string;
 }
 
+interface Metier {
+  slug: string;
+  label: string;
+}
+
 interface Props {
   communes: Commune[];
+  metiers: Metier[];
 }
 
 type Profil = "artisan" | "particulier";
 
-export default function InscriptionChoix({ communes }: Props) {
+export default function InscriptionChoix({ communes, metiers }: Props) {
   const [profil, setProfil] = useState<Profil | null>(null);
   const router = useRouter();
 
@@ -37,7 +43,7 @@ export default function InscriptionChoix({ communes }: Props) {
         >
           ← Changer de profil
         </button>
-        <InscriptionForm communes={communes} />
+        <InscriptionForm communes={communes} metiers={metiers} />
       </div>
     );
   }

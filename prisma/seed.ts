@@ -1,6 +1,20 @@
 import { PrismaClient, ArtisanStatus } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { METIERS, COMMUNES_NANTES_EST } from "../src/constants";
+import { COMMUNES_NANTES_EST } from "../src/constants";
+
+// Liste locale (METIERS supprimé de constants — DB-driven)
+const METIERS = [
+  { slug: "macon", label: "Maçon" },
+  { slug: "plombier", label: "Plombier" },
+  { slug: "electricien", label: "Électricien" },
+  { slug: "menuisier", label: "Menuisier" },
+  { slug: "peintre", label: "Peintre" },
+  { slug: "couvreur", label: "Couvreur" },
+  { slug: "carreleur", label: "Carreleur" },
+  { slug: "chauffagiste", label: "Chauffagiste" },
+  { slug: "plaquiste", label: "Plaquiste" },
+  { slug: "charpentier", label: "Charpentier" },
+];
 
 const connectionString = process.env.DATABASE_URL!;
 const adapter = new PrismaPg({ connectionString });

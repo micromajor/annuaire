@@ -40,7 +40,7 @@ export const inscriptionArtisanSchema = z
     telephone: z.string().optional(),
     siteWeb: z.string().url("URL invalide").optional().or(z.literal("")),
     description: z.string().max(500, "Description trop longue (500 caractères max)").optional(),
-    metierSlugs: z.array(z.string()).default([]),
+    metierSlugs: z.array(z.string()),
     metierLibre: z
       .string()
       .max(80, "Métier trop long (80 caractères max)")
