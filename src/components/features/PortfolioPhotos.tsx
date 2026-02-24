@@ -84,18 +84,14 @@ export default function PortfolioPhotos({ photos, artisanNom }: PortfolioPhotosP
           className="fixed inset-0 z-[300] flex items-center justify-center bg-black"
           onClick={close}
         >
-          {/* Image */}
-          <div
-            className="relative flex h-full w-full items-center justify-center"
+          {/* Image — sizing ancré sur le viewport, indépendant du DOM dessous */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={photos[lightboxIdx]}
+            alt={`Chantier ${lightboxIdx + 1} - ${artisanNom}`}
             onClick={(e) => e.stopPropagation()}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={photos[lightboxIdx]}
-              alt={`Chantier ${lightboxIdx + 1} - ${artisanNom}`}
-              className="h-full w-full object-contain"
-            />
-          </div>
+            style={{ maxHeight: "100dvh", maxWidth: "100dvw", objectFit: "contain", display: "block" }}
+          />
 
           {/* Fermer */}
           <button
