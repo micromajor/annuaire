@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { inscriptionArtisanSchema, type InscriptionArtisanData } from "@/lib/validators/schemas";
 import { COMMUNES_NANTES_EST } from "@/constants";
 import ToolsConfetti from "@/components/ui/ToolsConfetti";
+import SiretVerifBadge from "@/components/features/SiretVerifBadge";
 
 // Les communes seront passées depuis le server component (avec leurs IDs réels)
 interface Commune {
@@ -41,6 +42,18 @@ export default function InscriptionForm({ communes, metiers }: InscriptionFormPr
   const selectedMetiers = watch("metierSlugs") ?? [];
   const selectedCommunes = watch("communeIds") ?? [];
   const metierLibreValue = watch("metierLibre") ?? "";
+  const siretValue = watch("siret");
+  const raisonSocialeValue = watch("raisonSociale");
+
+  const handleNomOfficiel = useCallback(
+    (nom: string) => {
+      // Pré-remplit la raison sociale seulement si elle est encore vide
+      if (!raisonSocialeValue) {
+        setValue("raisonSociale", nom, { shouldValidate: false });
+      }
+    },
+    [raisonSocialeValue, setValue]
+  );
 
   function toggleMetier(slug: string) {
     const current = selectedMetiers;
@@ -165,6 +178,7 @@ export default function InscriptionForm({ communes, metiers }: InscriptionFormPr
               maxLength={14}
             />
             {errors.siret && <p className="mt-1 text-sm text-[#ff6b6b]">{errors.siret.message}</p>}
+            <SiretVerifBadge siret={siretValue} onNomOfficiel={handleNomOfficiel} />
           </div>
           <div>
             <label className="mb-1 block text-sm font-bold">Site web</label>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import type { Artisan, ArtisanMetier, Metier, ArtisanCommune, Commune } from "@prisma/client";
+import SiretVerifBadge from "@/components/features/SiretVerifBadge";
 
 type ArtisanWithRelations = Artisan & {
   metiers: (ArtisanMetier & { metier: Metier })[];
@@ -170,7 +171,14 @@ export default function AdminArtisanRow({
                 📞 <span className="italic">Numéro manquant</span>
               </p>
             )}
-            {artisan.siret && <p>🏢 SIRET : {artisan.siret}</p>}
+            {artisan.siret && (
+              <div>
+                <p className="text-sm text-gray-600">
+                  🏢 SIRET : <span className="font-mono">{artisan.siret}</span>
+                </p>
+                <SiretVerifBadge siret={artisan.siret} />
+              </div>
+            )}
             {artisan.siteWeb && (
               <p>
                 🌐{" "}

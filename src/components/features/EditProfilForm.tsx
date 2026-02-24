@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { COMMUNES_NANTES_EST } from "@/constants";
 import Image from "next/image";
+import SiretVerifBadge from "@/components/features/SiretVerifBadge";
 
 interface Commune {
   id: string;
@@ -57,6 +58,7 @@ export default function EditProfilForm({
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
@@ -70,6 +72,17 @@ export default function EditProfilForm({
   });
 
   const logoUrlValue = watch("logoUrl");
+  const siretValue = watch("siret");
+  const raisonSocialeValue = watch("raisonSociale");
+
+  const handleNomOfficiel = useCallback(
+    (nom: string) => {
+      if (!raisonSocialeValue) {
+        setValue("raisonSociale", nom, { shouldValidate: false });
+      }
+    },
+    [raisonSocialeValue, setValue]
+  );
 
   function toggleMetier(slug: string) {
     setSelectedMetiers((prev) =>
@@ -146,6 +159,7 @@ export default function EditProfilForm({
             <label className="mb-1 block text-sm font-bold">SIRET</label>
             <input {...register("siret")} className="bd-input" maxLength={14} />
             {errors.siret && <p className="mt-1 text-sm text-[#ff6b6b]">{errors.siret.message}</p>}
+            <SiretVerifBadge siret={siretValue} onNomOfficiel={handleNomOfficiel} />
           </div>
           <div>
             <label className="mb-1 block text-sm font-bold">Téléphone</label>
