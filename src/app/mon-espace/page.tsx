@@ -9,6 +9,7 @@ import MonEspaceEditForm from "@/components/features/MonEspaceEditForm";
 import PortfolioUploader from "@/components/features/PortfolioUploader";
 import DangerZone from "@/components/features/DangerZone";
 import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapper";
+import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 
 export default async function MonEspacePage() {
   const session = await auth();
@@ -50,11 +51,16 @@ export default async function MonEspacePage() {
 
     return (
       <div className="min-h-screen bg-[#60c5f1]">
-        <header className="border-b-4 border-[#1a1a1a] bg-[#1a1a2e] px-6 py-4">
-          <div className="mx-auto flex max-w-3xl items-center justify-between">
-            <Link href="/" className="bd-titre text-xl text-[#60c5f1]">
-              Oyez Artisans !
-            </Link>
+        <header className="relative z-50 flex items-center justify-between px-6 py-4">
+          <Link
+            href="/"
+            className="bd-titre text-2xl text-[#1a1a2e] no-underline"
+            style={{ textShadow: "2px 2px 0 rgba(0,0,0,0.15)" }}
+          >
+            Oyez Artisans !
+          </Link>
+          <nav className="flex items-center gap-3">
+            <NavMessagerieIcon />
             <form
               action={async () => {
                 "use server";
@@ -63,12 +69,27 @@ export default async function MonEspacePage() {
             >
               <button
                 type="submit"
-                className="rounded-lg border-2 border-[#60c5f1] px-3 py-1.5 text-xs font-bold text-[#60c5f1] hover:bg-[#60c5f1] hover:text-[#1a1a2e]"
+                aria-label="Se déconnecter"
+                title="Se déconnecter"
+                className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
               >
-                Déconnexion
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
               </button>
             </form>
-          </div>
+          </nav>
         </header>
 
         <main className="mx-auto max-w-3xl px-4 py-10">
@@ -189,7 +210,6 @@ export default async function MonEspacePage() {
     },
   });
 
-  const nomAffiche = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
   const moyenneAvis =
     artisan.avis.length > 0
       ? artisan.avis.reduce((s: number, a: { note: number }) => s + a.note, 0) / artisan.avis.length
@@ -257,29 +277,46 @@ export default async function MonEspacePage() {
 
   return (
     <div className="min-h-screen bg-[#6bcb77]">
-      {/* Header vert */}
-      <header className="border-b-4 border-[#1a1a1a] bg-[#1a1a2e] px-6 py-4">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link href="/" className="bd-titre text-xl text-[#6bcb77]">
-            Oyez Artisans !
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-bold text-white">{nomAffiche}</span>
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/" });
-              }}
+      {/* Header artisan */}
+      <header className="relative z-50 flex items-center justify-between px-6 py-4">
+        <Link
+          href="/"
+          className="bd-titre text-2xl text-[#1a1a2e] no-underline"
+          style={{ textShadow: "2px 2px 0 rgba(0,0,0,0.15)" }}
+        >
+          Oyez Artisans !
+        </Link>
+        <nav className="flex items-center gap-3">
+          <NavMessagerieIcon />
+          <form
+            action={async () => {
+              "use server";
+              await signOut({ redirectTo: "/" });
+            }}
+          >
+            <button
+              type="submit"
+              aria-label="Se déconnecter"
+              title="Se déconnecter"
+              className="flex items-center justify-center rounded-xl border-2 border-[#1a1a2e]/40 p-2 text-[#1a1a2e] transition-colors hover:bg-[#1a1a2e]/10"
             >
-              <button
-                type="submit"
-                className="rounded-lg border-2 border-[#6bcb77] px-3 py-1.5 text-xs font-bold text-[#6bcb77] hover:bg-[#6bcb77] hover:text-[#1a1a2e]"
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                Déconnexion
-              </button>
-            </form>
-          </div>
-        </div>
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
+          </form>
+        </nav>
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-10">
@@ -476,7 +513,9 @@ export default async function MonEspacePage() {
               </dl>
 
               {displayDescription && (
-                <p className="mt-4 border-t pt-3 text-sm text-gray-600">{displayDescription}</p>
+                <p className="mt-4 border-t pt-3 text-sm whitespace-pre-wrap text-gray-600">
+                  {displayDescription}
+                </p>
               )}
               {artisan.status === "VALIDE" && (
                 <Link

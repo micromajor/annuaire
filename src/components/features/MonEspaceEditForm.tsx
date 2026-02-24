@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import SiretVerifBadge from "@/components/features/SiretVerifBadge";
 
 // Leaflet ne fonctionne pas en SSR (uses window)
 const MapZoneSelector = dynamic(() => import("@/components/ui/MapZoneSelector"), {
@@ -313,6 +314,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
                   style={{ border: "3px solid #1a1a1a" }}
                 />
                 {errors.siret && <p className="mt-1 text-xs text-[#ff6b6b]">{errors.siret[0]}</p>}
+                <SiretVerifBadge siret={form.siret} />
               </div>
             </div>
           </fieldset>

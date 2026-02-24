@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import type { SiretVerifData } from "@/app/api/artisans/verify-siret/route";
 
 interface Props {
@@ -16,25 +16,22 @@ function parseSiret(raw: string | null | undefined): string {
 export default function SiretVerifBadge({ siret, onNomOfficiel }: Props) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SiretVerifData | null>(null);
-  const lastChecked = useRef<string>("");
 
-  // Format validé au moment du rendu — pas de setState synchrone dans l'effet
   const clean = parseSiret(siret);
   const validFormat = /^\d{14}$/.test(clean);
 
   useEffect(() => {
     const s = parseSiret(siret);
 
-    // Ne déclenche que pour 14 chiffres exacts
-    if (!/^\d{14}$/.test(s)) return;
-
-    // Éviter de re-checker le même SIRET
-    if (s === lastChecked.current) return;
+    if (!/^\d{14}$/.test(s)) {
+      return;
+    }
 
     let cancelled = false;
-    lastChecked.current = s;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- setLoading déclenche un spinner avant fetch, pattern légitime
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
+
+    setResult(null);
 
     fetch(`/api/artisans/verify-siret?siret=${s}`)
       .then((r) => r.json() as Promise<SiretVerifData>)
@@ -57,7 +54,6 @@ export default function SiretVerifBadge({ siret, onNomOfficiel }: Props) {
     };
   }, [siret, onNomOfficiel]);
 
-  // SIRET incomplet ou vide → rien afficher (reset visuel par le rendu, pas setState)
   if (!validFormat) return null;
 
   if (loading) {
@@ -69,7 +65,6 @@ export default function SiretVerifBadge({ siret, onNomOfficiel }: Props) {
     );
   }
 
-  // SIRET valide mais pas encore chargé (ex: valeur initiale pré-remplie identique)
   if (!result) return null;
 
   if (!result.found) {
