@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db/client";
 import AutoSignOut from "@/components/ui/AutoSignOut";
 import Link from "next/link";
 import MonEspaceEditForm from "@/components/features/MonEspaceEditForm";
+import ShareFicheButton from "@/components/features/ShareFicheButton";
 import PortfolioUploader from "@/components/features/PortfolioUploader";
 import DangerZone from "@/components/features/DangerZone";
 import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapper";
@@ -544,12 +545,15 @@ export default async function MonEspacePage() {
                 </p>
               )}
               {artisan.status === "VALIDE" && (
-                <Link
-                  href={`/artisan/${artisan.id}`}
-                  className="mt-4 inline-block text-sm font-bold text-[#1a1a2e] underline"
-                >
-                  Voir ma fiche publique →
-                </Link>
+                <div className="mt-4 space-y-2">
+                  <Link
+                    href={`/artisan/${artisan.id}`}
+                    className="inline-block text-sm font-bold text-[#1a1a2e] underline"
+                  >
+                    Voir ma fiche publique →
+                  </Link>
+                  <ShareFicheButton artisanId={artisan.id} nomAffiche={displayNomAffiche} />
+                </div>
               )}
             </div>
           )}
