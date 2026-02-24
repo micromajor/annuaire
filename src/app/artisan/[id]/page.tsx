@@ -11,6 +11,7 @@ import MessagerieButton from "@/components/features/MessagerieButton";
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapper";
 import PortfolioPhotos from "@/components/features/PortfolioPhotos";
+import ShareButton from "@/components/features/ShareButton";
 import type { Metadata } from "next";
 
 const METIER_EMOJIS: Record<string, string> = {
@@ -70,7 +71,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: "Oyez Artisans !",
       title,
       description,
-      ...(artisan.logoUrl ? { images: [{ url: artisan.logoUrl, alt: nom }] } : {}),
+      // L'OG image est fournie dynamiquement par opengraph-image.tsx dans ce répertoire
     },
     twitter: { card: "summary", title, description },
   };
@@ -307,12 +308,17 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                   </div>
                 </div>
 
-                <div className="mb-5 flex flex-wrap gap-2">
+                <div className="mb-4 flex flex-wrap items-center gap-2">
                   {artisan.metiers.map(({ metier }) => (
                     <span key={metier.id} className="bd-badge bd-badge-jaune text-sm">
                       {metier.label}
                     </span>
                   ))}
+                  <ShareButton
+                    url={`https://oyezartisans.fr/artisan/${artisan.id}`}
+                    title={`${nomAffiche} — ${artisan.metiers.map((m) => m.metier.label).join(", ")} à ${communeNoms[0] ?? "Loire-Atlantique"}`}
+                    text={`Découvrez la fiche de ${nomAffiche} sur Oyez Artisans !`}
+                  />
                 </div>
 
                 <hr className="bd-separator mb-5" />
