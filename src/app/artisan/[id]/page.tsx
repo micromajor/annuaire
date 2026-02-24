@@ -51,7 +51,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description =
     artisan.description ??
     `Fiche de ${nom}, ${metiers} à ${communes || "Loire-Atlantique"}. Contactez-le directement sur Oyez Artisans !`;
-  const url = `https://oyezartisans.fr/artisan/${id}`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://oyezartisans.fr";
+  const url = `${appUrl}/artisan/${id}`;
+  const carteUrl = `${appUrl}/api/artisan/${id}/carte`;
 
   return {
     title,
@@ -71,9 +73,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: "Oyez Artisans !",
       title,
       description,
-      // L'OG image est fournie dynamiquement par opengraph-image.tsx dans ce répertoire
+      images: [
+        {
+          url: carteUrl,
+          width: 1200,
+          height: 630,
+          alt: `Carte de visite de ${nom} — ${metiers}`,
+        },
+      ],
     },
-    twitter: { card: "summary", title, description },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [carteUrl],
+    },
   };
 }
 

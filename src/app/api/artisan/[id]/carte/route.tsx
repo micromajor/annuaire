@@ -1,13 +1,20 @@
-// Carte de visite artisan — PNG téléchargeable / partageable
+// Carte de visite artisan — PNG téléchargeable / partageable + og:image
 // Rendu côté serveur (Node runtime) pour accès Prisma
 import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/db/client";
 import type { NextRequest } from "next/server";
+import fs from "fs";
+import path from "path";
 
 export const runtime = "nodejs";
 
-const W = 1050;
-const H = 600;
+const W = 1200;
+const H = 630;
+
+// Police Bangers (BD) chargée depuis le FS local — une seule fois au démarrage du process
+const bangersFont: Buffer = fs.readFileSync(
+  path.join(process.cwd(), "public/fonts/Bangers-Regular.ttf")
+);
 
 const METIER_EMOJI: Record<string, string> = {
   macon: "🧱",
@@ -65,7 +72,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       ? artisan.avis.reduce((acc: number, a: { note: number }) => acc + a.note, 0) / avisCount
       : null;
 
-  const nomFontSize = nom.length > 28 ? 56 : nom.length > 20 ? 66 : 78;
+  const nomFontSize = nom.length > 28 ? 66 : nom.length > 20 ? 80 : 96;
   const download = req.nextUrl.searchParams.get("dl") === "1";
 
   const image = new ImageResponse(
@@ -77,7 +84,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           background: "#ffd93d",
           display: "flex",
           flexDirection: "column",
-          fontFamily: "Impact, Arial Black, sans-serif",
+          fontFamily: "Bangers, Impact, Arial Black, sans-serif",
           border: "12px solid #1a1a2e",
           boxSizing: "border-box",
           position: "relative",
@@ -129,7 +136,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  letterSpacing: 1,
+                  letterSpacing: 2,
                   flexShrink: 0,
                 }}
               >
@@ -137,11 +144,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
               </div>
               <span
                 style={{
-                  fontSize: 20,
+                  fontSize: 24,
                   fontWeight: 900,
                   color: "#1a1a2e",
                   textTransform: "uppercase",
-                  letterSpacing: 3,
+                  letterSpacing: 6,
                 }}
               >
                 Oyez Artisans !
@@ -156,11 +163,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                 gap: 10,
                 background: "#1a1a2e",
                 color: "#ffd93d",
-                fontSize: 18,
-                fontWeight: 900,
-                padding: "7px 20px",
+                fontSize: 24,
+                fontWeight: 400,
+                padding: "8px 24px",
                 borderRadius: 50,
-                letterSpacing: 2,
+                letterSpacing: 5,
                 textTransform: "uppercase",
                 marginBottom: 14,
                 boxShadow: "4px 4px 0 rgba(0,0,0,0.25)",
@@ -174,10 +181,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             <div
               style={{
                 fontSize: nomFontSize,
-                fontWeight: 900,
+                fontWeight: 400,
                 color: "#1a1a2e",
                 lineHeight: 1.0,
-                letterSpacing: 1,
+                letterSpacing: 3,
                 display: "flex",
               }}
             >
@@ -340,11 +347,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         >
           <span
             style={{
-              fontSize: 17,
-              fontWeight: 900,
+              fontSize: 19,
+              fontWeight: 400,
               color: "rgba(255,217,61,0.7)",
               textTransform: "uppercase",
-              letterSpacing: 3,
+              letterSpacing: 5,
               display: "flex",
             }}
           >
@@ -357,11 +364,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
               gap: 10,
               background: "#ffd93d",
               color: "#1a1a2e",
-              fontSize: 17,
-              fontWeight: 900,
+              fontSize: 22,
+              fontWeight: 400,
               padding: "10px 28px",
               borderRadius: 50,
-              letterSpacing: 1,
+              letterSpacing: 4,
               textTransform: "uppercase",
             }}
           >
@@ -370,7 +377,18 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         </div>
       </div>
     ),
-    { width: W, height: H }
+    {
+      width: W,
+      height: H,
+      fonts: [
+        {
+          name: "Bangers",
+          data: bangersFont,
+          weight: 400,
+          style: "normal",
+        },
+      ],
+    }
   );
 
   if (download) {
