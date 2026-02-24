@@ -260,7 +260,7 @@ export default function AdminArtisanRow({
 
           {/* Description */}
           {artisan.description ? (
-            <p className="rounded-lg bg-[#fff8f0] p-3 text-sm text-gray-500 italic">
+            <p className="rounded-lg bg-[#fff8f0] p-3 text-sm whitespace-pre-wrap text-gray-500 italic">
               &ldquo;{artisan.description}&rdquo;
             </p>
           ) : (

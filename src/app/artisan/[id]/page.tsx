@@ -326,7 +326,9 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                 {artisan.description && (
                   <div className="mb-5">
                     <h2 className="mb-2 font-black text-[#1a1a2e]">&Agrave; propos</h2>
-                    <p className="leading-relaxed text-gray-700">{artisan.description}</p>
+                    <p className="leading-relaxed whitespace-pre-wrap text-gray-700">
+                      {artisan.description}
+                    </p>
                   </div>
                 )}
 
