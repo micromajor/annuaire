@@ -552,7 +552,12 @@ export default async function MonEspacePage() {
                   >
                     Voir ma fiche publique →
                   </Link>
-                  <ShareFicheButton artisanId={artisan.id} nomAffiche={displayNomAffiche} />
+                  <ShareFicheButton
+                      artisanId={artisan.id}
+                      nomAffiche={displayNomAffiche}
+                      metier={artisan.metiers[0]?.metier?.label}
+                      commune={artisan.communes[0]?.commune?.nom}
+                    />
                 </div>
               )}
             </div>
