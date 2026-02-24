@@ -27,7 +27,6 @@ export default function SiretVerifBadge({ siret, onNomOfficiel }: Props) {
       return;
     }
 
-    let cancelled = false;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
 
@@ -36,7 +35,6 @@ export default function SiretVerifBadge({ siret, onNomOfficiel }: Props) {
     fetch(`/api/artisans/verify-siret?siret=${s}`)
       .then((r) => r.json() as Promise<SiretVerifData>)
       .then((data) => {
-        if (cancelled) return;
         setResult(data);
         setLoading(false);
         if (data.found && data.actif && data.nomOfficiel) {
@@ -44,14 +42,9 @@ export default function SiretVerifBadge({ siret, onNomOfficiel }: Props) {
         }
       })
       .catch(() => {
-        if (cancelled) return;
         setResult({ found: false });
         setLoading(false);
       });
-
-    return () => {
-      cancelled = true;
-    };
   }, [siret, onNomOfficiel]);
 
   if (!validFormat) return null;
