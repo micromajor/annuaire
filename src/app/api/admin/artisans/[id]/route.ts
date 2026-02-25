@@ -54,6 +54,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         siteWeb?: string | null;
         logoUrl?: string | null;
         description?: string | null;
+        accroche?: string | null;
         metierLibre?: string | null;
         metierSlugs: string[];
         // Nouveau format (depuis refacto communePairs)
@@ -101,6 +102,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             siteWeb: draft.siteWeb || null,
             logoUrl: draft.logoUrl || null,
             description: draft.description ?? null,
+            accroche: draft.accroche ?? null,
             metierLibre: draft.metierLibre ?? null,
             hasPendingDraft: false,
             draftData: Prisma.DbNull,

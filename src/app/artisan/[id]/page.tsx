@@ -303,6 +303,11 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                         {artisan.prenom} {artisan.nom}
                       </p>
                     )}
+                    {artisan.accroche && (
+                      <p className="mt-1 text-sm font-semibold text-gray-600 italic">
+                        {artisan.accroche}
+                      </p>
+                    )}
                     {moyenne !== null && (
                       <div className="mt-2 flex items-center gap-1.5 text-sm">
                         <span>

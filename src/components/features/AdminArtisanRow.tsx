@@ -34,6 +34,7 @@ interface DraftData {
   siteWeb?: string | null;
   logoUrl?: string | null;
   description?: string | null;
+  accroche?: string | null;
   metierLabels?: string[];
   communeLabels?: string[];
 }
@@ -307,6 +308,7 @@ export default function AdminArtisanRow({
                 { label: "Site web", before: artisan.siteWeb, after: draft.siteWeb },
                 { label: "Logo", before: artisan.logoUrl, after: draft.logoUrl },
                 { label: "Description", before: artisan.description, after: draft.description },
+                { label: "Accroche", before: artisan.accroche, after: draft.accroche },
                 {
                   label: "Métiers",
                   before: artisan.metiers.map((m) => m.metier.label).join(", "),
