@@ -112,7 +112,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   // Taille du nom selon longueur et présence de logo
   const hasLogo = !!logoDataUrl;
   const nomFontSize = nom.length > 28 ? 62 : nom.length > 18 ? 80 : 100;
-  const font = getBangersFont();
 
   try {
     const image = new ImageResponse(
@@ -123,7 +122,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           background: "#ffd93d",
           display: "flex",
           flexDirection: "column",
-          fontFamily: "Bangers, sans-serif",
           border: "14px solid #1a1a2e",
         }}
       >
@@ -256,19 +254,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       {
         width: W,
         height: H,
-        fonts: font
-          ? [
-              {
-                name: "Bangers",
-                data: font.buffer.slice(
-                  font.byteOffset,
-                  font.byteOffset + font.byteLength
-                ) as ArrayBuffer,
-                weight: 400 as const,
-                style: "normal" as const,
-              },
-            ]
-          : [],
+        fonts: [],
       }
     );
 
