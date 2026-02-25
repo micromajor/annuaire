@@ -123,28 +123,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           background: "#ffd93d",
           display: "flex",
           flexDirection: "column",
-          fontFamily: "Bangers, Impact, Arial Black, sans-serif",
+          fontFamily: "Bangers, sans-serif",
           border: "14px solid #1a1a2e",
-          position: "relative",
         }}
       >
-        {/* Demi-teinte BD subtile */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            backgroundImage: "radial-gradient(circle, rgba(26,26,46,0.07) 2px, transparent 2px)",
-            backgroundSize: "26px 26px",
-            display: "flex",
-          }}
-        />
-
         {/* CORPS — flex row */}
         <div style={{ display: "flex", flex: 1 }}>
-          {/* Zone principale — branding + nom + métier */}
+          {/* Zone principale */}
           <div
             style={{
               display: "flex",
@@ -154,7 +139,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
               padding: "48px 56px",
             }}
           >
-            {/* Branding OYEZ ARTISANS ! 44 */}
+            {/* Branding */}
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
               <div
                 style={{
@@ -167,13 +152,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  letterSpacing: 1,
                   flexShrink: 0,
                 }}
               >
                 O!
               </div>
-              <span
+              <div
                 style={{
                   fontSize: 28,
                   color: "#1a1a2e",
@@ -183,15 +167,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                 }}
               >
                 Oyez Artisans ! 44
-              </span>
+              </div>
             </div>
 
-            {/* Nom artisan — dominant */}
+            {/* Nom artisan */}
             <div
               style={{
                 fontSize: nomFontSize,
                 color: "#1a1a2e",
-                lineHeight: 0.95,
+                lineHeight: 1,
                 letterSpacing: 2,
                 textTransform: "uppercase",
                 display: "flex",
@@ -205,27 +189,24 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
               <div
                 style={{
                   fontSize: 26,
-                  fontFamily: "Arial, sans-serif",
-                  fontStyle: "italic",
+                  fontFamily: "sans-serif",
                   color: "#333",
                   lineHeight: 1.3,
                   display: "flex",
-                  maxWidth: hasLogo ? 620 : 980,
+                  maxWidth: 980,
                 }}
               >
                 {accroche}
               </div>
             ) : null}
 
-            {/* Badge(s) métier */}
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            {/* Badges métier */}
+            <div style={{ display: "flex", gap: 12 }}>
               {metiersLabels.map((label: string) => (
                 <div
                   key={label}
                   style={{
                     display: "flex",
-                    alignItems: "center",
-                    gap: 10,
                     background: "#1a1a2e",
                     color: "#ffd93d",
                     fontSize: 26,
@@ -241,7 +222,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             </div>
           </div>
 
-          {/* Colonne droite — logo si disponible */}
+          {/* Logo */}
           {hasLogo ? (
             <div
               style={{
@@ -256,7 +237,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={logoDataUrl!}
-                alt={nom}
+                alt=""
                 width={164}
                 height={164}
                 style={{
@@ -277,7 +258,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           ? [
               {
                 name: "Bangers",
-                // Buffer Node.js → ArrayBuffer propre (évite le pool partagé)
                 data: font.buffer.slice(
                   font.byteOffset,
                   font.byteOffset + font.byteLength
@@ -290,8 +270,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       }
     );
 
-    // Force le rendu MAINTENANT (ImageResponse est lazy/streaming)
-    // → le try/catch peut attraper les erreurs satori
+    // Force le rendu MAINTENANT (ImageResponse est lazy)
     const buffer = await image.arrayBuffer();
     const headers: Record<string, string> = {
       "Content-Type": "image/png",
