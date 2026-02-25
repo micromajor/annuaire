@@ -232,6 +232,7 @@ export default async function MonEspacePage() {
     logoUrl?: string | null;
     metierSlugs?: string[];
     metierLabels?: string[];
+    accroche?: string | null;
     metierLibre?: string | null;
     communePairs?: CommunePair[]; // nouveau format
     communeLabels?: string[]; // pour l'affichage (les deux formats)
@@ -246,6 +247,7 @@ export default async function MonEspacePage() {
   const displaySiret = pendingDraft?.siret ?? artisan.siret;
   const displaySiteWeb = pendingDraft?.siteWeb ?? artisan.siteWeb;
   const displayDescription = pendingDraft?.description ?? artisan.description;
+  const displayAccroche = pendingDraft?.accroche ?? artisan.accroche;
   const displayLogoUrl = pendingDraft?.logoUrl ?? artisan.logoUrl;
   const displayMetierLabels =
     pendingDraft?.metierLabels ??
@@ -377,6 +379,12 @@ export default async function MonEspacePage() {
               changed(artisan.description, draft.description)
                 ? { label: "Description", value: draft.description || "(supprimée)" }
                 : null,
+              changed(artisan.accroche, (draft as { accroche?: string | null }).accroche)
+                ? {
+                    label: "Accroche",
+                    value: (draft as { accroche?: string | null }).accroche || "(supprimée)",
+                  }
+                : null,
               changed(artisan.logoUrl, draft.logoUrl)
                 ? { label: "Logo", value: "Nouveau logo soumis" }
                 : null,
@@ -423,6 +431,7 @@ export default async function MonEspacePage() {
               siret: displaySiret,
               siteWeb: displaySiteWeb,
               description: displayDescription,
+              accroche: displayAccroche,
               logoUrl: displayLogoUrl,
               metierSlugs:
                 pendingDraft?.metierSlugs ??
@@ -553,11 +562,11 @@ export default async function MonEspacePage() {
                     Voir ma fiche publique →
                   </Link>
                   <ShareFicheButton
-                      artisanId={artisan.id}
-                      nomAffiche={displayNomAffiche}
-                      metier={artisan.metiers[0]?.metier?.label}
-                      commune={artisan.communes[0]?.commune?.nom}
-                    />
+                    artisanId={artisan.id}
+                    nomAffiche={displayNomAffiche}
+                    metier={artisan.metiers[0]?.metier?.label}
+                    commune={artisan.communes[0]?.commune?.nom}
+                  />
                 </div>
               )}
             </div>

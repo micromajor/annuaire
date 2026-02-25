@@ -30,6 +30,7 @@ model Artisan {
   telephone     String?
   siteWeb       String?
   logoUrl       String?       // URL du logo fournie par l'artisan
+  accroche      String?       @db.VarChar(200)  // phrase d'accroche courte
   description   String?       @db.VarChar(2000)
   metierLibre   String?       // métier libre soumis par l'artisan s'il n'est pas dans la liste
   portfolioPhotos Json?        // tableau d'URLs de photos de chantier

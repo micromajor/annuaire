@@ -19,6 +19,7 @@ const UpdateProfileSchema = z
       .or(z.literal("")),
     siteWeb: z.string().url("URL invalide").max(300).optional().or(z.literal("")),
     description: z.string().max(2000).optional().or(z.literal("")),
+    accroche: z.string().max(200).optional().or(z.literal("")),
     logoUrl: z
       .string()
       .max(500)
@@ -66,6 +67,7 @@ export async function PUT(req: NextRequest) {
     siret,
     siteWeb,
     description,
+    accroche,
     logoUrl,
     metierSlugs,
     metierLibre,
@@ -109,6 +111,7 @@ export async function PUT(req: NextRequest) {
             siret: siret || null,
             siteWeb: siteWeb || null,
             description: description || null,
+            accroche: accroche || null,
             logoUrl: logoUrl || null,
             metierSlugs,
             metierLibre: metierLibre || null,
@@ -137,6 +140,7 @@ export async function PUT(req: NextRequest) {
         siret: siret || null,
         siteWeb: siteWeb || null,
         description: description || null,
+        accroche: accroche || null,
         logoUrl: logoUrl || null,
         metierLibre: metierLibre || null,
       },

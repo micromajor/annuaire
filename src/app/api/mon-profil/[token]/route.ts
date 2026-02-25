@@ -20,6 +20,7 @@ const patchSchema = z.object({
     )
     .optional()
     .or(z.literal("")),
+  accroche: z.string().max(200).optional(),
   description: z.string().max(500).optional(),
   metierSlugs: z.array(z.string()).min(1, "Au moins un métier requis"),
   communeIds: z.array(z.string()).min(1, "Au moins une commune requise"),
@@ -60,6 +61,7 @@ export async function GET(
       telephone: artisan.telephone,
       siteWeb: artisan.siteWeb,
       logoUrl: artisan.logoUrl,
+      accroche: artisan.accroche,
       description: artisan.description,
       metierSlugs: artisan.metiers.map((m) => m.metier.slug),
       communeIds: artisan.communes.map((c) => c.communeId),
@@ -123,6 +125,7 @@ export async function PATCH(
             telephone: data.telephone ?? null,
             siteWeb: data.siteWeb || null,
             logoUrl: data.logoUrl || null,
+            accroche: data.accroche ?? null,
             description: data.description ?? null,
             metierSlugs: data.metierSlugs,
             communeIds: data.communeIds,
@@ -150,6 +153,7 @@ export async function PATCH(
           telephone: data.telephone ?? null,
           siteWeb: data.siteWeb || null,
           logoUrl: data.logoUrl || null,
+          accroche: data.accroche ?? null,
           description: data.description ?? null,
         },
       });

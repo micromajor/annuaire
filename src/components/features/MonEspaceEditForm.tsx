@@ -29,6 +29,7 @@ type Props = {
     siret: string | null;
     siteWeb: string | null;
     description: string | null;
+    accroche?: string | null;
     logoUrl: string | null;
     metierSlugs: string[];
     metierLibre?: string | null;
@@ -50,6 +51,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
     siret: artisan.siret ?? "",
     siteWeb: artisan.siteWeb ?? "",
     description: artisan.description ?? "",
+    accroche: artisan.accroche ?? "",
     logoUrl: artisan.logoUrl ?? "",
     metierSlugs: artisan.metierSlugs,
     metierLibre: artisan.metierLibre ?? "",
@@ -317,6 +319,24 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
                 <SiretVerifBadge siret={form.siret} />
               </div>
             </div>
+          </fieldset>
+
+          {/* Accroche */}
+          <fieldset>
+            <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
+              Phrase d&apos;accroche
+            </legend>
+            <input
+              type="text"
+              value={form.accroche}
+              onChange={(e) => setForm({ ...form, accroche: e.target.value })}
+              placeholder="Maçonnerie soignée, devis gratuit sous 48h…"
+              maxLength={200}
+              className="w-full rounded-xl border-3 border-[#1a1a1a] px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-[#6bcb77]"
+              style={{ border: "3px solid #1a1a1a" }}
+            />
+            <p className="mt-1 text-right text-xs text-gray-400">{form.accroche.length}/200</p>
+            {errors.accroche && <p className="mt-1 text-xs text-[#ff6b6b]">{errors.accroche[0]}</p>}
           </fieldset>
 
           {/* Description */}

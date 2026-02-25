@@ -94,9 +94,9 @@ export default function ArtisanCard({ artisan, avis = [] }: ArtisanCardProps) {
         ))}
       </div>
 
-      {/* Description */}
-      {artisan.description && (
-        <p className="mb-3 line-clamp-2 text-sm text-gray-600">{artisan.description}</p>
+      {/* Accroche */}
+      {artisan.accroche && (
+        <p className="mb-3 text-sm font-semibold text-gray-600 italic">{artisan.accroche}</p>
       )}
 
       {/* Communes */}

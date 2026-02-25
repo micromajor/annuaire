@@ -50,6 +50,7 @@ export default async function EditProfilPage({ params }: PageProps) {
     telephone: artisan.telephone ?? "",
     siteWeb: artisan.siteWeb ?? "",
     logoUrl: artisan.logoUrl ?? "",
+    accroche: artisan.accroche ?? "",
     description: artisan.description ?? "",
     metierSlugs: artisan.metiers.map((m) => m.metier.slug),
     communeIds: artisan.communes.map((c) => c.communeId),

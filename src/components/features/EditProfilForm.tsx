@@ -21,6 +21,7 @@ interface InitialData {
   telephone: string;
   siteWeb: string;
   logoUrl: string;
+  accroche: string;
   description: string;
   metierSlugs: string[];
   communeIds: string[];
@@ -39,6 +40,7 @@ interface FormValues {
   telephone: string;
   siteWeb: string;
   logoUrl: string;
+  accroche: string;
   description: string;
 }
 
@@ -67,6 +69,7 @@ export default function EditProfilForm({
       telephone: initialData.telephone,
       siteWeb: initialData.siteWeb,
       logoUrl: initialData.logoUrl,
+      accroche: initialData.accroche,
       description: initialData.description,
     },
   });
@@ -174,6 +177,20 @@ export default function EditProfilForm({
               placeholder="https://"
             />
           </div>
+        </div>
+        <div className="mt-4">
+          <label className="mb-1 block text-sm font-bold">
+            Phrase d&apos;accroche{" "}
+            <span className="text-xs font-normal text-gray-400">
+              (200 car. max — affichée sur votre carte et dans l&apos;annuaire)
+            </span>
+          </label>
+          <input
+            {...register("accroche")}
+            className="bd-input"
+            placeholder="Ex : Maçonnerie soignée, devis gratuit sous 48h…"
+            maxLength={200}
+          />
         </div>
         <div className="mt-4">
           <label className="mb-1 block text-sm font-bold">

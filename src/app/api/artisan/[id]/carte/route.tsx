@@ -16,22 +16,6 @@ const bangersFont: Buffer = fs.readFileSync(
   path.join(process.cwd(), "public/fonts/Bangers-Regular.ttf")
 );
 
-const METIER_EMOJI: Record<string, string> = {
-  macon: "🧱",
-  plombier: "🔧",
-  electricien: "⚡",
-  menuisier: "🪵",
-  peintre: "🎨",
-  couvreur: "🏠",
-  carreleur: "🔲",
-  chauffagiste: "🔥",
-  plaquiste: "🪚",
-  charpentier: "🔩",
-  terrassier: "⛏️",
-  paysagiste: "🌿",
-  ramoneur: "🏭",
-};
-
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
@@ -41,13 +25,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       prenom: true,
       nom: true,
       raisonSociale: true,
-      telephone: true,
-      siteWeb: true,
       logoUrl: true,
-      description: true,
+      accroche: true,
       metiers: { include: { metier: true } },
-      communes: { include: { commune: true } },
-      avis: { where: { status: "VALIDE" }, select: { note: true } },
     },
   });
 
@@ -57,26 +37,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const nom = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
   const metiersLabels = artisan.metiers.map((m: { metier: { label: string } }) => m.metier.label);
-  const communeNoms = artisan.communes
-    .map((c: { commune: { nom: string } }) => c.commune.nom)
-    .slice(0, 3);
-  const firstSlug = artisan.metiers[0]?.metier.slug ?? "";
-  const emoji = METIER_EMOJI[firstSlug] ?? "🔨";
-  const tel = artisan.telephone;
   const logoAbsolu = artisan.logoUrl?.startsWith("http") ? artisan.logoUrl : null;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://oyezartisans.fr";
-  const ficheUrl = `${appUrl}/artisan/${id}`;
-  const rawDesc = artisan.description ?? "";
-  const descSnippet = rawDesc.length > 110 ? rawDesc.slice(0, 107) + "…" : rawDesc;
+  const accroche = artisan.accroche ?? "";
 
-  const avisCount = artisan.avis.length;
-  const moyenne =
-    avisCount > 0
-      ? artisan.avis.reduce((acc: number, a: { note: number }) => acc + a.note, 0) / avisCount
-      : null;
-  const stars = moyenne !== null ? Math.round(moyenne) : 0;
-
-  const nomFontSize = nom.length > 28 ? 58 : nom.length > 20 ? 70 : 84;
+  // Taille du nom selon longueur et présence de logo
+  const hasLogo = !!logoAbsolu;
+  const nomFontSize = nom.length > 28 ? 62 : nom.length > 18 ? 80 : 100;
   const download = req.nextUrl.searchParams.get("dl") === "1";
 
   const image = new ImageResponse(
@@ -84,292 +50,154 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       style={{
         width: W,
         height: H,
-        background: "#fef9e7",
+        background: "#ffd93d",
         display: "flex",
         flexDirection: "column",
         fontFamily: "Bangers, Impact, Arial Black, sans-serif",
-        border: "12px solid #1a1a2e",
+        border: "14px solid #1a1a2e",
         boxSizing: "border-box",
         overflow: "hidden",
+        position: "relative",
       }}
     >
-      {/* HEADER — bandeau sombre */}
+      {/* Demi-teinte BD subtile */}
       <div
         style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "radial-gradient(circle, rgba(26,26,46,0.07) 2px, transparent 2px)",
+          backgroundSize: "26px 26px",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          background: "#1a1a2e",
-          paddingLeft: 40,
-          paddingRight: 40,
-          height: 68,
-          flexShrink: 0,
         }}
-      >
-        {/* Logo marque */}
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div
-            style={{
-              background: "#ffd93d",
-              color: "#1a1a2e",
-              fontSize: 20,
-              fontWeight: 400,
-              width: 40,
-              height: 40,
-              borderRadius: 8,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              letterSpacing: 1,
-              flexShrink: 0,
-            }}
-          >
-            O!
-          </div>
-          <span
-            style={{
-              fontSize: 26,
-              fontWeight: 400,
-              color: "#ffd93d",
-              textTransform: "uppercase",
-              letterSpacing: 6,
-              display: "flex",
-            }}
-          >
-            Oyez Artisans !
-          </span>
-        </div>
-        {/* Badge métier dans le header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            background: "#ffd93d",
-            color: "#1a1a2e",
-            fontSize: 20,
-            fontWeight: 400,
-            padding: "6px 20px",
-            borderRadius: 50,
-            letterSpacing: 4,
-            textTransform: "uppercase",
-          }}
-        >
-          <span style={{ fontSize: 18 }}>{emoji}</span>
-          {metiersLabels.slice(0, 2).join(" / ")}
-        </div>
-      </div>
+      />
 
-      {/* CORPS */}
-      <div style={{ display: "flex", flex: 1 }}>
-        {/* Colonne gauche — identité + description */}
+      {/* CORPS — flex row */}
+      <div style={{ display: "flex", flex: 1, zIndex: 1 }}>
+        {/* Zone principale — branding + nom + métier */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
+            justifyContent: "space-between",
             flex: 1,
-            padding: "36px 48px",
-            gap: 16,
+            padding: "48px 56px",
           }}
         >
-          {/* Nom artisan */}
+          {/* Branding OYEZ ARTISANS ! 44 */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div
+              style={{
+                background: "#1a1a2e",
+                color: "#ffd93d",
+                fontSize: 22,
+                width: 44,
+                height: 44,
+                borderRadius: 8,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                letterSpacing: 1,
+                flexShrink: 0,
+              }}
+            >
+              O!
+            </div>
+            <span
+              style={{
+                fontSize: 28,
+                color: "#1a1a2e",
+                textTransform: "uppercase",
+                letterSpacing: 5,
+                display: "flex",
+              }}
+            >
+              Oyez Artisans ! 44
+            </span>
+          </div>
+
+          {/* Nom artisan — dominant */}
           <div
             style={{
               fontSize: nomFontSize,
-              fontWeight: 400,
               color: "#1a1a2e",
-              lineHeight: 1.0,
-              letterSpacing: 3,
-              display: "flex",
+              lineHeight: 0.95,
+              letterSpacing: 2,
               textTransform: "uppercase",
+              display: "flex",
             }}
           >
             {nom}
           </div>
 
-          {/* Description courte */}
-          {descSnippet && (
+          {/* Accroche */}
+          {accroche && (
             <div
               style={{
-                fontSize: 22,
+                fontSize: 26,
                 fontFamily: "Arial, sans-serif",
-                fontWeight: 400,
-                color: "#444",
-                lineHeight: 1.4,
+                fontStyle: "italic",
+                color: "#333",
+                lineHeight: 1.3,
                 display: "flex",
-                maxWidth: 640,
+                maxWidth: hasLogo ? 620 : 980,
               }}
             >
-              {descSnippet}
+              {accroche}
             </div>
           )}
 
-          {/* Zones + note */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-            {communeNoms.length > 0 && (
+          {/* Badge(s) métier */}
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            {metiersLabels.map((label: string) => (
               <div
+                key={label}
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
-                  background: "#dbeeff",
-                  border: "3px solid #1a1a2e",
+                  gap: 10,
+                  background: "#1a1a2e",
+                  color: "#ffd93d",
+                  fontSize: 26,
+                  padding: "10px 30px",
                   borderRadius: 50,
-                  padding: "5px 18px",
-                  boxShadow: "3px 3px 0 #1a1a2e",
-                  fontSize: 18,
-                  fontWeight: 400,
-                  color: "#1a4080",
-                  letterSpacing: 2,
+                  textTransform: "uppercase",
+                  letterSpacing: 3,
                 }}
               >
-                📍 {communeNoms.join(" · ")}
-                {artisan.communes.length > 3 ? ` +${artisan.communes.length - 3}` : ""}
+                {label}
               </div>
-            )}
-            {moyenne !== null && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  background: "#fff8e1",
-                  border: "3px solid #1a1a2e",
-                  borderRadius: 50,
-                  padding: "5px 18px",
-                  boxShadow: "3px 3px 0 #1a1a2e",
-                  fontSize: 18,
-                  color: "#1a1a2e",
-                  letterSpacing: 1,
-                }}
-              >
-                <span style={{ color: "#ff9500", fontSize: 20, display: "flex" }}>
-                  {"★".repeat(stars)}
-                  {"☆".repeat(5 - stars)}
-                </span>
-                <span style={{ fontWeight: 400, display: "flex" }}>{moyenne.toFixed(1)}/5</span>
-              </div>
-            )}
+            ))}
           </div>
         </div>
 
-        {/* Colonne droite — logo + téléphone */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 240,
-            background: "#ffd93d",
-            borderLeft: "8px solid #1a1a2e",
-            padding: "28px 24px",
-            gap: 18,
-            flexShrink: 0,
-          }}
-        >
-          {/* Logo ou emoji */}
-          {logoAbsolu ? (
-            // eslint-disable-next-line @next/next/no-img-element
+        {/* Colonne droite — logo si disponible */}
+        {hasLogo && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 260,
+              padding: "48px 36px",
+              flexShrink: 0,
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={logoAbsolu}
+              src={logoAbsolu!}
               alt={nom}
-              width={120}
-              height={120}
+              width={164}
+              height={164}
               style={{
-                borderRadius: 16,
-                border: "5px solid #1a1a2e",
+                borderRadius: 24,
+                border: "6px solid #1a1a2e",
                 objectFit: "cover",
                 background: "#fff",
-                boxShadow: "5px 5px 0 #1a1a2e",
+                boxShadow: "7px 7px 0 #1a1a2e",
               }}
             />
-          ) : (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 120,
-                height: 120,
-                background: "#fff",
-                borderRadius: 16,
-                border: "5px solid #1a1a2e",
-                fontSize: 58,
-                boxShadow: "5px 5px 0 #1a1a2e",
-              }}
-            >
-              {emoji}
-            </div>
-          )}
-
-          {/* Téléphone */}
-          {tel && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                background: "#1a1a2e",
-                color: "#6bcb77",
-                fontSize: 17,
-                fontWeight: 400,
-                padding: "8px 14px",
-                borderRadius: 10,
-                border: "3px solid #1a1a2e",
-                letterSpacing: 1,
-                justifyContent: "center",
-                width: "100%",
-              }}
-            >
-              📞 {tel}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* FOOTER */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          background: "#1a1a2e",
-          paddingLeft: 40,
-          paddingRight: 40,
-          height: 56,
-          flexShrink: 0,
-        }}
-      >
-        <span
-          style={{
-            fontSize: 18,
-            fontWeight: 400,
-            color: "rgba(255,217,61,0.6)",
-            textTransform: "uppercase",
-            letterSpacing: 4,
-            display: "flex",
-          }}
-        >
-          {ficheUrl.replace("https://", "")}
-        </span>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            background: "#ffd93d",
-            color: "#1a1a2e",
-            fontSize: 20,
-            fontWeight: 400,
-            padding: "8px 24px",
-            borderRadius: 50,
-            letterSpacing: 3,
-            textTransform: "uppercase",
-          }}
-        >
-          Voir la fiche →
-        </div>
+          </div>
+        )}
       </div>
     </div>,
     {
