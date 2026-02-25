@@ -48,7 +48,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         raisonSociale: true,
         logoUrl: true,
         accroche: true,
-        metiers: { include: { metier: true } },
+        metiers: { select: { metier: { select: { label: true } } } },
       },
     })) as ArtisanData | null;
   } catch {
@@ -61,7 +61,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           nom: true,
           raisonSociale: true,
           logoUrl: true,
-          metiers: { include: { metier: true } },
+          metiers: { select: { metier: { select: { label: true } } } },
         },
       })) as ArtisanData | null;
     } catch {
