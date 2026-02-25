@@ -201,25 +201,27 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             ) : null}
 
             {/* Badges métier */}
-            <div style={{ display: "flex", gap: 12 }}>
-              {metiersLabels.map((label: string) => (
-                <div
-                  key={label}
-                  style={{
-                    display: "flex",
-                    background: "#1a1a2e",
-                    color: "#ffd93d",
-                    fontSize: 26,
-                    padding: "10px 30px",
-                    borderRadius: 50,
-                    textTransform: "uppercase",
-                    letterSpacing: 3,
-                  }}
-                >
-                  {label}
-                </div>
-              ))}
-            </div>
+            {metiersLabels.length > 0 ? (
+              <div style={{ display: "flex", gap: 12 }}>
+                {metiersLabels.map((label: string) => (
+                  <div
+                    key={label}
+                    style={{
+                      display: "flex",
+                      background: "#1a1a2e",
+                      color: "#ffd93d",
+                      fontSize: 26,
+                      padding: "10px 30px",
+                      borderRadius: 50,
+                      textTransform: "uppercase",
+                      letterSpacing: 3,
+                    }}
+                  >
+                    {label}
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           {/* Logo */}
@@ -286,7 +288,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
     return new Response(buffer, { headers });
   } catch (err) {
-    console.error("[carte] ImageResponse crash:", err);
+    console.error("[carte] crash:", {
+      msg: err instanceof Error ? err.message : String(err),
+      nom,
+      accroche: accroche ? `"${accroche.slice(0, 30)}..."` : null,
+      metiersCount: metiersLabels.length,
+      metiersLabels,
+      hasLogo,
+      fontLoaded: !!font,
+    });
     // Fallback minimal — image PNG jaune avec le nom
     try {
       const fallback = new ImageResponse(
