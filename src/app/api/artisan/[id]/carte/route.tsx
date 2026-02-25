@@ -261,7 +261,21 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       {
         width: W,
         height: H,
-        fonts: [],
+        fonts: (() => {
+          const buf = getBangersFont();
+          if (!buf) return [];
+          return [
+            {
+              name: "Bangers",
+              data: buf.buffer.slice(
+                buf.byteOffset,
+                buf.byteOffset + buf.byteLength
+              ) as ArrayBuffer,
+              weight: 400 as const,
+              style: "normal" as const,
+            },
+          ];
+        })(),
       }
     );
 
