@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db/client";
 import type { NextRequest } from "next/server";
 import fs from "fs";
 import path from "path";
+import sharp from "sharp";
 
 export const runtime = "nodejs";
 
@@ -109,10 +110,24 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const accroche = artisan.accroche ?? "";
 
-  // Satori ne supporte que PNG et JPEG pour les <img> — filtrer les autres formats
-  const SUPPORTED_IMG = ["image/png", "image/jpeg", "image/jpg"];
-  const logoMime = logoDataUrl?.split(";")[0].replace("data:", "") ?? "";
-  const safeLogoUrl = logoDataUrl && SUPPORTED_IMG.includes(logoMime) ? logoDataUrl : null;
+  // Satori ne supporte que PNG et JPEG — convertir WebP/autres en JPEG via sharp
+  let safeLogoUrl: string | null = null;
+  if (logoDataUrl) {
+    const logoMime = logoDataUrl.split(";")[0].replace("data:", "");
+    if (["image/png", "image/jpeg", "image/jpg"].includes(logoMime)) {
+      safeLogoUrl = logoDataUrl;
+    } else {
+      // Conversion WebP → JPEG
+      try {
+        const b64data = logoDataUrl.split(",")[1];
+        const inputBuf = Buffer.from(b64data, "base64");
+        const jpegBuf = await sharp(inputBuf).jpeg({ quality: 90 }).toBuffer();
+        safeLogoUrl = `data:image/jpeg;base64,${jpegBuf.toString("base64")}`;
+      } catch {
+        // Conversion échouée — on continue sans logo
+      }
+    }
+  }
 
   // Taille du nom selon longueur et présence de logo
   const hasLogo = !!safeLogoUrl;
