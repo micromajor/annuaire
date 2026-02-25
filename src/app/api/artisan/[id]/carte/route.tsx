@@ -274,50 +274,63 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         width: W,
         height: H,
         fonts: font
-          ? [{ name: "Bangers", data: font, weight: 400 as const, style: "normal" as const }]
+          ? [
+              {
+                name: "Bangers",
+                // Buffer Node.js → ArrayBuffer propre (évite le pool partagé)
+                data: font.buffer.slice(
+                  font.byteOffset,
+                  font.byteOffset + font.byteLength
+                ) as ArrayBuffer,
+                weight: 400 as const,
+                style: "normal" as const,
+              },
+            ]
           : [],
       }
     );
 
+    // Force le rendu MAINTENANT (ImageResponse est lazy/streaming)
+    // → le try/catch peut attraper les erreurs satori
+    const buffer = await image.arrayBuffer();
+    const headers: Record<string, string> = {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=3600",
+    };
     if (download) {
-      const buffer = await image.arrayBuffer();
       const slug = nom
         .toLowerCase()
         .replace(/[^a-z0-9]/g, "-")
         .replace(/-+/g, "-")
         .slice(0, 40);
-      return new Response(buffer, {
-        headers: {
-          "Content-Type": "image/png",
-          "Content-Disposition": `attachment; filename="carte-${slug}-oyezartisans.png"`,
-          "Cache-Control": "public, max-age=3600",
-        },
-      });
+      headers["Content-Disposition"] = `attachment; filename="carte-${slug}-oyezartisans.png"`;
     }
-
-    return image;
+    return new Response(buffer, { headers });
   } catch (err) {
     console.error("[carte] ImageResponse crash:", err);
-    // Fallback minimal — image PNG jaune avec le nom pour que Facebook ne voie pas d'erreur
-    return new ImageResponse(
-      <div
-        style={{
-          width: W,
-          height: H,
-          background: "#ffd93d",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: "Arial Black, sans-serif",
-          fontSize: 60,
-          color: "#1a1a2e",
-          border: "14px solid #1a1a2e",
-          boxSizing: "border-box",
-        }}
-      >
-        {nom}
-      </div>,
-      { width: W, height: H }
-    );
+    // Fallback minimal — image PNG jaune avec le nom
+    try {
+      const fallback = new ImageResponse(
+        <div
+          style={{
+            width: W,
+            height: H,
+            background: "#ffd93d",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 60,
+            color: "#1a1a2e",
+          }}
+        >
+          {nom}
+        </div>,
+        { width: W, height: H }
+      );
+      const fallbackBuf = await fallback.arrayBuffer();
+      return new Response(fallbackBuf, { headers: { "Content-Type": "image/png" } });
+    } catch {
+      return new Response("Error", { status: 500 });
+    }
   }
 }
