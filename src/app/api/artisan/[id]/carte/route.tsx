@@ -125,8 +125,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           flexDirection: "column",
           fontFamily: "Bangers, Impact, Arial Black, sans-serif",
           border: "14px solid #1a1a2e",
-          boxSizing: "border-box",
-          overflow: "hidden",
           position: "relative",
         }}
       >
@@ -134,7 +132,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         <div
           style={{
             position: "absolute",
-            inset: 0,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
             backgroundImage: "radial-gradient(circle, rgba(26,26,46,0.07) 2px, transparent 2px)",
             backgroundSize: "26px 26px",
             display: "flex",
@@ -142,7 +143,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         />
 
         {/* CORPS — flex row */}
-        <div style={{ display: "flex", flex: 1, zIndex: 1 }}>
+        <div style={{ display: "flex", flex: 1 }}>
           {/* Zone principale — branding + nom + métier */}
           <div
             style={{
@@ -263,7 +264,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                   border: "6px solid #1a1a2e",
                   objectFit: "cover",
                   background: "#fff",
-                  boxShadow: "7px 7px 0 #1a1a2e",
                 }}
               />
             </div>
