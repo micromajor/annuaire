@@ -42,7 +42,7 @@ export default function ArtisanCard({ artisan, avis = [] }: ArtisanCardProps) {
         <div className="flex items-center gap-2">
           {/* Logo ou emoji métier */}
           {artisan.logoUrl ? (
-            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border-2 border-[#1a1a1a] bg-white">
+            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg">
               <Image
                 src={artisan.logoUrl}
                 alt={`Logo ${nomAffiche}`}

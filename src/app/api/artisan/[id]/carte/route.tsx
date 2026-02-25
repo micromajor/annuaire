@@ -262,9 +262,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                 height={164}
                 style={{
                   borderRadius: 24,
-                  border: "6px solid #1a1a2e",
                   objectFit: "cover",
-                  background: "#fff",
                 }}
               />
             </div>

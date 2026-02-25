@@ -277,7 +277,7 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                 <div className="mb-5 flex items-start gap-4">
                   {/* Logo / avatar */}
                   <div
-                    className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-2 border-[#1a1a2e] bg-white text-4xl shadow-md"
+                    className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-white text-4xl shadow-md"
                     aria-hidden="true"
                   >
                     {artisan.logoUrl ? (
