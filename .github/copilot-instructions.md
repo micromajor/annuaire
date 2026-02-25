@@ -134,6 +134,7 @@ Tu ne te contentes pas d'exécuter : tu questionnes, proposes des alternatives, 
 - **Upload logo** : la route `/api/upload/logo` retourne une URL relative `/api/files/{id}` (stockage DB PostgreSQL). Ne pas confondre avec des URLs externes.
 - **`generateStaticParams` en ISR** : retourner `[]` pour éviter l'accès DB au build Docker. `dynamicParams = true` + `revalidate` suffisent pour l'ISR.
 - **`artisans/[metier]/[commune]`** : passer en `force-dynamic` dès qu'on a besoin de personnalisation par rôle (sinon la page est mise en cache sans session).
+- **Satori (next/og) — `<ImageResponse>`** : (1) Ne supporte pas `inset`, `boxSizing`, `overflow`, `zIndex`, `boxShadow`. (2) JSX : toujours `{cond ? (<...>) : null}` — jamais `{cond && (<...>)}` (valeur falsy crashe). (3) Images `<img>` : **PNG et JPEG uniquement** — WebP/SVG/GIF crashent avec `u2 is not iterable`. (4) `fonts: []` **crashe** ("No fonts are loaded") — toujours fournir au moins une police. (5) Utiliser `await image.arrayBuffer()` pour forcer le rendu synchrone et attraper les erreurs dans le `try/catch`.
 
 ---
 
