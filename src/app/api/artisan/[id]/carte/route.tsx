@@ -200,7 +200,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             </div>
 
             {/* Accroche */}
-            {accroche && (
+            {accroche ? (
               <div
                 style={{
                   fontSize: 26,
@@ -214,7 +214,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
               >
                 {accroche}
               </div>
-            )}
+            ) : null}
 
             {/* Badge(s) métier */}
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -241,7 +241,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           </div>
 
           {/* Colonne droite — logo si disponible */}
-          {hasLogo && (
+          {hasLogo ? (
             <div
               style={{
                 display: "flex",
@@ -267,7 +267,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                 }}
               />
             </div>
-          )}
+          ) : null}
         </div>
       </div>,
       {
