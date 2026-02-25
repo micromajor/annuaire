@@ -109,8 +109,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const accroche = artisan.accroche ?? "";
 
+  // Satori ne supporte que PNG et JPEG pour les <img> — filtrer les autres formats
+  const SUPPORTED_IMG = ["image/png", "image/jpeg", "image/jpg"];
+  const logoMime = logoDataUrl?.split(";")[0].replace("data:", "") ?? "";
+  const safeLogoUrl = logoDataUrl && SUPPORTED_IMG.includes(logoMime) ? logoDataUrl : null;
+
+  console.log("[carte] debug:", { logoMime, logoLen: logoDataUrl?.length, safe: !!safeLogoUrl });
+
   // Taille du nom selon longueur et présence de logo
-  const hasLogo = !!logoDataUrl;
+  const hasLogo = !!safeLogoUrl;
   const nomFontSize = nom.length > 28 ? 62 : nom.length > 18 ? 80 : 100;
 
   try {
@@ -236,7 +243,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={logoDataUrl!}
+                src={safeLogoUrl!}
                 alt=""
                 width={164}
                 height={164}
