@@ -281,7 +281,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       metiersCount: metiersLabels.length,
       metiersLabels,
       hasLogo,
-      fontLoaded: !!font,
     });
     // Fallback minimal — image PNG jaune avec le nom
     try {
