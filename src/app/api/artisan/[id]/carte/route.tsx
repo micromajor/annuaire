@@ -114,8 +114,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const logoMime = logoDataUrl?.split(";")[0].replace("data:", "") ?? "";
   const safeLogoUrl = logoDataUrl && SUPPORTED_IMG.includes(logoMime) ? logoDataUrl : null;
 
-  console.log("[carte] debug:", { logoMime, logoLen: logoDataUrl?.length, safe: !!safeLogoUrl });
-
   // Taille du nom selon longueur et présence de logo
   const hasLogo = !!safeLogoUrl;
   const nomFontSize = nom.length > 28 ? 62 : nom.length > 18 ? 80 : 100;
