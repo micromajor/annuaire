@@ -143,6 +143,8 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] **Header mon-espace artisan** (24/02/2026) : header opaque avec nom artisan et bouton "Déconnexion" remplacé par header transparent "Oyez Artisans !" + icône messages + icône logout — cohérent avec `artisan/[id]/page.tsx`.
 - [x] **SiretVerifBadge dans MonEspaceEditForm** (24/02/2026) : le badge était uniquement dans `EditProfilForm` (`/mon-profil/[token]`). Ajouté à `MonEspaceEditForm` (`/mon-espace`).
 - [x] **whitespace-pre-wrap description mon-espace** (24/02/2026) : la description restituée sur `/mon-espace` n'avait pas `whitespace-pre-wrap` — les retours à la ligne du textarea étaient ignorés.
+- [x] **Carte OG redesign BD** (25/02/2026) : refonte complète de l'image `/api/artisan/[id]/carte` — fond jaune `#ffd93d`, halftone dots, branding "OYEZ ARTISANS ! 44", nom géant Bangers, badges métiers, logo si présent. Utilisée pour les partages Facebook/WhatsApp.
+- [x] **Champ accroche artisan** (25/02/2026) : phrase d'accroche courte (200 chars max) affichée sous le nom sur la carte OG ET sur les cards artisan dans le listing. Éditable via `/mon-espace` et `/mon-profil/[token]`. Inclus dans le système de draft pour les artisans VALIDE. Migration `20260225002200_add_accroche_to_artisan`.
 - [~] Portfolio chantiers sur la fiche artisan (photos + description) ← prochain
 - [x] SEO : sitemap.xml, meta dynamiques, pages par commune (commit 9ca7208)
 - [x] RGPD : mentions légales, politique confidentialité, suppression de compte (commit eec52d5)
