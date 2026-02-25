@@ -11,39 +11,66 @@ export const runtime = "nodejs";
 const W = 1200;
 const H = 630;
 
-// Police Bangers (BD) chargée depuis le FS local — une seule fois au démarrage du process
-const bangersFont: Buffer = fs.readFileSync(
-  path.join(process.cwd(), "public/fonts/Bangers-Regular.ttf")
-);
+// Police Bangers (BD) chargée en lazy pour éviter un crash au démarrage si le fichier est absent
+let bangersFont: Buffer | null = null;
+function getBangersFont(): Buffer | null {
+  if (bangersFont) return bangersFont;
+  try {
+    bangersFont = fs.readFileSync(path.join(process.cwd(), "public/fonts/Bangers-Regular.ttf"));
+    return bangersFont;
+  } catch {
+    return null;
+  }
+}
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  const artisan = await prisma.artisan.findFirst({
-    where: { id, status: "VALIDE", deletedAt: null },
-    select: {
-      prenom: true,
-      nom: true,
-      raisonSociale: true,
-      logoUrl: true,
-      accroche: true,
-      metiers: { include: { metier: true } },
-    },
-  });
+  let artisan: {
+    prenom: string | null;
+    nom: string | null;
+    raisonSociale: string | null;
+    logoUrl: string | null;
+    accroche: string | null;
+    metiers: { metier: { label: string } }[];
+  } | null = null;
+
+  try {
+    artisan = await prisma.artisan.findFirst({
+      where: { id, status: "VALIDE", deletedAt: null },
+      select: {
+        prenom: true,
+        nom: true,
+        raisonSociale: true,
+        logoUrl: true,
+        accroche: true,
+        metiers: { include: { metier: true } },
+      },
+    });
+  } catch {
+    return new Response("DB error", { status: 500 });
+  }
 
   if (!artisan) {
     return new Response("Not found", { status: 404 });
   }
 
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://oyezartisans.fr").replace(/\/$/, "");
   const nom = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
   const metiersLabels = artisan.metiers.map((m: { metier: { label: string } }) => m.metier.label);
-  const logoAbsolu = artisan.logoUrl?.startsWith("http") ? artisan.logoUrl : null;
+  // Logo : accepte les URLs absolues ET les chemins relatifs /api/files/…
+  const logoAbsolu = artisan.logoUrl
+    ? artisan.logoUrl.startsWith("http")
+      ? artisan.logoUrl
+      : `${appUrl}${artisan.logoUrl}`
+    : null;
   const accroche = artisan.accroche ?? "";
 
   // Taille du nom selon longueur et présence de logo
   const hasLogo = !!logoAbsolu;
   const nomFontSize = nom.length > 28 ? 62 : nom.length > 18 ? 80 : 100;
   const download = req.nextUrl.searchParams.get("dl") === "1";
+  const font = getBangersFont();
 
   const image = new ImageResponse(
     <div
@@ -203,14 +230,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     {
       width: W,
       height: H,
-      fonts: [
-        {
-          name: "Bangers",
-          data: bangersFont,
-          weight: 400,
-          style: "normal",
-        },
-      ],
+      fonts: font
+        ? [{ name: "Bangers", data: font, weight: 400 as const, style: "normal" as const }]
+        : [],
     }
   );
 
