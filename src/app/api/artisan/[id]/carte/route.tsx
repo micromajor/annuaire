@@ -73,8 +73,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return new Response("Not found", { status: 404 });
   }
 
-  const nom = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
-  const metiersLabels = artisan.metiers.map((m: { metier: { label: string } }) => m.metier.label);
+  const nom = (artisan.raisonSociale ?? `${artisan.prenom ?? ""} ${artisan.nom ?? ""}`).trim();
+  const metiersLabels = (artisan.metiers ?? [])
+    .map((m: { metier: { label: string } }) => m?.metier?.label ?? "")
+    .filter(Boolean);
 
   // Logo : récupéré directement en DB pour éviter la boucle réseau dans next/og
   let logoDataUrl: string | null = null;
