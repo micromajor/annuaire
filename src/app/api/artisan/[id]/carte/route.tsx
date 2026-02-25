@@ -55,19 +55,42 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return new Response("Not found", { status: 404 });
   }
 
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://oyezartisans.fr").replace(/\/$/, "");
   const nom = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
   const metiersLabels = artisan.metiers.map((m: { metier: { label: string } }) => m.metier.label);
-  // Logo : accepte les URLs absolues ET les chemins relatifs /api/files/…
-  const logoAbsolu = artisan.logoUrl
-    ? artisan.logoUrl.startsWith("http")
-      ? artisan.logoUrl
-      : `${appUrl}${artisan.logoUrl}`
-    : null;
+
+  // Logo : récupéré directement en DB pour éviter la boucle réseau dans next/og
+  let logoDataUrl: string | null = null;
+  if (artisan.logoUrl) {
+    try {
+      // logoUrl peut être /api/files/{id} ou une URL absolue externe
+      const fileId = artisan.logoUrl.match(/\/api\/files\/([^/?]+)/)?.[1];
+      if (fileId) {
+        const file = await prisma.uploadedFile.findUnique({
+          where: { id: fileId },
+          select: { data: true, mimeType: true },
+        });
+        if (file) {
+          const b64 = Buffer.from(file.data).toString("base64");
+          logoDataUrl = `data:${file.mimeType};base64,${b64}`;
+        }
+      } else if (artisan.logoUrl.startsWith("http")) {
+        // URL externe : fetch direct
+        const res = await fetch(artisan.logoUrl);
+        if (res.ok) {
+          const buf = await res.arrayBuffer();
+          const mime = res.headers.get("content-type") ?? "image/png";
+          logoDataUrl = `data:${mime};base64,${Buffer.from(buf).toString("base64")}`;
+        }
+      }
+    } catch {
+      // Pas de logo si erreur — on continue sans
+    }
+  }
+
   const accroche = artisan.accroche ?? "";
 
   // Taille du nom selon longueur et présence de logo
-  const hasLogo = !!logoAbsolu;
+  const hasLogo = !!logoDataUrl;
   const nomFontSize = nom.length > 28 ? 62 : nom.length > 18 ? 80 : 100;
   const download = req.nextUrl.searchParams.get("dl") === "1";
   const font = getBangersFont();
@@ -211,7 +234,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={logoAbsolu!}
+              src={logoDataUrl!}
               alt={nom}
               width={164}
               height={164}
