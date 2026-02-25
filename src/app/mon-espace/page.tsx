@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db/client";
 import AutoSignOut from "@/components/ui/AutoSignOut";
 import Link from "next/link";
 import MonEspaceEditForm from "@/components/features/MonEspaceEditForm";
-import ShareFicheButton from "@/components/features/ShareFicheButton";
+import ShareButton from "@/components/features/ShareButton";
 import PortfolioUploader from "@/components/features/PortfolioUploader";
 import DangerZone from "@/components/features/DangerZone";
 import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapper";
@@ -561,11 +561,10 @@ export default async function MonEspacePage() {
                   >
                     Voir ma fiche publique →
                   </Link>
-                  <ShareFicheButton
-                    artisanId={artisan.id}
-                    nomAffiche={displayNomAffiche}
-                    metier={artisan.metiers[0]?.metier?.label}
-                    commune={artisan.communes[0]?.commune?.nom}
+                  <ShareButton
+                    url={`${process.env.NEXT_PUBLIC_APP_URL ?? "https://oyezartisans.fr"}/artisan/${artisan.id}`}
+                    title={`${displayNomAffiche} — ${displayMetierLabels.join(", ")} à ${displayCommuneNoms[0] ?? "Loire-Atlantique"}`}
+                    text={`Découvrez la fiche de ${displayNomAffiche} sur Oyez Artisans !`}
                   />
                 </div>
               )}
