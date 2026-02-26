@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
 import { z } from "zod";
+import { Resend } from "resend";
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // Extraire le type du client de transaction depuis la signature de $transaction
 type TxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
@@ -125,6 +128,7 @@ export async function PUT(req: NextRequest) {
     }
 
     // Sinon (EN_ATTENTE, REJETE) → écraser directement, la fiche n'est pas live
+    // Si c'était REJETE, on repasse en EN_ATTENTE pour re-soumettre à validation.
     // NOTE: PrismaPg + composite @@id → nested creates échouent silencieusement.
     // Pattern: deleteMany + update scalaires + creates séparés.
     await tx.artisanMetier.deleteMany({ where: { artisanId } });
@@ -143,6 +147,8 @@ export async function PUT(req: NextRequest) {
         accroche: accroche || null,
         logoUrl: logoUrl || null,
         metierLibre: metierLibre || null,
+        // Remet en attente si la fiche était rejetée
+        ...(current?.status === "REJETE" ? { status: "EN_ATTENTE" } : {}),
       },
     });
 
@@ -155,6 +161,32 @@ export async function PUT(req: NextRequest) {
 
     return updatedArtisan;
   });
+
+  // Notification admin si l'artisan re-soumet après rejet
+  if (updated.status === "EN_ATTENTE" && resend) {
+    const adminEmail = process.env.ADMIN_EMAIL ?? "contact@oyezartisans.fr";
+    const nomAffiche = updated.raisonSociale ?? `${updated.prenom} ${updated.nom}`;
+    const metierLabels = metiers.map((m: { label: string }) => m.label).join(", ");
+    await resend.emails
+      .send({
+        from: "OyezArtisans <noreply@oyezartisans.fr>",
+        to: adminEmail,
+        subject: `🔄 Fiche corrigée en attente de validation : ${nomAffiche}`,
+        html: `
+        <h2>Fiche artisan corrigée — nouvelle demande de validation</h2>
+        <p>L'artisan <strong>${nomAffiche}</strong> a modifié sa fiche suite à un rejet et la resoumet à validation.</p>
+        <ul>
+          <li><strong>Email :</strong> ${updated.email}</li>
+          ${updated.telephone ? `<li><strong>Tél :</strong> ${updated.telephone}</li>` : ""}
+          <li><strong>Métiers :</strong> ${metierLabels || "(aucun)"}</li>
+          ${updated.metierLibre ? `<li><strong>Métier libre :</strong> ${updated.metierLibre}</li>` : ""}
+          <li><strong>Communes :</strong> ${communes.map((c: { nom: string }) => c.nom).join(", ")}</li>
+        </ul>
+        <p><a href="${process.env.NEXTAUTH_URL ?? "https://oyezartisans.fr"}/admin">Valider depuis le back-office →</a></p>
+      `,
+      })
+      .catch(() => null); // non-bloquant
+  }
 
   return NextResponse.json({ ok: true, artisanId: updated.id });
 }
