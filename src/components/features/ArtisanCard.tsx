@@ -36,12 +36,17 @@ export default function ArtisanCard({ artisan, avis = [] }: ArtisanCardProps) {
 
   return (
     <article className="bd-card bd-card-artisan flex flex-col p-5">
-      {/* Header carte */}
-      <div className="mb-3 flex items-start justify-between gap-2">
+      {/* Header carte — nom + badge sur première ligne, logo + identité sur seconde */}
+      <div className="mb-3">
+        {/* Ligne 1 : nom + badge */}
+        <div className="mb-1.5 flex items-start justify-between gap-2">
+          <h2 className="text-lg leading-tight font-black text-[#1a1a2e]">{nomAffiche}</h2>
+          {artisan.siret && <span className="bd-badge bd-badge-vert shrink-0">✓ Pro vérifié</span>}
+        </div>
+        {/* Ligne 2 : logo + prénom nom */}
         <div className="flex items-center gap-2">
-          {/* Logo ou emoji métier — conteneur fixe avec object-contain, jamais rogné */}
           {artisan.logoUrl ? (
-            <div className="h-10 w-20 shrink-0 overflow-hidden rounded-lg bg-white shadow-sm">
+            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white p-0.5 shadow-sm">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={artisan.logoUrl}
@@ -52,16 +57,12 @@ export default function ArtisanCard({ artisan, avis = [] }: ArtisanCardProps) {
           ) : firstMetierSlug ? (
             <span className="bd-tool-emoji text-2xl">{METIER_EMOJIS[firstMetierSlug] ?? "🔧"}</span>
           ) : null}
-          <div>
-            <h2 className="text-lg leading-tight font-black text-[#1a1a2e]">{nomAffiche}</h2>
-            {artisan.raisonSociale && (
-              <p className="text-sm text-gray-500">
-                {artisan.prenom} {artisan.nom}
-              </p>
-            )}
-          </div>
+          {artisan.raisonSociale && (
+            <p className="text-sm text-gray-500">
+              {artisan.prenom} {artisan.nom}
+            </p>
+          )}
         </div>
-        {artisan.siret && <span className="bd-badge bd-badge-vert shrink-0">✓ Pro vérifié</span>}
       </div>
 
       {/* Note moyenne */}
