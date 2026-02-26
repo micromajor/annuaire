@@ -204,7 +204,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
             <div className="flex items-center gap-5">
               {/* Aperçu */}
               <div
-                className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#fff8f0]"
+                className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#fff8f0]"
                 style={{ border: "3px solid #1a1a1a" }}
               >
                 {form.logoUrl ? (
@@ -337,7 +337,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
                 <label className="mb-1 block text-sm font-bold text-[#1a1a2e]">
                   SIRET{" "}
                   <span className="text-xs font-normal text-gray-400">
-                    (obtenir le badge ✓ Pro)
+                    (obtenir le badge ✓ Pro vérifié)
                   </span>
                 </label>
                 <input

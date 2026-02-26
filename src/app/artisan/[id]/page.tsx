@@ -295,7 +295,9 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                     <div className="flex items-start justify-between gap-2">
                       <h1 className="bd-titre text-2xl text-[#1a1a2e] sm:text-3xl">{nomAffiche}</h1>
                       {artisan.siret && (
-                        <span className="bd-badge bd-badge-vert shrink-0">&#10003; Pro</span>
+                        <span className="bd-badge bd-badge-vert shrink-0">
+                          &#10003; Pro vérifié
+                        </span>
                       )}
                     </div>
                     {artisan.raisonSociale && (

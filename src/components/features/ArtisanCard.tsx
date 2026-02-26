@@ -64,7 +64,7 @@ export default function ArtisanCard({ artisan, avis = [] }: ArtisanCardProps) {
             )}
           </div>
         </div>
-        {artisan.siret && <span className="bd-badge bd-badge-vert shrink-0">✓ Pro</span>}
+        {artisan.siret && <span className="bd-badge bd-badge-vert shrink-0">✓ Pro vérifié</span>}
       </div>
 
       {/* Note moyenne */}
