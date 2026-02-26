@@ -32,14 +32,14 @@ const UpdateProfileSchema = z
       )
       .optional()
       .or(z.literal("")),
-    metierSlugs: z.array(z.string()).default([]),
+    metierSlugs: z.array(z.string()).min(1, "Au moins un métier requis"),
     metierLibre: z.string().max(80).optional().or(z.literal("")),
     communePairs: z
       .array(z.object({ nom: z.string(), codePostal: z.string() }))
       .min(1, "Au moins une commune requise"),
   })
-  .refine((d) => d.metierSlugs.length > 0 || !!d.metierLibre?.trim(), {
-    message: "Au moins un métier requis (ou précisez le vôtre)",
+  .refine((d) => d.metierSlugs.length > 0, {
+    message: "Au moins un métier requis",
     path: ["metierSlugs"],
   });
 

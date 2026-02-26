@@ -26,36 +26,26 @@ export const contactFormSchema = z.object({
   }),
 });
 
-export const inscriptionArtisanSchema = z
-  .object({
-    raisonSociale: z.string().optional(),
-    siret: z
-      .string()
-      .regex(/^\d{14}$/, "SIRET invalide (14 chiffres)")
-      .optional()
-      .or(z.literal("")),
-    prenom: z.string().min(2, "Prénom requis"),
-    nom: z.string().min(2, "Nom requis"),
-    email: z.string().email("Email invalide"),
-    telephone: z.string().optional(),
-    siteWeb: z.string().url("URL invalide").optional().or(z.literal("")),
-    description: z.string().max(500, "Description trop longue (500 caractères max)").optional(),
-    metierSlugs: z.array(z.string()),
-    metierLibre: z
-      .string()
-      .max(80, "Métier trop long (80 caractères max)")
-      .optional()
-      .or(z.literal("")),
-    communeIds: z.array(z.string()).min(1, "Au moins une commune requise"),
-    consent: z.literal(true, {
-      error: () => ({ message: "Vous devez accepter les conditions" }),
-    }),
-    password: z.string().min(8, "Mot de passe trop court (8 caractères min)").optional(),
-  })
-  .refine((d) => d.metierSlugs.length > 0 || !!d.metierLibre?.trim(), {
-    message: "Au moins un métier requis (ou précisez le vôtre)",
-    path: ["metierSlugs"],
-  });
+export const inscriptionArtisanSchema = z.object({
+  raisonSociale: z.string().optional(),
+  siret: z
+    .string()
+    .regex(/^\d{14}$/, "SIRET invalide (14 chiffres)")
+    .optional()
+    .or(z.literal("")),
+  prenom: z.string().min(2, "Prénom requis"),
+  nom: z.string().min(2, "Nom requis"),
+  email: z.string().email("Email invalide"),
+  telephone: z.string().optional(),
+  siteWeb: z.string().url("URL invalide").optional().or(z.literal("")),
+  description: z.string().max(500, "Description trop longue (500 caractères max)").optional(),
+  metierSlugs: z.array(z.string()).min(1, "Au moins un métier requis"),
+  communeIds: z.array(z.string()).min(1, "Au moins une commune requise"),
+  consent: z.literal(true, {
+    error: () => ({ message: "Vous devez accepter les conditions" }),
+  }),
+  password: z.string().min(8, "Mot de passe trop court (8 caractères min)").optional(),
+});
 
 export const avisSchema = z.object({
   auteurPrenom: z.string().min(2, "Prénom requis (2 caractères min)"),

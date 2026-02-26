@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { COMMUNES_NANTES_EST } from "@/constants";
 import Image from "next/image";
 import SiretVerifBadge from "@/components/features/SiretVerifBadge";
+import MetierCombobox from "@/components/features/MetierCombobox";
 
 interface Commune {
   id: string;
@@ -31,7 +32,7 @@ interface EditProfilFormProps {
   token: string;
   initialData: InitialData;
   communes: Commune[];
-  metiers: { slug: string; label: string }[];
+  metiers: { slug: string; label: string; categorie?: string | null }[];
 }
 
 interface FormValues {
@@ -242,26 +243,12 @@ export default function EditProfilForm({
       {/* SECTION 3 — Métiers */}
       <section className="bd-card p-6">
         <h2 className="bd-titre mb-2 text-xl text-[#1a1a2e]">🔧 Métiers</h2>
-        <div className="flex flex-wrap gap-2">
-          {metiers.map((m) => {
-            const isSelected = selectedMetiers.includes(m.slug);
-            return (
-              <button
-                key={m.slug}
-                type="button"
-                onClick={() => toggleMetier(m.slug)}
-                className={`bd-badge cursor-pointer transition-all ${isSelected ? "bd-badge-jaune scale-105 shadow-md" : "bd-badge-rouge opacity-60 hover:opacity-100"}`}
-                style={{ border: "2px solid #1a1a1a" }}
-              >
-                {isSelected ? "✓ " : ""}
-                {m.label}
-              </button>
-            );
-          })}
-        </div>
-        {selectedMetiers.length === 0 && (
-          <p className="mt-2 text-sm text-[#ff6b6b]">Au moins un métier requis.</p>
-        )}
+        <MetierCombobox
+          metiers={metiers}
+          selected={selectedMetiers}
+          onChange={setSelectedMetiers}
+          error={selectedMetiers.length === 0 ? "Au moins un métier requis." : undefined}
+        />
       </section>
 
       {/* SECTION 4 — Communes */}

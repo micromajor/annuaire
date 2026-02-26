@@ -54,10 +54,11 @@ model Artisan {
 }
 
 model Metier {
-  id       String          @id @default(cuid())
-  slug     String          @unique
-  label    String
-  artisans ArtisanMetier[]
+  id        String          @id @default(cuid())
+  slug      String          @unique
+  label     String
+  categorie String?
+  artisans  ArtisanMetier[]
 }
 
 model Commune {

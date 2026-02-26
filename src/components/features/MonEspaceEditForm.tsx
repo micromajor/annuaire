@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import SiretVerifBadge from "@/components/features/SiretVerifBadge";
+import MetierCombobox from "@/components/features/MetierCombobox";
 
 // Leaflet ne fonctionne pas en SSR (uses window)
 const MapZoneSelector = dynamic(() => import("@/components/ui/MapZoneSelector"), {
@@ -32,11 +33,10 @@ type Props = {
     accroche?: string | null;
     logoUrl: string | null;
     metierSlugs: string[];
-    metierLibre?: string | null;
     communePairs: CommunePair[];
     status: string;
   };
-  metiers: { slug: string; label: string }[];
+  metiers: { slug: string; label: string; categorie?: string | null }[];
 };
 
 export default function MonEspaceEditForm({ artisan, metiers }: Props) {
@@ -54,7 +54,6 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
     accroche: artisan.accroche ?? "",
     logoUrl: artisan.logoUrl ?? "",
     metierSlugs: artisan.metierSlugs,
-    metierLibre: artisan.metierLibre ?? "",
     communePairs: artisan.communePairs,
   });
 
@@ -62,7 +61,6 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
   const [loading, setLoading] = useState(false);
   const [logoLoading, setLogoLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [showMetierLibre, setShowMetierLibre] = useState(!!artisan.metierLibre);
 
   // Efface l'erreur de zone dès qu'une commune est sélectionnée
   useEffect(() => {
@@ -397,73 +395,19 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Métiers <span className="text-[#ff6b6b]">*</span>
             </legend>
-            <div className="flex flex-wrap gap-2">
-              {metiers.map((m) => {
-                const selected = form.metierSlugs.includes(m.slug);
-                return (
-                  <button
-                    key={m.slug}
-                    type="button"
-                    onClick={() => {
-                      setForm({ ...form, metierSlugs: toggleMulti(form.metierSlugs, m.slug) });
-                      setErrors((prev) => {
-                        const n = { ...prev };
-                        delete n.metierSlugs;
-                        return n;
-                      });
-                    }}
-                    className="rounded-full px-4 py-1.5 text-sm font-bold transition-all"
-                    style={{
-                      border: "3px solid #1a1a1a",
-                      background: selected ? "#1a1a2e" : "#fff",
-                      color: selected ? "#ffd93d" : "#1a1a2e",
-                      boxShadow: selected ? "2px 2px 0 #1a1a1a" : "none",
-                    }}
-                  >
-                    {m.label}
-                  </button>
-                );
-              })}
-              {/* Bouton Autre */}
-              <button
-                type="button"
-                onClick={() => {
-                  const next = !showMetierLibre;
-                  setShowMetierLibre(next);
-                  if (!next) setForm((f) => ({ ...f, metierLibre: "" }));
-                }}
-                className="rounded-full px-4 py-1.5 text-sm font-bold transition-all"
-                style={{
-                  border: "3px solid #1a1a1a",
-                  background: showMetierLibre ? "#1a1a2e" : "#fff",
-                  color: showMetierLibre ? "#ffd93d" : "#1a1a2e",
-                  boxShadow: showMetierLibre ? "2px 2px 0 #1a1a1a" : "none",
-                }}
-              >
-                Autre…
-              </button>
-            </div>
-
-            {showMetierLibre && (
-              <div className="mt-3">
-                <input
-                  type="text"
-                  value={form.metierLibre}
-                  onChange={(e) => setForm((f) => ({ ...f, metierLibre: e.target.value }))}
-                  placeholder="Ex : Ramoneur, Cuisiniste, Cordiste…"
-                  maxLength={80}
-                  className="w-full rounded-xl border-3 border-[#1a1a1a] px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-[#6bcb77]"
-                  style={{ border: "3px solid #1a1a1a" }}
-                />
-                <p className="mt-1 text-xs text-gray-400">
-                  Notre équipe examinera votre métier — votre fiche sera validée normalement.
-                </p>
-              </div>
-            )}
-
-            {errors.metierSlugs && form.metierSlugs.length === 0 && !form.metierLibre && (
-              <p className="mt-1 text-xs text-[#ff6b6b]">{errors.metierSlugs[0]}</p>
-            )}
+            <MetierCombobox
+              metiers={metiers}
+              selected={form.metierSlugs}
+              onChange={(slugs) => {
+                setForm({ ...form, metierSlugs: slugs });
+                setErrors((prev) => {
+                  const n = { ...prev };
+                  delete n.metierSlugs;
+                  return n;
+                });
+              }}
+              error={errors.metierSlugs?.[0]}
+            />
           </fieldset>
 
           {/* Communes */}

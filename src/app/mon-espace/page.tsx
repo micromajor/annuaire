@@ -200,7 +200,10 @@ export default async function MonEspacePage() {
     return <AutoSignOut />;
   }
 
-  const allMetiers = await prisma.metier.findMany({ orderBy: { label: "asc" } });
+  const allMetiers = await prisma.metier.findMany({
+    orderBy: { label: "asc" },
+    select: { id: true, slug: true, label: true, categorie: true },
+  });
 
   // Messages non lus (particulier → artisan)
   const messagesNonLusArtisan = await prisma.message.count({
@@ -436,7 +439,6 @@ export default async function MonEspacePage() {
               metierSlugs:
                 pendingDraft?.metierSlugs ??
                 artisan.metiers.map((m: { metier: { slug: string } }) => m.metier.slug),
-              metierLibre: pendingDraft?.metierLibre ?? artisan.metierLibre,
               communePairs: formCommunePairs,
               status: artisan.status,
             }}

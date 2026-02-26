@@ -38,7 +38,10 @@ export default async function EditProfilPage({ params }: PageProps) {
       orderBy: { nom: "asc" },
       select: { id: true, nom: true, codePostal: true },
     }),
-    prisma.metier.findMany({ orderBy: { label: "asc" } }),
+    prisma.metier.findMany({
+      orderBy: { label: "asc" },
+      select: { id: true, slug: true, label: true, categorie: true },
+    }),
   ]);
 
   const initialData = {
