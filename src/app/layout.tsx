@@ -3,7 +3,7 @@ import { Bangers, Nunito } from "next/font/google";
 import "./globals.css";
 import SessionProvider from "@/components/providers/SessionProvider";
 import FeedbackWidget from "@/components/features/FeedbackWidget";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import CookieConsent from "@/components/providers/CookieConsent";
 
 const bangers = Bangers({
   weight: "400",
@@ -91,7 +91,7 @@ export default function RootLayout({
           <FeedbackWidget />
         </SessionProvider>
       </body>
-      {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
+      {process.env.NEXT_PUBLIC_GA_ID && <CookieConsent gaId={process.env.NEXT_PUBLIC_GA_ID} />}
     </html>
   );
 }
