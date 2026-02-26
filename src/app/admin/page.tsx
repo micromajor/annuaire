@@ -263,7 +263,7 @@ export default async function AdminPage() {
             ) : (
               <div className="space-y-3">
                 {enAttente.map((artisan) => (
-                  <AdminArtisanRow key={artisan.id} artisan={artisan} />
+                  <AdminArtisanRow key={artisan.id} artisan={artisan} allMetiers={tousLesMetiers} />
                 ))}
               </div>
             )}
@@ -283,7 +283,12 @@ export default async function AdminPage() {
             ) : (
               <div className="space-y-3">
                 {avecDraft.map((artisan) => (
-                  <AdminArtisanRow key={artisan.id} artisan={artisan} isDraft />
+                  <AdminArtisanRow
+                    key={artisan.id}
+                    artisan={artisan}
+                    isDraft
+                    allMetiers={tousLesMetiers}
+                  />
                 ))}
               </div>
             )}

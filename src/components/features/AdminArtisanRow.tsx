@@ -11,6 +11,8 @@ type ArtisanWithRelations = Artisan & {
   communes: (ArtisanCommune & { commune: Commune })[];
 };
 
+type MetierOption = { id: string; slug: string; label: string };
+
 function CheckBadge({ ok, label }: { ok: boolean; label: string }) {
   return (
     <span
@@ -42,9 +44,11 @@ interface DraftData {
 export default function AdminArtisanRow({
   artisan,
   isDraft = false,
+  allMetiers = [],
 }: {
   artisan: ArtisanWithRelations;
   isDraft?: boolean;
+  allMetiers?: MetierOption[];
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState<"valider" | "rejeter" | null>(null);
@@ -52,6 +56,12 @@ export default function AdminArtisanRow({
   const [actionError, setActionError] = useState<string | null>(null);
   const [assignLoading, setAssignLoading] = useState(false);
   const [assignedLabel, setAssignedLabel] = useState<string | null>(null);
+  const [showAssignSelect, setShowAssignSelect] = useState(false);
+  const [selectedMetierSlug, setSelectedMetierSlug] = useState("");
+  const [assignExistingLoading, setAssignExistingLoading] = useState(false);
+  const [currentMetierSlugs, setCurrentMetierSlugs] = useState<string[]>(
+    artisan.metiers.map((m) => m.metier.slug)
+  );
 
   const nomAffiche = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
   const metierLabels = artisan.metiers.map((m) => m.metier.label);
@@ -94,6 +104,38 @@ export default function AdminArtisanRow({
     } finally {
       setAssignLoading(false);
     }
+  }
+
+  async function handleAssignerExistant() {
+    if (!selectedMetierSlug) return;
+    setAssignExistingLoading(true);
+    try {
+      const res = await fetch(`/api/admin/artisans/${artisan.id}/metiers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metierSlug: selectedMetierSlug }),
+      });
+      const data = (await res.json()) as { ok?: boolean; metier?: { slug: string; label: string } };
+      if (res.ok && data.metier) {
+        setCurrentMetierSlugs((prev) => [...prev, data.metier!.slug]);
+        setShowAssignSelect(false);
+        setSelectedMetierSlug("");
+        setTimeout(() => router.refresh(), 400);
+      }
+    } finally {
+      setAssignExistingLoading(false);
+    }
+  }
+
+  async function handleRetirerMetier(slug: string, label: string) {
+    if (!confirm(`Retirer le métier « ${label} » de cet artisan ?`)) return;
+    await fetch(`/api/admin/artisans/${artisan.id}/metiers`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ metierSlug: slug }),
+    });
+    setCurrentMetierSlugs((prev) => prev.filter((s) => s !== slug));
+    setTimeout(() => router.refresh(), 400);
   }
 
   if (done) {
