@@ -17,6 +17,7 @@ const METIERS = [
   { slug: "paysagiste", label: "Paysagiste" },
   { slug: "ramoneur", label: "Ramoneur" },
   { slug: "terrassier", label: "Terrassier" },
+  { slug: "entretien-des-espaces-verts", label: "Entretien des espaces verts" },
 ];
 
 const connectionString = process.env.DATABASE_URL!;
