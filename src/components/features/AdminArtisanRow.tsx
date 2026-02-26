@@ -246,22 +246,39 @@ export default function AdminArtisanRow({
 
           {/* Métiers */}
           <div>
-            <p className="mb-1 text-xs font-bold tracking-wide text-gray-400 uppercase">Métiers</p>
+            <div className="mb-1 flex items-center gap-2">
+              <p className="text-xs font-bold tracking-wide text-gray-400 uppercase">Métiers</p>
+              {allMetiers.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAssignSelect((v) => !v)}
+                  className="rounded-full border border-[#1a1a1a] bg-[#fff8f0] px-2 py-0.5 text-xs font-bold text-[#1a1a2e] hover:bg-[#ffd93d]"
+                >
+                  {showAssignSelect ? "✕" : "+ Assigner"}
+                </button>
+              )}
+            </div>
             <div className="flex flex-wrap gap-1.5">
-              {metierLabels.length > 0
-                ? metierLabels.map((label) => (
-                    <span
-                      key={label}
-                      className="rounded-full border-2 border-[#1a1a1a] bg-[#ffd93d] px-2.5 py-0.5 text-xs font-bold text-[#1a1a2e]"
-                    >
-                      🔧 {label}
-                    </span>
-                  ))
-                : null}
+              {artisan.metiers.map((m) => (
+                <span
+                  key={m.metier.slug}
+                  className="group flex items-center gap-1 rounded-full border-2 border-[#1a1a1a] bg-[#ffd93d] py-0.5 pr-1 pl-2.5 text-xs font-bold text-[#1a1a2e]"
+                >
+                  🔧 {m.metier.label}
+                  <button
+                    type="button"
+                    onClick={() => handleRetirerMetier(m.metier.slug, m.metier.label)}
+                    className="ml-0.5 rounded-full px-1 text-[#1a1a1a]/40 hover:bg-[#ff6b6b] hover:text-white"
+                    title="Retirer ce métier"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
               {artisan.metierLibre && !assignedLabel ? (
                 <>
                   <span className="rounded-full border-2 border-orange-400 bg-orange-50 px-2.5 py-0.5 text-xs font-bold text-orange-700">
-                    📝 Métier suggéré : « {artisan.metierLibre} »
+                    📝 Suggéré : « {artisan.metierLibre} »
                   </span>
                   <button
                     type="button"
@@ -274,15 +291,42 @@ export default function AdminArtisanRow({
                 </>
               ) : assignedLabel ? (
                 <span className="rounded-full border-2 border-green-400 bg-green-50 px-2.5 py-0.5 text-xs font-bold text-green-700">
-                  ✅ « {assignedLabel} » créé et assigné
+                  ✅ « {assignedLabel} » créé et assigné
                 </span>
               ) : null}
-              {metierLabels.length === 0 && !artisan.metierLibre ? (
+              {artisan.metiers.length === 0 && !artisan.metierLibre && !assignedLabel ? (
                 <span className="rounded-full border-2 border-orange-300 bg-orange-50 px-2.5 py-0.5 text-xs font-bold text-orange-500">
                   ⚠️ Aucun métier renseigné
                 </span>
               ) : null}
             </div>
+            {showAssignSelect && allMetiers.length > 0 && (
+              <div className="mt-2 flex items-center gap-2">
+                <select
+                  value={selectedMetierSlug}
+                  onChange={(e) => setSelectedMetierSlug(e.target.value)}
+                  className="flex-1 rounded-lg border-2 border-[#1a1a1a] bg-white px-2 py-1 text-xs font-bold focus:ring-2 focus:ring-[#6bcb77] focus:outline-none"
+                >
+                  <option value="">— Choisir un métier existant —</option>
+                  {allMetiers
+                    .filter((m) => !currentMetierSlugs.includes(m.slug))
+                    .map((m) => (
+                      <option key={m.slug} value={m.slug}>
+                        {m.label}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={handleAssignerExistant}
+                  disabled={!selectedMetierSlug || assignExistingLoading}
+                  className="rounded-lg border-2 border-[#1a1a1a] bg-[#6bcb77] px-3 py-1 text-xs font-bold hover:bg-[#5ab865] disabled:opacity-50"
+                  style={{ boxShadow: "1px 1px 0 #1a1a1a" }}
+                >
+                  {assignExistingLoading ? "⏳" : "✅ Assigner"}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Zones */}
