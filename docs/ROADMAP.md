@@ -1,6 +1,6 @@
 # Roadmap — OyezArtisans · Réseau local d'artisans
 
-> Dernière mise à jour : 25 février 2026 — Carte OG satori : fix logo WebP + fonts:[]  
+> Dernière mise à jour : 26 février 2026 — Suppression mécanisme draft/validation + système signalement
 > Statuts : `[ ]` à faire · `[~]` en cours · `[x]` terminé
 
 ---
@@ -147,6 +147,10 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] **Carte OG redesign BD** (25/02/2026) : refonte complète de l'image `/api/artisan/[id]/carte` — fond jaune `#ffd93d`, halftone dots, branding "OYEZ ARTISANS ! 44", nom géant Bangers, badges métiers, logo si présent. Utilisée pour les partages Facebook/WhatsApp.
 - [x] **Satori : logo WebP + fonts:[]** (25/02/2026) : deux causes superposées provoquant `u2 is not iterable` dans satori (next/og). (1) Logo stocké en WebP → satori ne supporte que PNG/JPEG — fix : filtrer `mimeType` avant de passer `src` à `<img>`. (2) `fonts: []` → satori refuse de rendre ("No fonts are loaded") — fix : toujours fournir au moins une police (Bangers). Retenirs : utiliser `{cond ? (...) : null}` (pas `&&`), éviter `inset`/`overflow`/`boxSizing`, forcer `await image.arrayBuffer()` pour attraper les erreurs lazy.
 - [x] **Champ accroche artisan** (25/02/2026) : phrase d'accroche courte (200 chars max) affichée sous le nom sur la carte OG ET sur les cards artisan dans le listing. Éditable via `/mon-espace` et `/mon-profil/[token]`. Inclus dans le système de draft pour les artisans VALIDE. Migration `20260225002200_add_accroche_to_artisan`.
+- [x] **Suppression mécanisme draft/validation** (26/02/2026) : mécanisme `hasPendingDraft` / `draftData` supprimé — trop lourd pour l'UX. Les modifications artisan (VALIDE ou non) s'appliquent désormais directement en DB. Bandeau "en attente" et section "Modifications" admin supprimés.
+- [x] **Système signalement** (26/02/2026) : nouveau modèle `Signalement` (migration `20260226200000_add_signalement`). Bouton "Signaler cette fiche" discret dans le footer de chaque fiche artisan → `SignalementModal` (motif requis + email optionnel). Section dédiée dans l'admin avec bouton "Marquer lu" (`PATCH /api/admin/signalements/[id]`).
+- [x] Logo sans rognage + restructuration ArtisanCard (commit 7764cd9)
+- [x] z-index MetierCombobox vs Leaflet (commit eb27285)
 - [~] Portfolio chantiers sur la fiche artisan (photos + description) ← prochain
 - [x] SEO : sitemap.xml, meta dynamiques, pages par commune (commit 9ca7208)
 - [x] RGPD : mentions légales, politique confidentialité, suppression de compte (commit eec52d5)
