@@ -14,6 +14,9 @@ const METIERS = [
   { slug: "chauffagiste", label: "Chauffagiste" },
   { slug: "plaquiste", label: "Plaquiste" },
   { slug: "charpentier", label: "Charpentier" },
+  { slug: "paysagiste", label: "Paysagiste" },
+  { slug: "ramoneur", label: "Ramoneur" },
+  { slug: "terrassier", label: "Terrassier" },
 ];
 
 const connectionString = process.env.DATABASE_URL!;
