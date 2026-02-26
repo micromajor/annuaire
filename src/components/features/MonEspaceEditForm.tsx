@@ -110,8 +110,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
     const errs: Record<string, string[]> = {};
     if (!form.prenom.trim()) errs.prenom = ["Prénom requis"];
     if (!form.nom.trim()) errs.nom = ["Nom requis"];
-    if (form.metierSlugs.length === 0 && !form.metierLibre.trim())
-      errs.metierSlugs = ["Sélectionnez au moins un métier (ou précisez le vôtre)"];
+    if (form.metierSlugs.length === 0) errs.metierSlugs = ["Sélectionnez au moins un métier"];
     if (form.communePairs.length === 0)
       errs.communePairs = ["Sélectionnez au moins une zone d'intervention"];
     return errs;

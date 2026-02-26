@@ -39,14 +39,14 @@ export default function ArtisanCard({ artisan, avis = [] }: ArtisanCardProps) {
       {/* Header carte */}
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          {/* Logo ou emoji métier — conteneur adaptatif pour logos carré/paysage/portrait */}
+          {/* Logo ou emoji métier — conteneur fixe avec object-contain, jamais rogné */}
           {artisan.logoUrl ? (
-            <div className="flex h-10 max-w-[5rem] shrink-0 items-center overflow-hidden rounded-lg bg-white shadow-sm">
+            <div className="h-10 w-20 shrink-0 overflow-hidden rounded-lg bg-white shadow-sm">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={artisan.logoUrl}
                 alt={`Logo ${nomAffiche}`}
-                className="h-full w-auto max-w-[5rem] object-contain"
+                className="h-full w-full object-contain"
               />
             </div>
           ) : firstMetierSlug ? (
