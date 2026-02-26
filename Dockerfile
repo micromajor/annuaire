@@ -25,6 +25,10 @@ ENV NEXTAUTH_URL=http://localhost:3000
 ENV AUTH_SECRET=build-placeholder
 ENV DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder
 
+# Variables publiques injectées au build (NEXT_PUBLIC_ = baked dans le bundle JS)
+ARG NEXT_PUBLIC_GA_ID
+ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID
+
 RUN npm run build
 
 # ── Runner ─────────────────────────────────────────────────────────────────────
