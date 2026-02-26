@@ -390,7 +390,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Métiers */}
-          <fieldset id="field-metierSlugs">
+          <fieldset id="field-metierSlugs" className="relative z-[999]">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Métiers <span className="text-[#ff6b6b]">*</span>
             </legend>
