@@ -95,44 +95,16 @@ export async function PUT(req: NextRequest) {
 
   // Mise à jour en transaction
   const updated = await prisma.$transaction(async (tx: TxClient) => {
-    const current = await tx.artisan.findUnique({
-      where: { id: artisanId },
-      select: { status: true },
-    });
-
-    // Si la fiche est déjà en ligne (VALIDE) → draft en attente, ne pas toucher aux données live
-    if (current?.status === "VALIDE") {
-      return tx.artisan.update({
-        where: { id: artisanId },
-        data: {
-          hasPendingDraft: true,
-          draftData: {
-            prenom,
-            nom,
-            raisonSociale: raisonSociale || null,
-            telephone: telephone || null,
-            siret: siret || null,
-            siteWeb: siteWeb || null,
-            description: description || null,
-            accroche: accroche || null,
-            logoUrl: logoUrl || null,
-            metierSlugs,
-            metierLibre: metierLibre || null,
-            communePairs, // { nom, codePostal }[] — pour la validation admin
-            // labels pour l'affichage diff
-            metierLabels: metiers.map((m: { label: string }) => m.label),
-            communeLabels: communePairs.map((p) => p.nom),
-          },
-        },
-      });
-    }
-
-    // Sinon (EN_ATTENTE, REJETE) → écraser directement, la fiche n'est pas live
-    // Si c'était REJETE, on repasse en EN_ATTENTE pour re-soumettre à validation.
+    // Toujours écraser directement. Si la fiche était REJETE, on repasse EN_ATTENTE.
     // NOTE: PrismaPg + composite @@id → nested creates échouent silencieusement.
     // Pattern: deleteMany + update scalaires + creates séparés.
     await tx.artisanMetier.deleteMany({ where: { artisanId } });
     await tx.artisanCommune.deleteMany({ where: { artisanId } });
+
+    const current = await tx.artisan.findUnique({
+      where: { id: artisanId },
+      select: { status: true },
+    });
 
     const updatedArtisan = await tx.artisan.update({
       where: { id: artisanId },

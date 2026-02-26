@@ -12,6 +12,7 @@ import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapper";
 import PortfolioPhotos from "@/components/features/PortfolioPhotos";
 import ShareButton from "@/components/features/ShareButton";
+import SignalementModal from "@/components/features/SignalementModal";
 import type { Metadata } from "next";
 
 const METIER_EMOJIS: Record<string, string> = {
@@ -452,7 +453,8 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
         <footer className="relative z-10 border-t-2 border-[#1a1a1a]/10 px-6 py-3">
           <div className="mx-auto flex max-w-6xl items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
             <span>&copy; 2026 Oyez Artisans !</span>
-            <div className="flex gap-4">
+            <div className="flex items-center gap-4">
+              <SignalementModal artisanId={artisan.id} nomArtisan={nomAffiche} />
               <Link href="/mentions-legales" className="hover:text-[#1a1a2e]">
                 Mentions l&eacute;gales
               </Link>

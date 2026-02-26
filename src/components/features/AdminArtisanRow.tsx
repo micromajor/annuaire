@@ -27,27 +27,11 @@ function CheckBadge({ ok, label }: { ok: boolean; label: string }) {
   );
 }
 
-interface DraftData {
-  raisonSociale?: string | null;
-  prenom?: string | null;
-  nom?: string | null;
-  siret?: string | null;
-  telephone?: string | null;
-  siteWeb?: string | null;
-  logoUrl?: string | null;
-  description?: string | null;
-  accroche?: string | null;
-  metierLabels?: string[];
-  communeLabels?: string[];
-}
-
 export default function AdminArtisanRow({
   artisan,
-  isDraft = false,
   allMetiers = [],
 }: {
   artisan: ArtisanWithRelations;
-  isDraft?: boolean;
   allMetiers?: MetierOption[];
 }) {
   const router = useRouter();
@@ -152,30 +136,14 @@ export default function AdminArtisanRow({
   }
 
   return (
-    <article className={`bd-card overflow-hidden ${isDraft ? "border-[#a78bfa]" : ""}`}>
+    <article className="bd-card overflow-hidden">
       {/* Bandeau contextuel */}
-      {isDraft ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 bg-[#a78bfa] px-5 py-2">
-          <span className="text-sm font-bold text-white">
-            ✏️ Modifications proposées — fiche publiée encore visible
-          </span>
-          <a
-            href={`/artisan/${artisan.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full border-2 border-white bg-white/20 px-3 py-0.5 text-xs font-bold text-white hover:bg-white/40"
-          >
-            Voir la fiche live →
-          </a>
-        </div>
-      ) : (
-        <div className="flex flex-wrap items-center justify-between gap-2 bg-[#ffd93d] px-5 py-2">
-          <span className="text-sm font-bold text-[#1a1a2e]">🆕 Nouvelle inscription</span>
-          <span className="rounded-full border-2 border-[#1a1a1a] bg-white px-3 py-0.5 text-xs font-bold text-[#1a1a2e]">
-            Soumis le {new Date(artisan.createdAt).toLocaleDateString("fr-FR")}
-          </span>
-        </div>
-      )}
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-[#ffd93d] px-5 py-2">
+        <span className="text-sm font-bold text-[#1a1a2e]">🆕 Nouvelle inscription</span>
+        <span className="rounded-full border-2 border-[#1a1a1a] bg-white px-3 py-0.5 text-xs font-bold text-[#1a1a2e]">
+          Soumis le {new Date(artisan.createdAt).toLocaleDateString("fr-FR")}
+        </span>
+      </div>
 
       <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start sm:justify-between">
         {/* Infos */}
@@ -371,60 +339,6 @@ export default function AdminArtisanRow({
             <CheckBadge ok={metierLabels.length > 0 || !!artisan.metierLibre} label="Métier(s)" />
             <CheckBadge ok={communeLabels.length > 0} label="Zone(s)" />
           </div>
-
-          {/* Diff draft vs live */}
-          {isDraft &&
-            artisan.draftData &&
-            (() => {
-              const draft = artisan.draftData as DraftData;
-              type DiffItem = {
-                label: string;
-                before?: string | null;
-                after?: string | null;
-              };
-              const diffs: DiffItem[] = [
-                {
-                  label: "Raison sociale",
-                  before: artisan.raisonSociale,
-                  after: draft.raisonSociale,
-                },
-                { label: "SIRET", before: artisan.siret, after: draft.siret },
-                { label: "Téléphone", before: artisan.telephone, after: draft.telephone },
-                { label: "Site web", before: artisan.siteWeb, after: draft.siteWeb },
-                { label: "Logo", before: artisan.logoUrl, after: draft.logoUrl },
-                { label: "Description", before: artisan.description, after: draft.description },
-                { label: "Accroche", before: artisan.accroche, after: draft.accroche },
-                {
-                  label: "Métiers",
-                  before: artisan.metiers.map((m) => m.metier.label).join(", "),
-                  after: draft.metierLabels?.join(", "),
-                },
-                {
-                  label: "Zones",
-                  before: artisan.communes.map((c) => c.commune.nom).join(", "),
-                  after: draft.communeLabels?.join(", "),
-                },
-              ].filter((d) => d.after !== undefined && d.before !== d.after) as DiffItem[];
-
-              if (diffs.length === 0) return null;
-              return (
-                <div className="space-y-2 rounded-xl border-2 border-[#a78bfa] bg-[#f5f0ff] p-4 text-sm">
-                  <p className="font-bold text-[#7c3aed]">
-                    📋 {diffs.length} modification{diffs.length > 1 ? "s" : ""} demandée
-                    {diffs.length > 1 ? "s" : ""} :
-                  </p>
-                  {diffs.map((d) => (
-                    <Diff key={d.label} label={d.label} before={d.before} after={d.after} />
-                  ))}
-                </div>
-              );
-            })()}
-
-          {isDraft && (
-            <p className="text-xs text-gray-400">
-              Modifié le {new Date(artisan.updatedAt).toLocaleDateString("fr-FR")}
-            </p>
-          )}
         </div>
 
         {/* Actions */}
@@ -451,25 +365,5 @@ export default function AdminArtisanRow({
         </div>
       </div>
     </article>
-  );
-}
-
-function Diff({
-  label,
-  before,
-  after,
-}: {
-  label: string;
-  before?: string | null;
-  after?: string | null;
-}) {
-  if (before === after) return null;
-  return (
-    <div>
-      <span className="font-semibold text-gray-600">{label} : </span>
-      <span className="text-red-400 line-through">{before || "—"}</span>
-      {" → "}
-      <span className="font-bold text-[#16a34a]">{after || "—"}</span>
-    </div>
   );
 }

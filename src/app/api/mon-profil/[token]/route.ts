@@ -112,63 +112,34 @@ export async function PATCH(
     where: { id: { in: data.communeIds } },
   });
 
-  if (artisan.status === "VALIDE") {
-    // Artisan déjà publié → stocker en draft, fiche live intacte
-    await prisma.$transaction([
-      prisma.artisan.update({
-        where: { id: artisanId },
-        data: {
-          hasPendingDraft: true,
-          draftData: {
-            raisonSociale: data.raisonSociale ?? null,
-            siret: data.siret || null,
-            telephone: data.telephone ?? null,
-            siteWeb: data.siteWeb || null,
-            logoUrl: data.logoUrl || null,
-            accroche: data.accroche ?? null,
-            description: data.description ?? null,
-            metierSlugs: data.metierSlugs,
-            communeIds: data.communeIds,
-            metierLabels: metiers.map((m) => m.label),
-            communeLabels: communes.map((c) => c.nom),
-          },
-        },
-      }),
-      prisma.editToken.update({
-        where: { id: editToken.id },
-        data: { usedAt: new Date() },
-      }),
-    ]);
-  } else {
-    // Nouvelle inscription EN_ATTENTE → modifier directement
-    // NOTE: PrismaPg + composite @@id → nested creates échouent silencieusement.
-    await prisma.$transaction(async (tx) => {
-      await tx.artisanMetier.deleteMany({ where: { artisanId } });
-      await tx.artisanCommune.deleteMany({ where: { artisanId } });
-      await tx.artisan.update({
-        where: { id: artisanId },
-        data: {
-          raisonSociale: data.raisonSociale ?? null,
-          siret: data.siret || null,
-          telephone: data.telephone ?? null,
-          siteWeb: data.siteWeb || null,
-          logoUrl: data.logoUrl || null,
-          accroche: data.accroche ?? null,
-          description: data.description ?? null,
-        },
-      });
-      for (const m of metiers) {
-        await tx.artisanMetier.create({ data: { artisanId, metierId: m.id } });
-      }
-      for (const c of communes) {
-        await tx.artisanCommune.create({ data: { artisanId, communeId: c.id } });
-      }
-      await tx.editToken.update({
-        where: { id: editToken.id },
-        data: { usedAt: new Date() },
-      });
+  // Appliquer directement (plus de mécanisme draft — les modifications sont immédiates)
+  // NOTE: PrismaPg + composite @@id → nested creates échouent silencieusement.
+  await prisma.$transaction(async (tx) => {
+    await tx.artisanMetier.deleteMany({ where: { artisanId } });
+    await tx.artisanCommune.deleteMany({ where: { artisanId } });
+    await tx.artisan.update({
+      where: { id: artisanId },
+      data: {
+        raisonSociale: data.raisonSociale ?? null,
+        siret: data.siret || null,
+        telephone: data.telephone ?? null,
+        siteWeb: data.siteWeb || null,
+        logoUrl: data.logoUrl || null,
+        accroche: data.accroche ?? null,
+        description: data.description ?? null,
+      },
     });
-  }
+    for (const m of metiers) {
+      await tx.artisanMetier.create({ data: { artisanId, metierId: m.id } });
+    }
+    for (const c of communes) {
+      await tx.artisanCommune.create({ data: { artisanId, communeId: c.id } });
+    }
+    await tx.editToken.update({
+      where: { id: editToken.id },
+      data: { usedAt: new Date() },
+    });
+  });
 
   return NextResponse.json({ success: true });
 }

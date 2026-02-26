@@ -51,6 +51,7 @@ model Artisan {
   oauthAccounts OAuthAccount[]
   convsArtisan     Conversation[] @relation("ConvArtisan")
   convsParticulier Conversation[] @relation("ConvParticulier")
+  signalements     Signalement[]
 }
 
 model Metier {
@@ -228,4 +229,18 @@ model OAuthAccount {
   artisan Artisan @relation(fields: [artisanId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+}
+
+// ---------------------------------------------------------------------------
+// SIGNALEMENT — signalement d'une fiche artisan par un visiteur
+// ---------------------------------------------------------------------------
+
+model Signalement {
+  id        String   @id @default(cuid())
+  artisan   Artisan  @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+  artisanId String
+  motif     String   @db.VarChar(500)
+  email     String?
+  lu        Boolean  @default(false)
+  createdAt DateTime @default(now())
 }

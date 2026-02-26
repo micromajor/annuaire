@@ -222,53 +222,15 @@ export default async function MonEspacePage() {
   // Fiche jamais soumise = pas de métier (Google pré-remplit le prénom, mais ça ne signifie rien)
   const ficheVide = artisan.status === "EN_ATTENTE" && artisan.metiers.length === 0;
 
-  // Draft en attente → afficher les données du draft dans le formulaire ET dans l'aperçu fiche
-  type CommunePair = { nom: string; codePostal: string };
-  type PendingDraft = {
-    prenom?: string;
-    nom?: string;
-    raisonSociale?: string | null;
-    telephone?: string | null;
-    siret?: string | null;
-    siteWeb?: string | null;
-    description?: string | null;
-    logoUrl?: string | null;
-    metierSlugs?: string[];
-    metierLabels?: string[];
-    accroche?: string | null;
-    metierLibre?: string | null;
-    communePairs?: CommunePair[]; // nouveau format
-    communeLabels?: string[]; // pour l'affichage (les deux formats)
-  };
-  const pendingDraft: PendingDraft | null =
-    artisan.hasPendingDraft && artisan.draftData ? (artisan.draftData as PendingDraft) : null;
-
-  const displayPrenom = pendingDraft?.prenom ?? artisan.prenom;
-  const displayNom = pendingDraft?.nom ?? artisan.nom;
-  const displayRaisonSociale = pendingDraft?.raisonSociale ?? artisan.raisonSociale;
-  const displayTelephone = pendingDraft?.telephone ?? artisan.telephone;
-  const displaySiret = pendingDraft?.siret ?? artisan.siret;
-  const displaySiteWeb = pendingDraft?.siteWeb ?? artisan.siteWeb;
-  const displayDescription = pendingDraft?.description ?? artisan.description;
-  const displayAccroche = pendingDraft?.accroche ?? artisan.accroche;
-  const displayLogoUrl = pendingDraft?.logoUrl ?? artisan.logoUrl;
-  const displayMetierLabels =
-    pendingDraft?.metierLabels ??
-    artisan.metiers.map((m: { metier: { label: string } }) => m.metier.label);
-  const displayCommuneNoms =
-    pendingDraft?.communeLabels ??
-    pendingDraft?.communePairs?.map((p) => p.nom) ??
-    artisan.communes.map((c: { commune: { nom: string } }) => c.commune.nom);
-
-  // communePairs pour le formulaire d'édition (avec codePostal pour pouvoir upsert)
-  const formCommunePairs: CommunePair[] =
-    pendingDraft?.communePairs ??
-    artisan.communes.map((c: { commune: { nom: string; codePostal: string } }) => ({
+  const nomAffiche = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
+  const metierLabels = artisan.metiers.map((m: { metier: { label: string } }) => m.metier.label);
+  const communeNoms = artisan.communes.map((c: { commune: { nom: string } }) => c.commune.nom);
+  const communePairs = artisan.communes.map(
+    (c: { commune: { nom: string; codePostal: string } }) => ({
       nom: c.commune.nom,
       codePostal: c.commune.codePostal,
-    }));
-
-  const displayNomAffiche = displayRaisonSociale ?? `${displayPrenom} ${displayNom}`;
+    })
+  );
 
   const statusLabel: Record<string, string> = {
     EN_ATTENTE: ficheVide ? "⚙️ Profil à compléter" : "⏳ En attente de validation",
@@ -427,44 +389,37 @@ export default async function MonEspacePage() {
           <MonEspaceEditForm
             metiers={allMetiers}
             artisan={{
-              prenom: displayPrenom,
-              nom: displayNom,
-              raisonSociale: displayRaisonSociale,
-              telephone: displayTelephone,
-              siret: displaySiret,
-              siteWeb: displaySiteWeb,
-              description: displayDescription,
-              accroche: displayAccroche,
-              logoUrl: displayLogoUrl,
-              metierSlugs:
-                pendingDraft?.metierSlugs ??
-                artisan.metiers.map((m: { metier: { slug: string } }) => m.metier.slug),
-              communePairs: formCommunePairs,
+              prenom: artisan.prenom,
+              nom: artisan.nom,
+              raisonSociale: artisan.raisonSociale,
+              telephone: artisan.telephone,
+              siret: artisan.siret,
+              siteWeb: artisan.siteWeb,
+              description: artisan.description,
+              accroche: artisan.accroche,
+              logoUrl: artisan.logoUrl,
+              metierSlugs: artisan.metiers.map((m: { metier: { slug: string } }) => m.metier.slug),
+              communePairs,
               status: artisan.status,
             }}
           />
 
           {/* Carte — infos (lecture seule, visible quand profil complet) */}
-          {displayPrenom && (
+          {artisan.prenom && (
             <div
               className="col-span-full rounded-2xl border-4 border-[#1a1a1a] bg-white p-6"
               style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
             >
               <div className="mb-4 flex items-center justify-between gap-2">
                 <h2 className="bd-titre text-xl text-[#1a1a2e]">Ma fiche</h2>
-                {pendingDraft && (
-                  <span className="rounded-full border-2 border-[#1a1a1a] bg-[#ffd93d] px-3 py-0.5 text-xs font-bold text-[#1a1a2e]">
-                    ⏳ Modifications en attente de validation
-                  </span>
-                )}
               </div>
 
               {/* Logo + identité */}
               <div className="mb-4 flex items-center gap-4">
-                {displayLogoUrl ? (
+                {artisan.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={displayLogoUrl}
+                    src={artisan.logoUrl}
                     alt="Logo"
                     className="h-16 w-16 shrink-0 rounded-xl object-contain"
                     style={{ border: "3px solid #1a1a1a" }}
@@ -478,10 +433,10 @@ export default async function MonEspacePage() {
                   </div>
                 )}
                 <div>
-                  <p className="font-black text-[#1a1a2e]">{displayNomAffiche}</p>
-                  {displayRaisonSociale && (
+                  <p className="font-black text-[#1a1a2e]">{nomAffiche}</p>
+                  {artisan.raisonSociale && (
                     <p className="text-sm text-gray-500">
-                      {displayPrenom} {displayNom}
+                      {artisan.prenom} {artisan.nom}
                     </p>
                   )}
                 </div>
@@ -489,20 +444,18 @@ export default async function MonEspacePage() {
 
               <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 <dt className="font-bold text-gray-500">Métiers</dt>
-                <dd>
-                  {displayMetierLabels.join(", ") || <span className="text-gray-300">—</span>}
-                </dd>
+                <dd>{metierLabels.join(", ") || <span className="text-gray-300">—</span>}</dd>
               </dl>
 
               {/* Carte zones */}
-              {displayCommuneNoms.length > 0 ? (
+              {communeNoms.length > 0 ? (
                 <div className="mt-4">
                   <p className="mb-2 text-sm font-bold text-gray-500">Zones d&apos;intervention</p>
                   <div className="mb-3 overflow-hidden rounded-xl border-2 border-[#1a1a1a]">
-                    <CarteZoneLectureWrapper communeNoms={displayCommuneNoms} />
+                    <CarteZoneLectureWrapper communeNoms={communeNoms} />
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {displayCommuneNoms.map((nom: string) => (
+                    {communeNoms.map((nom: string) => (
                       <span
                         key={nom}
                         className="rounded-full border-2 border-[#1a1a1a] bg-[#fff8f0] px-2 py-0.5 text-xs font-semibold text-[#1a1a2e]"
@@ -521,38 +474,38 @@ export default async function MonEspacePage() {
                 </dl>
               )}
               <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                {displayTelephone && (
+                {artisan.telephone && (
                   <>
                     <dt className="font-bold text-gray-500">Téléphone</dt>
-                    <dd>{displayTelephone}</dd>
+                    <dd>{artisan.telephone}</dd>
                   </>
                 )}
-                {displaySiret && (
+                {artisan.siret && (
                   <>
                     <dt className="font-bold text-gray-500">SIRET</dt>
-                    <dd className="font-mono">{displaySiret}</dd>
+                    <dd className="font-mono">{artisan.siret}</dd>
                   </>
                 )}
-                {displaySiteWeb && (
+                {artisan.siteWeb && (
                   <>
                     <dt className="font-bold text-gray-500">Site web</dt>
                     <dd>
                       <a
-                        href={displaySiteWeb}
+                        href={artisan.siteWeb}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[#1a1a2e] underline"
                       >
-                        {displaySiteWeb.replace(/^https?:\/\//, "")}
+                        {artisan.siteWeb.replace(/^https?:\/\//, "")}
                       </a>
                     </dd>
                   </>
                 )}
               </dl>
 
-              {displayDescription && (
+              {artisan.description && (
                 <p className="mt-4 border-t pt-3 text-sm whitespace-pre-wrap text-gray-600">
-                  {displayDescription}
+                  {artisan.description}
                 </p>
               )}
               {artisan.status === "VALIDE" && (
@@ -565,8 +518,8 @@ export default async function MonEspacePage() {
                   </Link>
                   <ShareButton
                     url={`${process.env.NEXT_PUBLIC_APP_URL ?? "https://oyezartisans.fr"}/artisan/${artisan.id}`}
-                    title={`${displayNomAffiche} — ${displayMetierLabels.join(", ")} à ${displayCommuneNoms[0] ?? "Loire-Atlantique"}`}
-                    text={`Découvrez la fiche de ${displayNomAffiche} sur Oyez Artisans !`}
+                    title={`${nomAffiche} — ${metierLabels.join(", ")} à ${communeNoms[0] ?? "Loire-Atlantique"}`}
+                    text={`Découvrez la fiche de ${nomAffiche} sur Oyez Artisans !`}
                   />
                 </div>
               )}

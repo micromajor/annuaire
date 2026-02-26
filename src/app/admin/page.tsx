@@ -8,6 +8,7 @@ import AdminAvisRow from "@/components/features/AdminAvisRow";
 import AdminLogoutButton from "@/components/features/AdminLogoutButton";
 import AdminMetiersPanel from "@/components/features/AdminMetiersPanel";
 import AdminUserRow from "@/components/features/AdminUserRow";
+import MarkSignalementLu from "@/components/features/MarkSignalementLu";
 import type { Metadata } from "next";
 import { Prisma } from "@prisma/client";
 
@@ -20,13 +21,13 @@ export default async function AdminPage() {
 
   const [
     enAttente,
-    avecDraft,
     valides,
     rejetes,
     avisEnAttente,
     besoinsNouveau,
     tousLesUtilisateurs,
     feedbacksNouveau,
+    signalements,
     tousLesMetiers,
   ] = await Promise.all([
     prisma.artisan.findMany({
@@ -44,14 +45,6 @@ export default async function AdminPage() {
         communes: { include: { commune: true } },
       },
       orderBy: { createdAt: "desc" },
-    }),
-    prisma.artisan.findMany({
-      where: { status: "VALIDE", hasPendingDraft: true, deletedAt: null },
-      include: {
-        metiers: { include: { metier: true } },
-        communes: { include: { commune: true } },
-      },
-      orderBy: { updatedAt: "desc" },
     }),
     prisma.artisan.count({ where: { status: "VALIDE", deletedAt: null } }),
     prisma.artisan.count({ where: { status: "REJETE", deletedAt: null } }),
@@ -91,6 +84,11 @@ export default async function AdminPage() {
       where: { status: "NOUVEAU" },
       orderBy: { createdAt: "desc" },
     }),
+    prisma.signalement.findMany({
+      where: { lu: false },
+      include: { artisan: { select: { id: true, raisonSociale: true, prenom: true, nom: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
     prisma.metier.findMany({
       orderBy: { label: "asc" },
       include: { _count: { select: { artisans: true } } },
@@ -99,7 +97,7 @@ export default async function AdminPage() {
 
   const totalPending =
     enAttente.length +
-    avecDraft.length +
+    signalements.length +
     avisEnAttente.length +
     besoinsNouveau.length +
     feedbacksNouveau.length;
@@ -107,11 +105,11 @@ export default async function AdminPage() {
   const navItems = [
     { id: "fiches", emoji: "⏳", label: "En attente", count: enAttente.length, color: "#ffd93d" },
     {
-      id: "modifs",
-      emoji: "✏️",
-      label: "Modifications",
-      count: avecDraft.length,
-      color: "#a78bfa",
+      id: "signalements",
+      emoji: "🚩",
+      label: "Signalements",
+      count: signalements.length,
+      color: "#ff6b6b",
     },
     { id: "avis", emoji: "⭐", label: "Avis", count: avisEnAttente.length, color: "#38bdf8" },
     {
@@ -220,7 +218,12 @@ export default async function AdminPage() {
           <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
             {[
               { label: "En attente", count: enAttente.length, color: "bg-[#ffd93d]", emoji: "⏳" },
-              { label: "Modifs", count: avecDraft.length, color: "bg-[#a78bfa]", emoji: "✏️" },
+              {
+                label: "Signalements",
+                count: signalements.length,
+                color: "bg-[#ff6b6b]",
+                emoji: "🚩",
+              },
               { label: "Avis", count: avisEnAttente.length, color: "bg-[#38bdf8]", emoji: "⭐" },
               {
                 label: "Besoins",
@@ -269,27 +272,54 @@ export default async function AdminPage() {
             )}
           </section>
 
-          {/* ── Section : Modifications ── */}
-          <section id="modifs" className="mb-10 scroll-mt-20">
+          {/* ── Section : Signalements ── */}
+          <section id="signalements" className="mb-10 scroll-mt-20">
             <div className="mb-4 flex items-center gap-3">
-              <div className="h-8 w-1.5 rounded-full bg-[#a78bfa]" />
-              <h2 className="bd-titre text-2xl text-[#1a1a2e]">Modifications en attente</h2>
-              <span className="rounded-full border-2 border-[#1a1a1a] bg-[#a78bfa] px-3 py-0.5 text-sm font-bold">
-                {avecDraft.length}
+              <div className="h-8 w-1.5 rounded-full bg-[#ff6b6b]" />
+              <h2 className="bd-titre text-2xl text-[#1a1a2e]">⚠️ Signalements</h2>
+              <span className="rounded-full border-2 border-[#1a1a1a] bg-[#ff6b6b] px-3 py-0.5 text-sm font-bold text-white">
+                {signalements.length}
               </span>
             </div>
-            {avecDraft.length === 0 ? (
-              <EmptyState emoji="✨" message="Aucune modification en attente." />
+            {signalements.length === 0 ? (
+              <EmptyState emoji="✔️" message="Aucun signalement non lu." />
             ) : (
-              <div className="space-y-3">
-                {avecDraft.map((artisan) => (
-                  <AdminArtisanRow
-                    key={artisan.id}
-                    artisan={artisan}
-                    isDraft
-                    allMetiers={tousLesMetiers}
-                  />
-                ))}
+              <div className="space-y-2">
+                {signalements.map((s) => {
+                  const nom = s.artisan.raisonSociale ?? `${s.artisan.prenom} ${s.artisan.nom}`;
+                  return (
+                    <div
+                      key={s.id}
+                      className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border-2 border-[#1a1a1a] bg-white p-4"
+                      style={{ boxShadow: "3px 3px 0 #1a1a1a" }}
+                    >
+                      <div className="flex-1">
+                        <div className="mb-1 flex flex-wrap items-center gap-2">
+                          <a
+                            href={`/artisan/${s.artisan.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-bold text-[#1a1a2e] underline hover:text-[#ff6b6b]"
+                          >
+                            {nom}
+                          </a>
+                          <span className="text-xs text-gray-400">
+                            {new Date(s.createdAt).toLocaleDateString("fr-FR", {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-700">{s.motif}</p>
+                        {s.email && <p className="mt-1 text-xs text-gray-500">✉️ {s.email}</p>}
+                      </div>
+                      <MarkSignalementLu id={s.id} />
+                    </div>
+                  );
+                })}
               </div>
             )}
           </section>
