@@ -79,7 +79,26 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const stars = moyenne !== null ? Math.round(moyenne) : 0;
   const isPro = !!artisan.siret;
   const tel = artisan.telephone;
-  const logoAbsolu = artisan.logoUrl && artisan.logoUrl.startsWith("http") ? artisan.logoUrl : null;
+  // Logo : data URI depuis DB — Satori n'accepte pas les chemins relatifs
+  let logoDataUrl: string | null = null;
+  if (artisan.logoUrl) {
+    try {
+      const fileId = artisan.logoUrl.match(/\/api\/files\/([^/?]+)/)?.[1];
+      if (fileId) {
+        const file = await prisma.uploadedFile.findUnique({
+          where: { id: fileId },
+          select: { data: true, mimeType: true },
+        });
+        if (file && ["image/png", "image/jpeg", "image/jpg"].includes(file.mimeType)) {
+          logoDataUrl = `data:${file.mimeType};base64,${Buffer.from(file.data).toString("base64")}`;
+        }
+      } else if (artisan.logoUrl.startsWith("http")) {
+        logoDataUrl = artisan.logoUrl;
+      }
+    } catch {
+      // Pas de logo si erreur
+    }
+  }
 
   return new ImageResponse(
     <div
@@ -166,20 +185,33 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           }}
         >
           {/* Logo ou emoji dans encadre BD */}
-          {logoAbsolu ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={logoAbsolu}
-              alt={nom}
-              width={144}
-              height={144}
+          {logoDataUrl ? (
+            <div
               style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 144,
+                height: 144,
                 borderRadius: 20,
                 border: "6px solid #1a1a2e",
-                objectFit: "cover",
                 background: "#fff",
+                overflow: "hidden",
               }}
-            />
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={logoDataUrl}
+                alt={nom}
+                width={144}
+                height={144}
+                style={{
+                  objectFit: "contain",
+                  width: "100%",
+                  height: "100%",
+                }}
+              />
+            </div>
           ) : (
             <div
               style={{

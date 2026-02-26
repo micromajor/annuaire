@@ -275,16 +275,16 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
               {/* Identite */}
               <div className="bd-card p-6">
                 <div className="mb-5 flex items-start gap-4">
-                  {/* Logo / avatar */}
+                  {/* Logo / avatar — adaptatif paysage/portrait/carré */}
                   <div
-                    className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-white text-4xl shadow-md"
+                    className="flex h-20 max-w-[8rem] shrink-0 items-center overflow-hidden rounded-2xl bg-white text-4xl shadow-md"
                     aria-hidden="true"
                   >
                     {artisan.logoUrl ? (
                       <img
                         src={artisan.logoUrl}
                         alt={nomAffiche}
-                        className="h-full w-full rounded-2xl object-cover"
+                        className="h-full w-auto max-w-[8rem] rounded-2xl object-contain"
                       />
                     ) : (
                       <span dangerouslySetInnerHTML={{ __html: artisanEmoji }} />

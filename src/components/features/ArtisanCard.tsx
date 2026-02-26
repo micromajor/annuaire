@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { Artisan, ArtisanMetier, Metier, ArtisanCommune, Commune } from "@prisma/client";
 
 type ArtisanWithRelations = Artisan & {
@@ -40,16 +39,14 @@ export default function ArtisanCard({ artisan, avis = [] }: ArtisanCardProps) {
       {/* Header carte */}
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          {/* Logo ou emoji métier */}
+          {/* Logo ou emoji métier — conteneur adaptatif pour logos carré/paysage/portrait */}
           {artisan.logoUrl ? (
-            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg">
-              <Image
+            <div className="flex h-10 max-w-[5rem] shrink-0 items-center overflow-hidden rounded-lg bg-white shadow-sm">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={artisan.logoUrl}
                 alt={`Logo ${nomAffiche}`}
-                width={40}
-                height={40}
-                className="h-full w-full object-contain"
-                unoptimized
+                className="h-full w-auto max-w-[5rem] object-contain"
               />
             </div>
           ) : firstMetierSlug ? (
