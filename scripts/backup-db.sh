@@ -5,7 +5,7 @@
 # Crontab recommandé (crontab -e sur le VPS) :
 #   0 3 * * * /root/backup-db.sh >> /var/log/oyez-backup.log 2>&1
 #
-# Ceci crée un fichier par jour (7 jours de rétention glissante).
+# Ceci crée un fichier par jour (3 jours de rétention glissante).
 
 set -euo pipefail
 
@@ -14,7 +14,7 @@ DB_USER="${DB_USER:-postgres}"
 DB_HOST="${DB_HOST:-localhost}"
 DB_PORT="${DB_PORT:-5432}"
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/oyez}"
-RETENTION_DAYS=7
+RETENTION_DAYS=3
 
 mkdir -p "$BACKUP_DIR"
 

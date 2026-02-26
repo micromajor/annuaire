@@ -141,7 +141,7 @@ Tu ne te contentes pas d'exécuter : tu questionnes, proposes des alternatives, 
 ### Stratégie de backup
 
 - **Backup automatique** configuré dans Coolify (PostgreSQL → onglet Backups, rétention 7 jours minimum).
-- **Backup nuitier cron** sur le VPS via `scripts/backup-db.sh` (dump `.sql.gz`, 3h du matin, 7 jours de rétention glissante).
+- **Backup nuitier cron** sur le VPS via `scripts/backup-db.sh` (dump `.sql.gz`, 3h du matin, 3 jours de rétention glissante).
 - Avant toute opération risquée (migration destructive, manipulation directe DB), effectuer un dump manuel.
 - Les fichiers uploadés (logos, photos) sont stockés **en DB** (table `UploadedFile`) — inclus dans le dump PostgreSQL, pas de backup filesystem séparé nécessaire.
 
