@@ -99,6 +99,7 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] Authentification admin (NextAuth v5, Credentials, middleware)
 - [x] **Réorganisation admin en tableau de bord** (24/02/2026) : sidebar sticky avec KPIs et nav par ancres, sections structurées (fiches / modifs / avis / besoins / feedbacks / utilisateurs), états vides explicites
 - [x] **Métier libre** (24/02/2026) : champ `metierLibre` sur l'artisan — option "Autre…" dans les formulaires inscription + mon-espace + mon-profil, badge "Métier suggéré" en admin, bouton "Créer & assigner" pour officialiser le nouveau métier en DB
+- [x] **Gestion admin des métiers** : section dédiée dans le tableau de bord admin — liste avec compteur d'artisans, renommage inline, ajout d'un nouveau métier (slug auto-généré), suppression si aucun artisan associé (APIs REST + client component)
 - [x] Logo artisan par URL (affiché sur la carte et la fiche)
 - [x] Magic link — `/mon-profil` : demande par email + édition sécurisée via token
 - [x] Migration DB : `logoUrl` + `EditToken` (token expirant, usage unique)
