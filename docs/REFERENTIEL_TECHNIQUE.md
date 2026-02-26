@@ -1,6 +1,6 @@
 # Référentiel Technique — Annuaire Hyperlocal Artisans
 
-> Dernière mise à jour : 20 février 2026 — RGPD, uploads DB, Coolify/Hetzner, fond role-aware
+> Dernière mise à jour : 26 février 2026 — Backup prod, synchro seed, admin métiers
 
 ---
 
@@ -85,6 +85,49 @@
 - Webhook URL : `http://37.27.222.18:8000/webhooks/source/github/events/manual`
 - Pas de GitHub Actions pour l'instant (CI/CD Coolify suffit pour le MVP)
 - Pipeline de build : `prisma migrate deploy` + `prisma generate` + `next build` + `next start`
+
+---
+
+## Protection des données prod
+
+> Projet en production avec de vrais utilisateurs depuis février 2026. La perte de DB est un incident critique.
+
+### Volumes Docker
+
+Le volume PostgreSQL **doit** être monté sur `/var/lib/postgresql/data` dans Coolify.
+Vérifier : Coolify → service PostgreSQL → onglet **Volumes** avant tout redéploiement infra.
+
+### Stratégie de backup
+
+| Mécanisme           | Comment                                                           | Fréquence    | Rétention            |
+| ------------------- | ----------------------------------------------------------------- | ------------ | -------------------- |
+| **Coolify Backups** | PostgreSQL → onglet Backups dans Coolify                          | Quotidien    | 7 jours min          |
+| **Cron VPS**        | `scripts/backup-db.sh` — dump `.sql.gz` via `docker exec pg_dump` | Quotidien 3h | 7 jours glissants    |
+| **Dump manuel**     | Avant toute migration destructive ou opération risquée            | Ad hoc       | Archivé manuellement |
+
+Installation du cron sur le VPS :
+
+```bash
+scp scripts/backup-db.sh root@37.27.222.18:/root/backup-db.sh
+ssh root@37.27.222.18 "chmod +x /root/backup-db.sh && \
+  crontab -l | { cat; echo '0 3 * * * /root/backup-db.sh >> /var/log/oyez-backup.log 2>&1'; } | crontab -"
+```
+
+Les fichiers uploadés (logos, photos portfolio) sont stockés **en DB** (table `UploadedFile`) — inclus dans le dump PostgreSQL automatiquement, pas de backup filesystem séparé nécessaire.
+
+### Synchro seed ↔ prod
+
+`prisma/seed.ts` est la **source de vérité** pour les données de référence (métiers, communes).
+
+- Le seed utilise `upsert` — safe à relancer en prod ou local sans risque de doublon.
+- Tout métier ou commune ajouté en prod via l'admin **doit être répercuté dans `seed.ts` dans les 24h**.
+- 13 métiers en seed : maçon, plombier, électricien, menuisier, peintre, couvreur, carreleur, chauffagiste, plaquiste, charpentier, paysagiste, ramoneur, terrassier.
+
+### Migrations
+
+- `prisma migrate deploy` appliqué automatiquement au build Coolify (jamais `--force-reset` sur prod).
+- Migrations dans `prisma/migrations/` — versionnées, rollback possible en revertant le fichier.
+- Toute migration destructive (drop colonne, rename) nécessite un dump manuel préalable.
 
 ---
 
@@ -263,22 +306,24 @@ Voir le dossier `docs/ADR/` pour le détail de chaque décision.
 
 ## API Routes principales
 
-| Méthode  | Route                       | Description                                           |
-| -------- | --------------------------- | ----------------------------------------------------- |
-| POST     | `/api/inscription`          | Inscription artisan public                            |
-| POST     | `/api/contact`              | Formulaire de contact fiche artisan                   |
-| POST     | `/api/besoins`              | Dépôt de besoin particulier (auth)                    |
-| POST     | `/api/upload`               | Upload photos chantier (besoin, contact)              |
-| POST     | `/api/upload/logo`          | Upload logo artisan → stockage DB → `/api/files/{id}` |
-| POST     | `/api/upload/portfolio`     | Upload photos portfolio artisan → stockage DB         |
-| GET      | `/api/files/[id]`           | Servir un fichier uploadé depuis la DB                |
-| GET/PUT  | `/api/mon-espace/profile`   | Lecture/mise à jour profil artisan connecté           |
-| DELETE   | `/api/mon-espace/account`   | Suppression de compte (RGPD, soft delete)             |
-| GET/POST | `/api/mon-espace/portfolio` | Gestion photos portfolio artisan                      |
-| GET/POST | `/api/admin/*`              | Back-office admin (protégé)                           |
-| GET/POST | `/api/messagerie/*`         | Messagerie artisan ↔ particulier                      |
-| POST     | `/api/auth/check-email`     | Vérifie si un email existe (flow connexion)           |
-| POST     | `/api/auth/register`        | Crée un compte artisan avec mot de passe              |
+| Méthode      | Route                       | Description                                           |
+| ------------ | --------------------------- | ----------------------------------------------------- |
+| POST         | `/api/inscription`          | Inscription artisan public                            |
+| POST         | `/api/contact`              | Formulaire de contact fiche artisan                   |
+| POST         | `/api/besoins`              | Dépôt de besoin particulier (auth)                    |
+| POST         | `/api/upload`               | Upload photos chantier (besoin, contact)              |
+| POST         | `/api/upload/logo`          | Upload logo artisan → stockage DB → `/api/files/{id}` |
+| POST         | `/api/upload/portfolio`     | Upload photos portfolio artisan → stockage DB         |
+| GET          | `/api/files/[id]`           | Servir un fichier uploadé depuis la DB                |
+| GET/PUT      | `/api/mon-espace/profile`   | Lecture/mise à jour profil artisan connecté           |
+| DELETE       | `/api/mon-espace/account`   | Suppression de compte (RGPD, soft delete)             |
+| GET/POST     | `/api/mon-espace/portfolio` | Gestion photos portfolio artisan                      |
+| GET/POST     | `/api/admin/*`              | Back-office admin (protégé)                           |
+| GET/POST     | `/api/admin/metiers`        | Liste métiers avec compteur artisans / création       |
+| PATCH/DELETE | `/api/admin/metiers/[id]`   | Renommage d'un métier / suppression si non utilisé    |
+| GET/POST     | `/api/messagerie/*`         | Messagerie artisan ↔ particulier                      |
+| POST         | `/api/auth/check-email`     | Vérifie si un email existe (flow connexion)           |
+| POST         | `/api/auth/register`        | Crée un compte artisan avec mot de passe              |
 
 ### Stockage fichiers (uploads)
 

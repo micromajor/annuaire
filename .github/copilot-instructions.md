@@ -125,6 +125,40 @@ Tu ne te contentes pas d'exécuter : tu questionnes, proposes des alternatives, 
 - Aucun script temporaire ne reste dans le repo après sa phase d'utilisation.
 - Un script ponctuel est identifiable par son emplacement dans `scripts/tmp/` — ce dossier est vidé à chaque clôture d'étape.
 
+---
+
+## Protection des données prod
+
+> Ce projet est en production avec de vrais utilisateurs depuis février 2026. La perte de DB est un incident critique.
+
+### Règle de synchro seed ↔ prod
+
+- `prisma/seed.ts` est la **source de vérité** pour toutes les données de référence (métiers, communes).
+- Tout métier ou commune ajouté en prod via l'admin **doit être ajouté dans `seed.ts` dans les 24h**.
+- Le seed utilise `upsert` — il est safe à relancer en prod ou en local à tout moment pour rattraper une désynchro.
+- Ne jamais créer de données de référence uniquement en DB sans les répercuter dans `seed.ts`.
+
+### Stratégie de backup
+
+- **Backup automatique** configuré dans Coolify (PostgreSQL → onglet Backups, rétention 7 jours minimum).
+- **Backup nuitier cron** sur le VPS via `scripts/backup-db.sh` (dump `.sql.gz`, 3h du matin, 7 jours de rétention glissante).
+- Avant toute opération risquée (migration destructive, manipulation directe DB), effectuer un dump manuel.
+- Les fichiers uploadés (logos, photos) sont stockés **en DB** (table `UploadedFile`) — inclus dans le dump PostgreSQL, pas de backup filesystem séparé nécessaire.
+
+### Volumes Docker
+
+- Le volume PostgreSQL Coolify **doit** être monté sur `/var/lib/postgresql/data`.
+- Vérifier dans Coolify → service PostgreSQL → onglet Volumes avant tout redéploiement infra.
+- Un conteneur sans volume persistant perd toutes ses données au redémarrage.
+
+### Migrations
+
+- Toujours utiliser `prisma migrate deploy` (jamais `--force-reset` sur prod).
+- Les migrations sont versionnées dans `prisma/migrations/` et s'appliquent automatiquement au build Coolify.
+- Une migration destructive (drop colonne, rename) nécessite un backup préalable.
+
+---
+
 ## Règles techniques issues de l'expérience projet
 
 - **Segments dynamiques Next.js** : impossible d'avoir deux noms différents au même niveau d'arborescence (`[id]` et `[metier]` côte à côte → erreur runtime). Toujours vérifier les conflits de routing avant de créer un fichier `page.tsx`.
@@ -135,6 +169,10 @@ Tu ne te contentes pas d'exécuter : tu questionnes, proposes des alternatives, 
 - **`generateStaticParams` en ISR** : retourner `[]` pour éviter l'accès DB au build Docker. `dynamicParams = true` + `revalidate` suffisent pour l'ISR.
 - **`artisans/[metier]/[commune]`** : passer en `force-dynamic` dès qu'on a besoin de personnalisation par rôle (sinon la page est mise en cache sans session).
 - **Satori (next/og) — `<ImageResponse>`** : (1) Ne supporte pas `inset`, `boxSizing`, `overflow`, `zIndex`, `boxShadow`. (2) JSX : toujours `{cond ? (<...>) : null}` — jamais `{cond && (<...>)}` (valeur falsy crashe). (3) Images `<img>` : **PNG et JPEG uniquement** — WebP/SVG/GIF crashent avec `u2 is not iterable`. (4) `fonts: []` **crashe** ("No fonts are loaded") — toujours fournir au moins une police. (5) Utiliser `await image.arrayBuffer()` pour forcer le rendu synchrone et attraper les erreurs dans le `try/catch`.
+- **Données de référence (métiers, communes)** : DB-driven mais seedées. Toute donnée ajoutée en prod via l'admin doit être répercutée dans `prisma/seed.ts` (upsert par slug). Ne jamais laisser de divergence durable entre la DB prod et le seed.
+- **Admin métiers** : API REST (`/api/admin/metiers` GET/POST, `/api/admin/metiers/[id]` PATCH/DELETE). Slug auto-généré à la création (normalize NFD + kebab-case), non modifiable ensuite. Suppression bloquée si des artisans sont associés (`_count.artisans > 0`).
+- **CookieConsent hydration** : ne jamais initialiser un `useState` avec `localStorage` directement (exécuté côté serveur → mismatch SSR/client). Toujours `useState(null)` + `useEffect` pour lire `localStorage`. L'ESLint rule `react-hooks/set-state-in-effect` nécessite un `// eslint-disable-next-line` au-dessus du `setState` dans l'effet.
+- **`res.json()` sur réponse vide** : certaines routes API renvoient un body vide sur erreur non gérée. Toujours `const text = await res.text(); const data = text ? JSON.parse(text) : {}` côté client pour éviter un crash.
 
 ---
 
