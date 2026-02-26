@@ -1,0 +1,173 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "Oyez Artisans !" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - navigation [ref=e5]:
+        - link "Messages" [ref=e71] [cursor=pointer]:
+          - /url: /messages
+          - img [ref=e72]
+        - button "Se déconnecter" [ref=e7]:
+          - img [ref=e8]
+    - main [ref=e11]:
+      - generic [ref=e12]:
+        - heading "Bonjour, Test 👋" [level=1] [ref=e13]
+        - generic [ref=e14]: ⚙️ Profil à compléter
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - heading "✏️ Modifier ma fiche" [level=2] [ref=e19]
+            - button "Annuler" [ref=e74]
+          - generic [ref=e75]:
+            - group "Logo / Photo" [ref=e76]:
+              - generic [ref=e77]: Logo / Photo
+              - generic [ref=e78]:
+                - generic [ref=e80]: 🔨
+                - generic [ref=e81]:
+                  - generic [ref=e82] [cursor=pointer]: 📁 Choisir une image
+                  - button "📁 Choisir une image" [ref=e83]
+                  - paragraph [ref=e84]: PNG, JPG, WebP ou SVG · max 2 Mo
+            - group "Identité" [ref=e85]:
+              - generic [ref=e86]: Identité
+              - generic [ref=e87]:
+                - generic [ref=e88]:
+                  - generic [ref=e89]: Prénom \*
+                  - textbox [ref=e90]: Test
+                - generic [ref=e91]:
+                  - generic [ref=e92]: Nom \*
+                  - textbox [ref=e93]: Artisan
+                - generic [ref=e94]:
+                  - generic [ref=e95]: Raison sociale (optionnel)
+                  - 'textbox "Ex : Plomberie Dupont SARL" [ref=e96]'
+            - group "Contact" [ref=e97]:
+              - generic [ref=e98]: Contact
+              - generic [ref=e99]:
+                - generic [ref=e100]:
+                  - generic [ref=e101]: Téléphone
+                  - textbox "06 12 34 56 78" [ref=e102]
+                - generic [ref=e103]:
+                  - generic [ref=e104]: Site web
+                  - textbox "https://..." [ref=e105]
+                - generic [ref=e106]:
+                  - generic [ref=e107]: SIRET (obtenir le badge ✓ Pro)
+                  - textbox "14 chiffres" [ref=e108]
+            - group "Phrase d'accroche" [ref=e109]:
+              - generic [ref=e110]: Phrase d'accroche
+              - textbox "Maçonnerie soignée, devis gratuit sous 48h…" [ref=e111]
+              - paragraph [ref=e112]: 0/200
+            - group "Présentation" [ref=e113]:
+              - generic [ref=e114]: Présentation
+              - textbox "Décrivez votre activité, vos spécialités, votre expérience..." [ref=e115]
+              - paragraph [ref=e116]: 0/2000
+            - group "Métiers \*" [ref=e117]:
+              - generic [ref=e118]: Métiers \*
+              - generic [ref=e119]:
+                - button "Carreleur" [ref=e120]
+                - button "Charpentier" [ref=e121]
+                - button "Chauffagiste" [ref=e122]
+                - button "Couvreur" [ref=e123]
+                - button "Électricien" [ref=e124]
+                - button "Maçon" [ref=e125]
+                - button "Menuisier" [ref=e126]
+                - button "Paysagiste" [ref=e127]
+                - button "Peintre" [ref=e128]
+                - button "Plaquiste" [ref=e129]
+                - button "Plombier" [ref=e130]
+                - button "Ramoneur" [ref=e131]
+                - button "Terrassier" [ref=e132]
+                - button "Autre…" [ref=e133]
+              - paragraph [ref=e382]: Sélectionnez au moins un métier (ou précisez le vôtre)
+            - group "Zones d'intervention \*" [ref=e134]:
+              - generic [ref=e135]: Zones d'intervention \*
+              - generic [ref=e136]:
+                - generic [ref=e137]:
+                  - generic [ref=e138]: Sélectionnée
+                  - generic [ref=e140]: Cliquer pour ajouter
+                  - generic [ref=e142]: 1 commune sélectionnée
+                - generic [ref=e144]:
+                  - generic:
+                    - generic:
+                      - img
+                  - generic:
+                    - generic [ref=e352]:
+                      - button "Zoom in" [ref=e353] [cursor=pointer]: +
+                      - button "Zoom out" [ref=e354] [cursor=pointer]: −
+                    - generic [ref=e355]:
+                      - link "Leaflet" [ref=e356] [cursor=pointer]:
+                        - /url: https://leafletjs.com
+                        - img [ref=e357]
+                        - text: Leaflet
+                      - text: "| ©"
+                      - link "OpenStreetMap" [ref=e361] [cursor=pointer]:
+                        - /url: https://www.openstreetmap.org/copyright
+                - generic [ref=e799]:
+                  - text: Sucé-sur-Erdre
+                  - button "×" [ref=e800]
+              - paragraph [ref=e590]: Sélectionnez au moins une zone d'intervention
+            - generic [ref=e362]:
+              - button "💾 Enregistrer ma fiche" [ref=e363] [cursor=pointer]
+              - paragraph [ref=e364]: "\* Champs obligatoires"
+        - generic [ref=e21]:
+          - heading "Ma fiche" [level=2] [ref=e23]
+          - generic [ref=e24]:
+            - generic [ref=e25]: 🔨
+            - paragraph [ref=e27]: Test Artisan
+          - generic [ref=e28]:
+            - term [ref=e29]: Métiers
+            - definition [ref=e30]: —
+          - generic [ref=e31]:
+            - term [ref=e32]: Zones
+            - definition [ref=e33]: —
+        - generic [ref=e34]:
+          - heading "Avis clients" [level=2] [ref=e35]
+          - paragraph [ref=e36]: Aucun avis validé pour l'instant.
+        - link "💬 Messages clients Aucun nouveau message" [ref=e37] [cursor=pointer]:
+          - /url: /messages
+          - generic [ref=e38]:
+            - heading "💬 Messages clients" [level=2] [ref=e39]
+            - paragraph [ref=e40]: Aucun nouveau message
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - heading "📷 Photos de chantier" [level=2] [ref=e43]
+            - generic [ref=e44]: 0 / 6
+          - generic [ref=e45] [cursor=pointer]:
+            - generic [ref=e46]: 🖼
+            - generic [ref=e47]: Ajouter des photos
+            - generic [ref=e48]: JPG, PNG, WEBP • max 5 Mo par photo • 6 emplacements restants
+            - button "🖼 Ajouter des photos JPG, PNG, WEBP • max 5 Mo par photo • 6 emplacements restants" [ref=e49]
+        - generic [ref=e50]:
+          - heading "⚠️ Zone dangereuse" [level=2] [ref=e51]
+          - paragraph [ref=e52]:
+            - text: La suppression est
+            - strong [ref=e53]: définitive et irréversible
+            - text: ": vos données, fiche, photos et historique sont effacés."
+          - button "Supprimer mon compte" [ref=e54]
+        - generic [ref=e55]:
+          - heading "Dernières demandes reçues" [level=2] [ref=e56]
+          - paragraph [ref=e57]: Aucune demande pour l'instant.
+  - button "Envoyer un retour" [ref=e58]:
+    - generic [ref=e59]: 💬
+    - generic [ref=e60]: Votre avis
+  - generic [ref=e65] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e66]:
+      - img [ref=e67]
+    - generic [ref=e365]:
+      - button "Open issues overlay" [ref=e366]:
+        - generic [ref=e367]:
+          - generic [ref=e368]: "1"
+          - generic [ref=e369]: "2"
+        - generic [ref=e370]:
+          - text: Issue
+          - generic [ref=e371]: s
+      - button "Collapse issues badge" [ref=e372]:
+        - img [ref=e373]
+  - alert [ref=e70]
+  - dialog "Gestion des cookies" [ref=e375]:
+    - generic [ref=e376]:
+      - paragraph [ref=e377]:
+        - text: 🍪 Ce site utilise Google Analytics pour mesurer son audience. Ces cookies ne sont déposés qu'avec votre accord.
+        - link "En savoir plus" [ref=e378] [cursor=pointer]:
+          - /url: /politique-confidentialite
+      - generic [ref=e379]:
+        - button "Refuser" [ref=e380]
+        - button "Accepter" [ref=e381]

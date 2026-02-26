@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import SiretVerifBadge from "@/components/features/SiretVerifBadge";
@@ -63,6 +63,17 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
   const [logoLoading, setLogoLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [showMetierLibre, setShowMetierLibre] = useState(!!artisan.metierLibre);
+
+  // Efface l'erreur de zone dès qu'une commune est sélectionnée
+  useEffect(() => {
+    if (form.communePairs.length > 0) {
+      setErrors((prev) => {
+        const n = { ...prev };
+        delete n.communePairs;
+        return n;
+      });
+    }
+  }, [form.communePairs]);
 
   async function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -449,7 +460,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
               </div>
             )}
 
-            {errors.metierSlugs && (
+            {errors.metierSlugs && form.metierSlugs.length === 0 && !form.metierLibre && (
               <p className="mt-1 text-xs text-[#ff6b6b]">{errors.metierSlugs[0]}</p>
             )}
           </fieldset>
@@ -461,9 +472,18 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
             </legend>
             <MapZoneSelector
               selected={form.communePairs.map((p) => p.nom)}
-              onChange={(pairs) => setForm((prev) => ({ ...prev, communePairs: pairs }))}
+              onChange={(pairs) => {
+                setForm((prev) => ({ ...prev, communePairs: pairs }));
+                if (pairs.length > 0) {
+                  setErrors((prev) => {
+                    const n = { ...prev };
+                    delete n.communePairs;
+                    return n;
+                  });
+                }
+              }}
             />
-            {errors.communePairs && (
+            {errors.communePairs && form.communePairs.length === 0 && (
               <p className="mt-1 text-xs text-[#ff6b6b]">{errors.communePairs[0]}</p>
             )}
           </fieldset>
