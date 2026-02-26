@@ -381,7 +381,6 @@ export default function AdminArtisanRow({
                 label: string;
                 before?: string | null;
                 after?: string | null;
-                forceShow?: boolean;
               };
               const diffs: DiffItem[] = [
                 {
@@ -399,17 +398,13 @@ export default function AdminArtisanRow({
                   label: "Métiers",
                   before: artisan.metiers.map((m) => m.metier.label).join(", "),
                   after: draft.metierLabels?.join(", "),
-                  forceShow: !!draft.metierLabels,
                 },
                 {
                   label: "Zones",
                   before: artisan.communes.map((c) => c.commune.nom).join(", "),
                   after: draft.communeLabels?.join(", "),
-                  forceShow: !!draft.communeLabels,
                 },
-              ].filter(
-                (d) => !!d.forceShow || (d.after !== undefined && d.before !== d.after)
-              ) as DiffItem[];
+              ].filter((d) => d.after !== undefined && d.before !== d.after) as DiffItem[];
 
               if (diffs.length === 0) return null;
               return (
