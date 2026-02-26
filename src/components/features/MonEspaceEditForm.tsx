@@ -144,7 +144,8 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
       body: JSON.stringify(form),
     });
 
-    const data = await res.json();
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
     setLoading(false);
 
     if (!res.ok) {

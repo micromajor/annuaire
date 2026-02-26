@@ -9,21 +9,19 @@ const STORAGE_KEY = "cookie_consent";
 type ConsentState = "accepted" | "refused" | null;
 
 export default function CookieConsent({ gaId }: { gaId: string }) {
-  // Lazy init : lit localStorage côté client dès le premier rendu (composant client uniquement)
-  const [consent, setConsent] = useState<ConsentState>(() => {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem(STORAGE_KEY) as ConsentState;
-  });
+  const [consent, setConsent] = useState<ConsentState>(null);
   const [visible, setVisible] = useState(false);
 
-  // Affiche la bannière uniquement si aucun choix n'a encore été fait
+  // Lecture après montage pour éviter le mismatch SSR/client (localStorage = système externe)
   useEffect(() => {
-    if (consent === null) {
-      // Petit délai pour éviter le flash au chargement initial
+    const stored = localStorage.getItem(STORAGE_KEY) as ConsentState;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setConsent(stored);
+    if (!stored) {
       const t = setTimeout(() => setVisible(true), 500);
       return () => clearTimeout(t);
     }
-  }, [consent]);
+  }, []);
 
   function handleAccept() {
     localStorage.setItem(STORAGE_KEY, "accepted");
