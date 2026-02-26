@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "Politique de confidentialitÃ©",
+  title: "Politique de confidentialité",
   description:
-    "Politique de confidentialitÃ© d'Oyez Artisans ! â€” comment nous protÃ©geons vos donnÃ©es personnelles.",
+    "Politique de confidentialité d'Oyez Artisans ! — comment nous protégeons vos données personnelles.",
   robots: { index: false },
 };
 
@@ -32,17 +32,17 @@ export default async function PolitiqueConfidentialitePage() {
           className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-8"
           style={{ boxShadow: "6px 6px 0 #1a1a1a" }}
         >
-          <h1 className="bd-titre mb-2 text-3xl text-[#1a1a2e]">Politique de confidentialitÃ©</h1>
-          <p className="mb-8 text-xs text-gray-400">DerniÃ¨re mise Ã  jour&nbsp;: fÃ©vrier 2026</p>
+          <h1 className="bd-titre mb-2 text-3xl text-[#1a1a2e]">
+            Politique de confidentialit&eacute;
+          </h1>
+          <p className="mb-8 text-xs text-gray-400">
+            Derni&egrave;re mise &agrave; jour&nbsp;: f&eacute;vrier 2026
+          </p>
 
           <section className="mb-6">
             <h2 className="mb-2 text-lg font-black text-[#1a1a2e]">1. Responsable du traitement</h2>
             <p className="text-sm leading-relaxed text-gray-700">
-              Oyez Artisans&nbsp;!{" "}
-              <span className="rounded bg-orange-100 px-1 text-xs font-semibold text-orange-600">
-                [Forme juridique + NOM PrÃ©nom â€” Ã  complÃ©ter]
-              </span>
-              {" â€” "}Contact&nbsp;:{" "}
+              Oyez Artisans&nbsp;! &mdash; Contact&nbsp;:{" "}
               <a
                 href="mailto:contact@oyezartisans.fr"
                 className="font-semibold text-[#1a1a2e] underline"
@@ -54,7 +54,7 @@ export default async function PolitiqueConfidentialitePage() {
 
           <section className="mb-6">
             <h2 className="mb-2 text-lg font-black text-[#1a1a2e]">
-              2. DonnÃ©es collectÃ©es et finalitÃ©s
+              2. Donn&eacute;es collect&eacute;es et finalit&eacute;s
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
@@ -64,13 +64,13 @@ export default async function PolitiqueConfidentialitePage() {
                       Qui
                     </th>
                     <th className="border border-gray-200 p-2 text-left font-black text-[#1a1a2e]">
-                      DonnÃ©es
+                      Donn&eacute;es
                     </th>
                     <th className="border border-gray-200 p-2 text-left font-black text-[#1a1a2e]">
-                      FinalitÃ©
+                      Finalit&eacute;
                     </th>
                     <th className="border border-gray-200 p-2 text-left font-black text-[#1a1a2e]">
-                      Base lÃ©gale RGPD
+                      Base l&eacute;gale RGPD
                     </th>
                   </tr>
                 </thead>
@@ -78,13 +78,13 @@ export default async function PolitiqueConfidentialitePage() {
                   <tr>
                     <td className="border border-gray-200 p-2 font-semibold">Artisan</td>
                     <td className="border border-gray-200 p-2">
-                      Nom, prÃ©nom, email, tÃ©l., SIRET, description, photos, logo
+                      Nom, pr&eacute;nom, email, t&eacute;l., SIRET, description, photos, logo
                     </td>
                     <td className="border border-gray-200 p-2">
                       Affichage fiche publique, mise en relation
                     </td>
                     <td className="border border-gray-200 p-2">
-                      Art.&nbsp;6.1.b â€” ExÃ©cution du contrat (CGU)
+                      Art.&nbsp;6.1.b &mdash; Ex&eacute;cution du contrat (CGU)
                     </td>
                   </tr>
                   <tr className="bg-gray-50">
@@ -92,22 +92,22 @@ export default async function PolitiqueConfidentialitePage() {
                       Particulier (contact)
                     </td>
                     <td className="border border-gray-200 p-2">
-                      Nom, prÃ©nom, email, tÃ©l., message, photos chantier
+                      Nom, pr&eacute;nom, email, t&eacute;l., message, photos chantier
                     </td>
                     <td className="border border-gray-200 p-2">
-                      Transmission Ã  l&apos;artisan concernÃ© uniquement
+                      Transmission &agrave; l&apos;artisan concern&eacute; uniquement
                     </td>
                     <td className="border border-gray-200 p-2">
-                      Art.&nbsp;6.1.a â€” Consentement explicite
+                      Art.&nbsp;6.1.a &mdash; Consentement explicite
                     </td>
                   </tr>
                   <tr>
                     <td className="border border-gray-200 p-2 font-semibold">Visiteur</td>
                     <td className="border border-gray-200 p-2">
-                      Aucune donnÃ©e sans action explicite
+                      Aucune donn&eacute;e sans action explicite
                     </td>
-                    <td className="border border-gray-200 p-2">â€”</td>
-                    <td className="border border-gray-200 p-2">â€”</td>
+                    <td className="border border-gray-200 p-2">&mdash;</td>
+                    <td className="border border-gray-200 p-2">&mdash;</td>
                   </tr>
                 </tbody>
               </table>
@@ -115,16 +115,18 @@ export default async function PolitiqueConfidentialitePage() {
           </section>
 
           <section className="mb-6">
-            <h2 className="mb-2 text-lg font-black text-[#1a1a2e]">3. DurÃ©e de conservation</h2>
+            <h2 className="mb-2 text-lg font-black text-[#1a1a2e]">
+              3. Dur&eacute;e de conservation
+            </h2>
             <ul className="list-disc space-y-1 pl-5 text-sm leading-relaxed text-gray-700">
               <li>
-                DonnÃ©es artisan&nbsp;: conservÃ©es tant que le compte est actif, puis 3&nbsp;ans
-                aprÃ¨s suppression (obligations lÃ©gales).
+                Donn&eacute;es artisan&nbsp;: conserv&eacute;es tant que le compte est actif, puis
+                3&nbsp;ans apr&egrave;s suppression (obligations l&eacute;gales).
               </li>
-              <li>Demandes de contact&nbsp;: 2&nbsp;ans Ã  compter de la demande.</li>
+              <li>Demandes de contact&nbsp;: 2&nbsp;ans &agrave; compter de la demande.</li>
               <li>
-                Comptes inactifs&nbsp;: susceptibles d&apos;Ãªtre supprimÃ©s aprÃ¨s 3&nbsp;ans sans
-                connexion, aprÃ¨s notification prÃ©alable.
+                Comptes inactifs&nbsp;: susceptibles d&apos;&ecirc;tre supprim&eacute;s apr&egrave;s
+                3&nbsp;ans sans connexion, apr&egrave;s notification pr&eacute;alable.
               </li>
             </ul>
           </section>
@@ -134,9 +136,9 @@ export default async function PolitiqueConfidentialitePage() {
               4. Sous-traitants et destinataires
             </h2>
             <p className="mb-3 text-sm text-gray-700">
-              Vos donnÃ©es ne sont jamais vendues ni cÃ©dÃ©es Ã  des tiers Ã  des fins commerciales.
-              Elles peuvent Ãªtre transmises aux prestataires suivants dans le strict cadre de leur
-              mission&nbsp;:
+              Vos donn&eacute;es ne sont jamais vendues ni c&eacute;d&eacute;es &agrave; des tiers
+              &agrave; des fins commerciales. Elles peuvent &ecirc;tre transmises aux prestataires
+              suivants dans le strict cadre de leur mission&nbsp;:
             </p>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
@@ -146,7 +148,7 @@ export default async function PolitiqueConfidentialitePage() {
                       Prestataire
                     </th>
                     <th className="border border-gray-200 p-2 text-left font-black text-[#1a1a2e]">
-                      RÃ´le
+                      R&ocirc;le
                     </th>
                     <th className="border border-gray-200 p-2 text-left font-black text-[#1a1a2e]">
                       Pays
@@ -162,9 +164,11 @@ export default async function PolitiqueConfidentialitePage() {
                       Hetzner Online GmbH
                     </td>
                     <td className="border border-gray-200 p-2">
-                      HÃ©bergement serveur et base de donnÃ©es
+                      H&eacute;bergement serveur et base de donn&eacute;es
                     </td>
-                    <td className="border border-gray-200 p-2">Allemagne ðŸ‡©ðŸ‡ª (UE)</td>
+                    <td className="border border-gray-200 p-2">
+                      Allemagne &#127465;&#127466; (UE)
+                    </td>
                     <td className="border border-gray-200 p-2">RGPD natif</td>
                   </tr>
                   <tr className="bg-gray-50">
@@ -172,7 +176,22 @@ export default async function PolitiqueConfidentialitePage() {
                     <td className="border border-gray-200 p-2">
                       Envoi d&apos;emails transactionnels (confirmations de demande)
                     </td>
-                    <td className="border border-gray-200 p-2">Ã‰tats-Unis ðŸ‡ºðŸ‡¸</td>
+                    <td className="border border-gray-200 p-2">
+                      &Eacute;tats-Unis &#127482;&#127480;
+                    </td>
+                    <td className="border border-gray-200 p-2">
+                      Clauses contractuelles types UE (SCC)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-200 p-2 font-semibold">Google LLC</td>
+                    <td className="border border-gray-200 p-2">
+                      Mesure d&apos;audience (Google Analytics 4) &mdash; uniquement apr&egrave;s
+                      consentement
+                    </td>
+                    <td className="border border-gray-200 p-2">
+                      &Eacute;tats-Unis &#127482;&#127480;
+                    </td>
                     <td className="border border-gray-200 p-2">
                       Clauses contractuelles types UE (SCC)
                     </td>
@@ -185,33 +204,35 @@ export default async function PolitiqueConfidentialitePage() {
           <section className="mb-6">
             <h2 className="mb-2 text-lg font-black text-[#1a1a2e]">5. Vos droits (RGPD)</h2>
             <p className="mb-2 text-sm text-gray-700">
-              ConformÃ©ment au RGPD, vous disposez des droits suivants&nbsp;:
+              Conform&eacute;ment au RGPD, vous disposez des droits suivants&nbsp;:
             </p>
             <ul className="mb-4 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-gray-700">
               <li>
-                <strong>AccÃ¨s</strong>&nbsp;â€” obtenir une copie de vos donnÃ©es.
+                <strong>Acc&egrave;s</strong>&nbsp;&mdash; obtenir une copie de vos donn&eacute;es.
               </li>
               <li>
-                <strong>Rectification</strong>&nbsp;â€” corriger des donnÃ©es inexactes depuis{" "}
+                <strong>Rectification</strong>&nbsp;&mdash; corriger des donn&eacute;es inexactes
+                depuis{" "}
                 <Link href="/mon-espace" className="font-semibold text-[#1a1a2e] underline">
                   Mon espace
                 </Link>
                 .
               </li>
               <li>
-                <strong>Effacement (droit Ã  l&apos;oubli)</strong>&nbsp;â€” supprimer votre compte
-                directement depuis{" "}
+                <strong>Effacement (droit &agrave; l&apos;oubli)</strong>&nbsp;&mdash; supprimer
+                votre compte directement depuis{" "}
                 <Link href="/mon-espace" className="font-semibold text-[#1a1a2e] underline">
                   Mon espace
                 </Link>{" "}
                 (section &laquo;&nbsp;Zone dangereuse&nbsp;&raquo;) ou par email.
               </li>
               <li>
-                <strong>PortabilitÃ©</strong>&nbsp;â€” recevoir vos donnÃ©es dans un format lisible.
+                <strong>Portabilit&eacute;</strong>&nbsp;&mdash; recevoir vos donn&eacute;es dans un
+                format lisible.
               </li>
               <li>
-                <strong>Opposition &amp; limitation</strong>&nbsp;â€” vous opposer Ã  certains
-                traitements.
+                <strong>Opposition &amp; limitation</strong>&nbsp;&mdash; vous opposer &agrave;
+                certains traitements.
               </li>
             </ul>
             <p className="text-sm text-gray-700">
@@ -222,24 +243,24 @@ export default async function PolitiqueConfidentialitePage() {
               >
                 contact@oyezartisans.fr
               </a>
-              . RÃ©ponse sous 30&nbsp;jours.
+              . R&eacute;ponse sous 30&nbsp;jours.
             </p>
           </section>
 
           <section className="mb-6">
             <h2 className="mb-2 text-lg font-black text-[#1a1a2e]">
-              6. Droit de rÃ©clamation (CNIL)
+              6. Droit de r&eacute;clamation (CNIL)
             </h2>
             <p className="text-sm leading-relaxed text-gray-700">
-              Si vous estimez que vos droits ne sont pas respectÃ©s, vous pouvez introduire une
-              rÃ©clamation auprÃ¨s de la{" "}
+              Si vous estimez que vos droits ne sont pas respect&eacute;s, vous pouvez introduire
+              une r&eacute;clamation aupr&egrave;s de la{" "}
               <a
                 href="https://www.cnil.fr/fr/plaintes"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-semibold text-[#1a1a2e] underline"
               >
-                CNIL â€” Commission Nationale de l&apos;Informatique et des LibertÃ©s
+                CNIL &mdash; Commission Nationale de l&apos;Informatique et des Libert&eacute;s
               </a>
               .
             </p>
@@ -247,11 +268,18 @@ export default async function PolitiqueConfidentialitePage() {
 
           <section>
             <h2 className="mb-2 text-lg font-black text-[#1a1a2e]">7. Cookies</h2>
+            <p className="mb-2 text-sm leading-relaxed text-gray-700">
+              Ce site utilise un <strong>cookie de session s&eacute;curis&eacute;</strong>{" "}
+              (httpOnly, Secure, SameSite=Lax) strictement n&eacute;cessaire &agrave;
+              l&apos;authentification &mdash; aucun consentement requis pour celui-ci.
+            </p>
             <p className="text-sm leading-relaxed text-gray-700">
-              Ce site utilise <strong>uniquement un cookie de session sÃ©curisÃ©</strong> (httpOnly,
-              Secure, SameSite=Lax) pour l&apos;authentification. Aucun cookie publicitaire, aucun
-              tracker tiers, aucun outil d&apos;analyse externe n&apos;est utilisÃ©. Aucun bandeau
-              de consentement cookie n&apos;est requis.
+              En option, avec votre accord explicite via le bandeau affich&eacute; lors de votre
+              premi&egrave;re visite, nous utilisons <strong>Google Analytics 4</strong> pour
+              mesurer l&apos;audience du site (pages vues, provenance des visites). Vous pouvez
+              refuser ou retirer votre consentement &agrave; tout moment en vidant le localStorage
+              de votre navigateur. Aucun cookie publicitaire ni aucun tracker de remarketing
+              n&apos;est utilis&eacute;.
             </p>
           </section>
         </div>
