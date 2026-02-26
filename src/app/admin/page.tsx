@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import AdminArtisanRow from "@/components/features/AdminArtisanRow";
 import AdminAvisRow from "@/components/features/AdminAvisRow";
 import AdminLogoutButton from "@/components/features/AdminLogoutButton";
+import AdminMetiersPanel from "@/components/features/AdminMetiersPanel";
 import AdminUserRow from "@/components/features/AdminUserRow";
 import type { Metadata } from "next";
 import { Prisma } from "@prisma/client";
@@ -26,6 +27,7 @@ export default async function AdminPage() {
     besoinsNouveau,
     tousLesUtilisateurs,
     feedbacksNouveau,
+    tousLesMetiers,
   ] = await Promise.all([
     prisma.artisan.findMany({
       where: {
@@ -89,6 +91,10 @@ export default async function AdminPage() {
       where: { status: "NOUVEAU" },
       orderBy: { createdAt: "desc" },
     }),
+    prisma.metier.findMany({
+      orderBy: { label: "asc" },
+      include: { _count: { select: { artisans: true } } },
+    }),
   ]);
 
   const totalPending =
@@ -121,6 +127,13 @@ export default async function AdminPage() {
       label: "Retours beta",
       count: feedbacksNouveau.length,
       color: "#f9a8d4",
+    },
+    {
+      id: "metiers",
+      emoji: "🔨",
+      label: "Métiers",
+      count: tousLesMetiers.length,
+      color: "#ffd93d",
     },
     {
       id: "utilisateurs",
@@ -397,6 +410,18 @@ export default async function AdminPage() {
                 ))}
               </div>
             )}
+          </section>
+
+          {/* ── Section : Métiers ── */}
+          <section id="metiers" className="mb-10 scroll-mt-20">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="h-8 w-1.5 rounded-full bg-[#ffd93d]" />
+              <h2 className="bd-titre text-2xl text-[#1a1a2e]">Métiers</h2>
+              <span className="rounded-full border-2 border-[#1a1a1a] bg-[#ffd93d] px-3 py-0.5 text-sm font-bold">
+                {tousLesMetiers.length}
+              </span>
+            </div>
+            <AdminMetiersPanel initialMetiers={tousLesMetiers} />
           </section>
 
           {/* ── Section : Utilisateurs ── */}
