@@ -97,11 +97,35 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
     return arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
   }
 
+  function clientValidate(): Record<string, string[]> {
+    const errs: Record<string, string[]> = {};
+    if (!form.prenom.trim()) errs.prenom = ["Prénom requis"];
+    if (!form.nom.trim()) errs.nom = ["Nom requis"];
+    if (form.metierSlugs.length === 0 && !form.metierLibre.trim())
+      errs.metierSlugs = ["Sélectionnez au moins un métier (ou précisez le vôtre)"];
+    if (form.communePairs.length === 0)
+      errs.communePairs = ["Sélectionnez au moins une zone d'intervention"];
+    return errs;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setSuccess(false);
+
+    // Validation client avant envoi
+    const clientErrors = clientValidate();
+    if (Object.keys(clientErrors).length > 0) {
+      setErrors(clientErrors);
+      // Scroll vers le premier champ en erreur
+      const firstKey = Object.keys(clientErrors)[0];
+      document
+        .getElementById(`field-${firstKey}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
     setLoading(true);
     setErrors({});
-    setSuccess(false);
 
     const res = await fetch("/api/mon-espace/profile", {
       method: "PUT",
@@ -222,7 +246,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
               Identité
             </legend>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
+              <div id="field-prenom">
                 <label className="mb-1 block text-sm font-bold text-[#1a1a2e]">
                   Prénom <span className="text-[#ff6b6b]">*</span>
                 </label>
@@ -231,12 +255,12 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
                   value={form.prenom}
                   onChange={(e) => setForm({ ...form, prenom: e.target.value })}
                   className="w-full rounded-xl border-3 border-[#1a1a1a] px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-[#6bcb77]"
-                  style={{ border: "3px solid #1a1a1a" }}
+                  style={{ border: `3px solid ${errors.prenom ? "#ff6b6b" : "#1a1a1a"}` }}
                   required
                 />
                 {errors.prenom && <p className="mt-1 text-xs text-[#ff6b6b]">{errors.prenom[0]}</p>}
               </div>
-              <div>
+              <div id="field-nom">
                 <label className="mb-1 block text-sm font-bold text-[#1a1a2e]">
                   Nom <span className="text-[#ff6b6b]">*</span>
                 </label>
@@ -245,7 +269,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
                   value={form.nom}
                   onChange={(e) => setForm({ ...form, nom: e.target.value })}
                   className="w-full rounded-xl border-3 border-[#1a1a1a] px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-[#6bcb77]"
-                  style={{ border: "3px solid #1a1a1a" }}
+                  style={{ border: `3px solid ${errors.nom ? "#ff6b6b" : "#1a1a1a"}` }}
                   required
                 />
                 {errors.nom && <p className="mt-1 text-xs text-[#ff6b6b]">{errors.nom[0]}</p>}
@@ -357,7 +381,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Métiers */}
-          <fieldset>
+          <fieldset id="field-metierSlugs">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Métiers <span className="text-[#ff6b6b]">*</span>
             </legend>
@@ -368,9 +392,14 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
                   <button
                     key={m.slug}
                     type="button"
-                    onClick={() =>
-                      setForm({ ...form, metierSlugs: toggleMulti(form.metierSlugs, m.slug) })
-                    }
+                    onClick={() => {
+                      setForm({ ...form, metierSlugs: toggleMulti(form.metierSlugs, m.slug) });
+                      setErrors((prev) => {
+                        const n = { ...prev };
+                        delete n.metierSlugs;
+                        return n;
+                      });
+                    }}
                     className="rounded-full px-4 py-1.5 text-sm font-bold transition-all"
                     style={{
                       border: "3px solid #1a1a1a",
@@ -426,7 +455,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Communes */}
-          <fieldset>
+          <fieldset id="field-communePairs">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Zones d&apos;intervention <span className="text-[#ff6b6b]">*</span>
             </legend>
@@ -447,7 +476,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           )}
 
           {/* Actions */}
-          <div className="flex items-center gap-4 border-t-2 border-gray-100 pt-4">
+          <div className="flex flex-wrap items-center gap-4 border-t-2 border-gray-100 pt-4">
             <button
               type="submit"
               disabled={loading}
@@ -455,6 +484,9 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
             >
               {loading ? "Enregistrement…" : "💾 Enregistrer ma fiche"}
             </button>
+            <p className="text-xs text-gray-400">
+              <span className="text-[#ff6b6b]">*</span> Champs obligatoires
+            </p>
             {success && (
               <span className="text-sm font-bold text-[#6bcb77]">✓ Fiche mise à jour !</span>
             )}
