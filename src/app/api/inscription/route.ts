@@ -69,9 +69,8 @@ export async function POST(request: NextRequest) {
     where: { id: { in: data.communeIds } },
   });
 
-  // Le refine Zod garantit déjà qu'au moins un des deux est rempli,
-  // mais on vérifie quand même en double-sécurité côté serveur
-  if (metiers.length === 0 && !data.metierLibre?.trim()) {
+  // Vérification double-sécurité côté serveur (le schema Zod garantit min(1))
+  if (metiers.length === 0) {
     return NextResponse.json({ error: "Aucun métier valide trouvé." }, { status: 422 });
   }
   if (communes.length === 0) {
@@ -93,7 +92,7 @@ export async function POST(request: NextRequest) {
       siret: data.siret ?? null,
       siteWeb: data.siteWeb ?? null,
       description: data.description ?? null,
-      metierLibre: data.metierLibre?.trim() || null,
+      metierLibre: null,
       passwordHash,
       status: "EN_ATTENTE",
     },
