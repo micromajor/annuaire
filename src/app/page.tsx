@@ -27,7 +27,7 @@ export default async function HomePage() {
 
   // Métiers depuis la DB (nécessaire pour ParticulierHome et HeroSearch)
   const allMetiers = await prisma.metier.findMany({
-    select: { slug: true, label: true },
+    select: { slug: true, label: true, categorie: true },
     orderBy: { label: "asc" },
   });
 

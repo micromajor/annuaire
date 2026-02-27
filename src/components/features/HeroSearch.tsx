@@ -5,8 +5,18 @@ import { useRef, useState } from "react";
 import Combobox from "@/components/ui/Combobox";
 import { COMMUNES_NANTES_EST } from "@/constants";
 
+const CATEGORY_ORDER = [
+  "Gros œuvre & structure",
+  "Second œuvre",
+  "Menuiserie & fermetures",
+  "Espaces extérieurs",
+  "Énergie & technique",
+  "Aménagement intérieur",
+  "Divers",
+];
+
 interface HeroSearchProps {
-  metiers: { slug: string; label: string }[];
+  metiers: { slug: string; label: string; categorie?: string | null }[];
 }
 
 export default function HeroSearch({ metiers }: HeroSearchProps) {
@@ -22,7 +32,14 @@ export default function HeroSearch({ metiers }: HeroSearchProps) {
     }, 100);
   }
 
-  const metierOptions = metiers.map((m) => ({ value: m.slug, label: m.label }));
+  const metierOptions = [...metiers]
+    .sort((a, b) => {
+      const ai = CATEGORY_ORDER.indexOf(a.categorie ?? "");
+      const bi = CATEGORY_ORDER.indexOf(b.categorie ?? "");
+      const catDiff = (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+      return catDiff !== 0 ? catDiff : a.label.localeCompare(b.label, "fr");
+    })
+    .map((m) => ({ value: m.slug, label: m.label, group: m.categorie ?? undefined }));
   const communeOptions = COMMUNES_NANTES_EST.map((c) => ({
     value: c.nom,
     label: c.nom,

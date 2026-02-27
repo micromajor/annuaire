@@ -3,14 +3,12 @@ export const dynamic = "force-dynamic";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
 import { redirect } from "next/navigation";
-import AdminArtisanRow from "@/components/features/AdminArtisanRow";
 import AdminAvisRow from "@/components/features/AdminAvisRow";
 import AdminLogoutButton from "@/components/features/AdminLogoutButton";
 import AdminMetiersPanel from "@/components/features/AdminMetiersPanel";
 import AdminUserRow from "@/components/features/AdminUserRow";
 import MarkSignalementLu from "@/components/features/MarkSignalementLu";
 import type { Metadata } from "next";
-import { Prisma } from "@prisma/client";
 
 export const metadata: Metadata = { title: "Admin — OyezArtisans" };
 
@@ -20,7 +18,6 @@ export default async function AdminPage() {
   if (!session || role !== "admin") redirect("/admin/login");
 
   const [
-    enAttente,
     valides,
     rejetes,
     avisEnAttente,
@@ -30,22 +27,6 @@ export default async function AdminPage() {
     signalements,
     tousLesMetiers,
   ] = await Promise.all([
-    prisma.artisan.findMany({
-      where: {
-        status: "EN_ATTENTE",
-        deletedAt: null,
-        // NOT + JSON path exclut les NULL en SQL → utiliser OR explicite
-        OR: [
-          { draftData: { equals: Prisma.DbNull } },
-          { NOT: { draftData: { path: ["isParticulier"], equals: true } } },
-        ],
-      },
-      include: {
-        metiers: { include: { metier: true } },
-        communes: { include: { commune: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    }),
     prisma.artisan.count({ where: { status: "VALIDE", deletedAt: null } }),
     prisma.artisan.count({ where: { status: "REJETE", deletedAt: null } }),
     prisma.avis.findMany({
@@ -96,14 +77,9 @@ export default async function AdminPage() {
   ]);
 
   const totalPending =
-    enAttente.length +
-    signalements.length +
-    avisEnAttente.length +
-    besoinsNouveau.length +
-    feedbacksNouveau.length;
+    signalements.length + avisEnAttente.length + besoinsNouveau.length + feedbacksNouveau.length;
 
   const navItems = [
-    { id: "fiches", emoji: "⏳", label: "En attente", count: enAttente.length, color: "#ffd93d" },
     {
       id: "signalements",
       emoji: "🚩",
@@ -217,7 +193,6 @@ export default async function AdminPage() {
           {/* KPI cards — mobile (lg:hidden) + overview row */}
           <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
             {[
-              { label: "En attente", count: enAttente.length, color: "bg-[#ffd93d]", emoji: "⏳" },
               {
                 label: "Signalements",
                 count: signalements.length,
@@ -251,26 +226,6 @@ export default async function AdminPage() {
               </div>
             ))}
           </div>
-
-          {/* ── Section : Fiches en attente ── */}
-          <section id="fiches" className="mb-10 scroll-mt-20">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="h-8 w-1.5 rounded-full bg-[#ffd93d]" />
-              <h2 className="bd-titre text-2xl text-[#1a1a2e]">Fiches en attente</h2>
-              <span className="rounded-full border-2 border-[#1a1a1a] bg-[#ffd93d] px-3 py-0.5 text-sm font-bold">
-                {enAttente.length}
-              </span>
-            </div>
-            {enAttente.length === 0 ? (
-              <EmptyState emoji="🎉" message="Aucune fiche en attente. Tout est à jour !" />
-            ) : (
-              <div className="space-y-3">
-                {enAttente.map((artisan) => (
-                  <AdminArtisanRow key={artisan.id} artisan={artisan} allMetiers={tousLesMetiers} />
-                ))}
-              </div>
-            )}
-          </section>
 
           {/* ── Section : Signalements ── */}
           <section id="signalements" className="mb-10 scroll-mt-20">

@@ -108,7 +108,10 @@ export default async function ArtisansPage({
       skip,
     }),
     prisma.artisan.count({ where }),
-    prisma.metier.findMany({ orderBy: { label: "asc" } }),
+    prisma.metier.findMany({
+      select: { slug: true, label: true, categorie: true },
+      orderBy: { label: "asc" },
+    }),
   ]);
 
   const totalPages = Math.ceil(total / PAGINATION.ARTISANS_PAR_PAGE);

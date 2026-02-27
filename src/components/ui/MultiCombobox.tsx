@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect, useId } from "react";
+import { useState, useRef, useEffect, useId, type ReactNode } from "react";
 
 interface MultiComboboxOption {
   value: string;
   label: string;
   sub?: string;
+  group?: string;
 }
 
 interface MultiComboboxProps {
@@ -58,8 +59,15 @@ export default function MultiCombobox({
 
   useEffect(() => {
     if (!listRef.current) return;
-    const el = listRef.current.children[highlighted] as HTMLElement | undefined;
-    el?.scrollIntoView({ block: "nearest" });
+    if (highlighted === 0) {
+      (listRef.current.children[0] as HTMLElement | undefined)?.scrollIntoView({
+        block: "nearest",
+      });
+    } else {
+      listRef.current
+        .querySelector(`[data-option-idx="${highlighted - 1}"]`)
+        ?.scrollIntoView({ block: "nearest" });
+    }
   }, [highlighted]);
 
   function toggleOption(val: string) {
@@ -212,36 +220,55 @@ export default function MultiCombobox({
             <li className="px-4 py-3 text-sm text-gray-400 italic">Aucun résultat</li>
           )}
 
-          {filtered.map((opt, idx) => {
-            const i = 1 + idx;
-            const isSelected = values.includes(opt.value);
-            const isHigh = i === highlighted;
-            return (
-              <li
-                key={opt.value}
-                role="option"
-                aria-selected={isSelected}
-                className={`flex cursor-pointer items-center justify-between px-4 py-2.5 text-sm transition-colors ${
-                  isHigh
-                    ? "bg-[#ffd93d] text-[#1a1a2e]"
-                    : isSelected
-                      ? "bg-[#fff8f0] font-bold text-[#1a1a2e]"
-                      : "text-[#1a1a2e] hover:bg-[#fff8f0]"
-                }`}
-                onMouseEnter={() => setHighlighted(i)}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  toggleOption(opt.value);
-                }}
-              >
-                <span className="font-semibold">{opt.label}</span>
-                <span className="flex items-center gap-2">
-                  {opt.sub && <span className="text-xs text-gray-400">{opt.sub}</span>}
-                  {isSelected && <span className="text-[#6bcb77]">✓</span>}
-                </span>
-              </li>
-            );
-          })}
+          {(() => {
+            const items: ReactNode[] = [];
+            let currentGroup: string | undefined;
+            filtered.forEach((opt, idx) => {
+              if (opt.group !== currentGroup) {
+                currentGroup = opt.group;
+                if (opt.group) {
+                  items.push(
+                    <li
+                      key={`group-${opt.group}`}
+                      className="px-4 pt-3 pb-1 text-[10px] font-extrabold tracking-widest text-gray-400 uppercase select-none"
+                    >
+                      {opt.group}
+                    </li>
+                  );
+                }
+              }
+              const i = 1 + idx;
+              const isSelected = values.includes(opt.value);
+              const isHigh = i === highlighted;
+              items.push(
+                <li
+                  key={opt.value}
+                  role="option"
+                  aria-selected={isSelected}
+                  data-option-idx={idx}
+                  className={`flex cursor-pointer items-center justify-between px-4 py-2.5 text-sm transition-colors ${
+                    isHigh
+                      ? "bg-[#ffd93d] text-[#1a1a2e]"
+                      : isSelected
+                        ? "bg-[#fff8f0] font-bold text-[#1a1a2e]"
+                        : "text-[#1a1a2e] hover:bg-[#fff8f0]"
+                  }`}
+                  onMouseEnter={() => setHighlighted(i)}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    toggleOption(opt.value);
+                  }}
+                >
+                  <span className="font-semibold">{opt.label}</span>
+                  <span className="flex items-center gap-2">
+                    {opt.sub && <span className="text-xs text-gray-400">{opt.sub}</span>}
+                    {isSelected && <span className="text-[#6bcb77]">✓</span>}
+                  </span>
+                </li>
+              );
+            });
+            return items;
+          })()}
         </ul>
       )}
     </div>
