@@ -33,10 +33,10 @@
 | A01 | Connexion avec email + mot de passe valides      | Redirection vers `/mon-espace` ou `/` selon le rôle  | ✅     |
 | A02 | Connexion avec mot de passe incorrect            | Message d'erreur, pas de redirection                 | ✅     |
 | A03 | Connexion avec email inexistant                  | Message d'erreur générique (sans révéler l'absence)  | ⚠️     |
-| A04 | Rate limit : 5 tentatives/h dépassées            | HTTP 429 + message clair                             | 🔲     |
+| A04 | Rate limit : 5 tentatives/h dépassées            | HTTP 429 + message clair                             | ✅     |
 | A05 | Mot de passe oublié : envoi email reset          | Confirmation "email envoyé" sans révéler l'existence | ✅     |
-| A06 | Inscription avec email déjà pris (avec password) | HTTP 409, message "compte existe déjà"               | 🔲     |
-| A07 | Inscription avec email déjà pris (sans password) | Password ajouté silencieusement, succès              | 🔲     |
+| A06 | Inscription avec email déjà pris (avec password) | HTTP 409, message "compte existe déjà"               | ✅     |
+| A07 | Inscription avec email déjà pris (sans password) | Password ajouté silencieusement, succès              | ✅     |
 
 **Risques** : Rate limit in-memory perdu au redémarrage du pod. Pas de lockout permanent.
 
@@ -50,9 +50,11 @@
 
 | #   | Cas de test                                    | Attendu                                  | Statut |
 | --- | ---------------------------------------------- | ---------------------------------------- | ------ |
-| B01 | Clic "Connexion Google" → flow OAuth complet   | Redirection vers page d'accueil connecté | 🔲     |
-| B02 | Compte Google déjà lié → re-connexion          | Session restaurée                        | 🔲     |
-| B03 | Email Google coïncide avec un artisan existant | Compte lié, accès artisan                | 🔲     |
+| B01 | Clic "Connexion Google" → flow OAuth complet   | Redirection vers page d'accueil connecté | ⚠️     |
+| B02 | Compte Google déjà lié → re-connexion          | Session restaurée                        | ⚠️     |
+| B03 | Email Google coïncide avec un artisan existant | Compte lié, accès artisan                | ⚠️     |
+
+> ⚠️ **Note** : Tests B01-B03 non exécutables sans configuration Google OAuth réelle (CLIENT_ID/SECRET non présents en dev local).
 
 ---
 
@@ -84,10 +86,10 @@
 | --- | --------------------------------------- | -------------------------------------------------- | ------ |
 | E01 | Visiteur non connecté                   | Hero avec moteur de recherche, fond jaune visiteur | ✅     |
 | E02 | Artisan connecté                        | Vue artisan (fond vert #6bcb77)                    | ✅     |
-| E03 | Particulier connecté                    | Vue particulier (fond bleu #60c5f1)                | 🔲     |
+| E03 | Particulier connecté                    | Vue particulier (fond bleu #60c5f1)                | ✅     |
 | E04 | Saisir un métier + commune et soumettre | Redirection vers `/artisans` avec filtres          | ✅     |
 | E05 | Dropdown métiers groupés par catégorie  | Headers de catégorie affichés                      | ✅     |
-| E06 | Open Graph image                        | `/opengraph-image` retourne une image valide       | 🔲     |
+| E06 | Open Graph image                        | `/opengraph-image` retourne une image valide       | ✅     |
 
 ---
 
@@ -121,12 +123,12 @@
 | G01 | Accès fiche artisan (fiche en ligne)                | Page complète affichée                              | ✅     |
 | G02 | Fiche d'un artisan supprimé (`deletedAt` renseigné) | 404                                                 | ✅     |
 | G03 | Affichage logo artisan                              | Logo affiché depuis `/api/files/[id]`               | ✅     |
-| G04 | Affichage photos portfolio                          | Galerie photos affichée, lightbox fonctionnelle     | 🔲     |
-| G05 | Lightbox : scroll body verrouillé à l'ouverture     | `overflow: hidden` sur body                         | 🔲     |
-| G06 | Lightbox : scroll restauré à la fermeture           | `overflow: auto` ou `""` sur body                   | 🔲     |
+| G04 | Affichage photos portfolio                          | Galerie photos affichée, lightbox fonctionnelle     | ✅     |
+| G05 | Lightbox : scroll body verrouillé à l'ouverture     | `overflow: hidden` sur body                         | ✅     |
+| G06 | Lightbox : scroll restauré à la fermeture           | `overflow: auto` ou `""` sur body                   | ✅     |
 | G07 | Contact form : soumission valide                    | ContactRequest créé, email envoyé, avisToken généré | ✅     |
-| G08 | Contact form : champs obligatoires manquants        | Erreurs de validation affichées                     | 🔲     |
-| G09 | Contact form : rate limit (3/h)                     | Message "trop de demandes"                          | 🔲     |
+| G08 | Contact form : champs obligatoires manquants        | Erreurs de validation affichées                     | ✅     |
+| G09 | Contact form : rate limit (3/h)                     | Message "trop de demandes"                          | ✅     |
 | G10 | Avis : accès avec avisToken valide                  | Section avis affichée, formulaire actif             | ✅     |
 | G11 | Avis : soumission avis                              | Avis créé EN_ATTENTE, token marqué usedAt           | ✅     |
 | G12 | Avis : sans token / token invalide                  | Section avis grisée "🔒 LIEN REQUIS"                | ✅     |
@@ -147,10 +149,10 @@
 | --- | ---------------------------------------- | ------------------------------------------------------------ | ------ |
 | H01 | URL valide métier + commune              | Page affichée avec artisans (status=VALIDE)                  | ✅     |
 | H02 | Métier inexistant en DB                  | 404                                                          | ✅     |
-| H03 | Commune hors liste `COMMUNES_NANTES_EST` | 404                                                          | 🔲     |
-| H04 | Aucun artisan pour ce métier/commune     | Message "pas encore de X sur Y" + liens vers autres communes | 🔲     |
+| H03 | Commune hors liste `COMMUNES_NANTES_EST` | 404                                                          | ✅     |
+| H04 | Aucun artisan pour ce métier/commune     | Message "pas encore de X sur Y" + liens vers autres communes | ✅     |
 | H05 | Titre page et meta description           | Contiennent le métier et la commune (SEO)                    | ✅     |
-| H06 | JSON-LD BreadcrumbList + ItemList        | Présent dans le DOM                                          | 🔲     |
+| H06 | JSON-LD BreadcrumbList + ItemList        | Présent dans le DOM                                          | ✅     |
 | H07 | Liens vers autres communes (même métier) | Section "X dans d'autres communes" affichée                  | ✅     |
 
 ---
@@ -187,8 +189,8 @@
 | --- | --------------------------------------------- | ------------------------------------ | ------ |
 | J01 | Soumission besoin sans être connecté          | HTTP 401 — connexion requise         | ✅     |
 | J02 | Soumission besoin par un particulier connecté | Besoin créé, artisanId lié           | ✅     |
-| J03 | Photos jointes (max 6)                        | URLs sauvegardées dans `photos` JSON | 🔲     |
-| J04 | Description < 10 caractères                   | Erreur validation                    | 🔲     |
+| J03 | Photos jointes (max 6)                        | URLs sauvegardées dans `photos` JSON | ✅     |
+| J04 | Description < 10 caractères                   | Erreur validation                    | ✅     |
 
 ---
 
@@ -223,7 +225,7 @@
 | L07 | Changer email                         | Mise à jour sans conflit                   | ⚠️     |
 | L08 | Changer mot de passe                  | Hash mis à jour, ancienne session valide   | ⚠️     |
 | L09 | Dernières demandes reçues affichées   | ContactRequests visibles dans le dashboard | ✅     |
-| L10 | Ajouter/supprimer communes            | Relations ArtisanCommune mises à jour      | 🔲     |
+| L10 | Ajouter/supprimer communes            | Relations ArtisanCommune mises à jour      | ✅     |
 
 ---
 
@@ -234,10 +236,10 @@
 
 | #   | Cas de test                 | Attendu                                                                | Statut |
 | --- | --------------------------- | ---------------------------------------------------------------------- | ------ |
-| M01 | Upload PNG/JPEG valide      | UploadedFile créé, `logoUrl` artisan mis à jour avec `/api/files/[id]` | 🔲     |
-| M02 | Upload fichier trop lourd   | Erreur 413 ou message "fichier trop grand"                             | 🔲     |
-| M03 | Upload format non image     | Erreur validation                                                      | 🔲     |
-| M04 | Affichage logo sur la fiche | Image chargée depuis `/api/files/[id]`                                 | 🔲     |
+| M01 | Upload PNG/JPEG valide      | UploadedFile créé, `logoUrl` artisan mis à jour avec `/api/files/[id]` | ✅     |
+| M02 | Upload fichier trop lourd   | Erreur 413 ou message "fichier trop grand"                             | ✅     |
+| M03 | Upload format non image     | Erreur validation                                                      | ✅     |
+| M04 | Affichage logo sur la fiche | Image chargée depuis `/api/files/[id]`                                 | ✅     |
 
 **⚠️ Rappel** : La route retourne une URL relative `/api/files/[id]`, pas une URL absolue. Les validateurs Zod avec `z.string().url()` doivent utiliser `.refine()`.
 
@@ -354,10 +356,10 @@
 
 | #   | Cas de test                        | Attendu                          | Statut |
 | --- | ---------------------------------- | -------------------------------- | ------ |
-| V01 | Accéder à un fichier existant      | Binary avec Content-Type correct | 🔲     |
-| V02 | Accéder à un fichier inexistant    | HTTP 404                         | 🔲     |
+| V01 | Accéder à un fichier existant      | Binary avec Content-Type correct | ✅     |
+| V02 | Accéder à un fichier inexistant    | HTTP 404                         | ✅     |
 | V03 | Logos affichés sur fiches artisans | Images chargées correctement     | ✅     |
-| V04 | Photos portfolio affichées         | Images chargées correctement     | 🔲     |
+| V04 | Photos portfolio affichées         | Images chargées correctement     | ✅     |
 
 ---
 
@@ -368,8 +370,8 @@
 | W01 | `sitemap.ts` retourne URLs valides | XML sitemap accessible à `/sitemap.xml` | ✅     |
 | W02 | `robots.ts` correctement configuré | `/robots.txt` accessible                | ✅     |
 | W03 | `manifest.ts`                      | `/manifest.webmanifest` accessible      | ✅     |
-| W04 | `apple-icon.tsx` + `icon.tsx`      | Favicons générés                        | 🔲     |
-| W05 | Open Graph homepage                | Image générée, dimensions correctes     | 🔲     |
+| W04 | `apple-icon.tsx` + `icon.tsx`      | Favicons générés                        | ✅     |
+| W05 | Open Graph homepage                | Image générée, dimensions correctes     | ✅     |
 
 ---
 
@@ -393,7 +395,7 @@
 
 | #   | Scénario                                                            | Attendu                    | Statut |
 | --- | ------------------------------------------------------------------- | -------------------------- | ------ |
-| Y01 | Inscription artisan → connexion → fiche visible en FO               | Workflow complet           | 🔲     |
+| Y01 | Inscription artisan → connexion → fiche visible en FO               | Workflow complet           | ✅     |
 | Y02 | Contact FO → email artisan → avis via token                         | Workflow contact → avis    | ✅     |
 | Y03 | Artisan modifie sa fiche → visible immédiatement sur fiche publique | Pas de cache bloquant      | ✅     |
 | Y04 | Particulier dépose un besoin → visible dans admin                   | Besoin NOUVEAU listé       | ✅     |
