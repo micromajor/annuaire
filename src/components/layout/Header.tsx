@@ -28,9 +28,6 @@ export default function Header() {
         {/* Nav desktop */}
         <nav className="hidden items-center gap-3 sm:flex">
           <NavMessagerieIcon />
-          <Link href="/mon-profil" className="bd-btn bd-btn-outline text-sm">
-            Mon profil
-          </Link>
           <Link href="/connexion?callbackUrl=/mon-espace" className="bd-btn bd-btn-primary text-sm">
             + Inscrire mon entreprise
           </Link>
@@ -70,13 +67,6 @@ export default function Header() {
             onClick={() => setMenuOpen(false)}
           >
             💬 Messages
-          </Link>
-          <Link
-            href="/mon-profil"
-            className="bd-btn bd-btn-outline w-full text-center text-sm"
-            onClick={() => setMenuOpen(false)}
-          >
-            👤 Mon profil
           </Link>
           <Link
             href="/connexion?callbackUrl=/mon-espace"

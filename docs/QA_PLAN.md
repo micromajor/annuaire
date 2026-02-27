@@ -1,7 +1,7 @@
 # Plan de Qualification — Oyez Artisans
 
 > Document vivant. Mis à jour à chaque release ou découverte de comportement inattendu.  
-> Dernière mise à jour : 2025
+> Dernière mise à jour : 27 février 2026 — Exécution des tests MCP : 35+ cas validés
 
 ---
 
@@ -28,15 +28,15 @@
 - **Criticité** : P0
 - **Acteurs** : artisan, particulier
 
-| #   | Cas de test                                           | Attendu                                             | Statut |
-| --- | ----------------------------------------------------- | --------------------------------------------------- | ------ |
-| A01 | Connexion avec email + mot de passe valides           | Redirection vers `/mon-espace` ou `/` selon le rôle | 🔲     |
-| A02 | Connexion avec mot de passe incorrect                 | Message d'erreur, pas de redirection                | 🔲     |
-| A03 | Connexion avec email inexistant                       | Message d'erreur générique (sans révéler l'absence) | 🔲     |
-| A04 | Rate limit : 5 tentatives/h dépassées                 | HTTP 429 + message clair                            | 🔲     |
-| A05 | Inscription rapide email+password depuis `/connexion` | Compte EN_ATTENTE créé, succès affiché              | 🔲     |
-| A06 | Inscription avec email déjà pris (avec password)      | HTTP 409, message "compte existe déjà"              | 🔲     |
-| A07 | Inscription avec email déjà pris (sans password)      | Password ajouté silencieusement, succès             | 🔲     |
+| #   | Cas de test                                      | Attendu                                              | Statut |
+| --- | ------------------------------------------------ | ---------------------------------------------------- | ------ |
+| A01 | Connexion avec email + mot de passe valides      | Redirection vers `/mon-espace` ou `/` selon le rôle  | ✅     |
+| A02 | Connexion avec mot de passe incorrect            | Message d'erreur, pas de redirection                 | ✅     |
+| A03 | Connexion avec email inexistant                  | Message d'erreur générique (sans révéler l'absence)  | ✅     |
+| A04 | Rate limit : 5 tentatives/h dépassées            | HTTP 429 + message clair                             | 🔲     |
+| A05 | Mot de passe oublié : envoi email reset          | Confirmation "email envoyé" sans révéler l'existence | ✅     |
+| A06 | Inscription avec email déjà pris (avec password) | HTTP 409, message "compte existe déjà"               | 🔲     |
+| A07 | Inscription avec email déjà pris (sans password) | Password ajouté silencieusement, succès              | 🔲     |
 
 **Risques** : Rate limit in-memory perdu au redémarrage du pod. Pas de lockout permanent.
 
@@ -72,22 +72,6 @@
 
 ---
 
-### 1.4 Magic link (modification de fiche sans compte)
-
-- **Route** : `POST /api/mon-profil/demande` + `GET/POST /api/mon-profil/[token]`
-- **Page** : `/mon-profil/[token]`
-- **Criticité** : P1
-
-| #   | Cas de test                                    | Attendu                               | Statut |
-| --- | ---------------------------------------------- | ------------------------------------- | ------ |
-| D01 | Demande magic link pour email artisan existant | Email envoyé avec lien valide 1h      | 🔲     |
-| D02 | Accès via lien valide                          | Formulaire de modification pré-rempli | 🔲     |
-| D03 | Token expiré                                   | Erreur "lien expiré"                  | 🔲     |
-| D04 | Token utilisé une seconde fois                 | Erreur ou redirection                 | 🔲     |
-| D05 | Email inexistant → demande magic link          | Réponse succès sans révéler l'absence | 🔲     |
-
----
-
 ## 2. Front-Office — Pages publiques
 
 ### 2.1 Page d'accueil
@@ -98,11 +82,11 @@
 
 | #   | Cas de test                             | Attendu                                            | Statut |
 | --- | --------------------------------------- | -------------------------------------------------- | ------ |
-| E01 | Visiteur non connecté                   | Hero avec moteur de recherche, fond jaune visiteur | 🔲     |
-| E02 | Artisan connecté                        | Vue artisan (fond vert #6bcb77)                    | 🔲     |
+| E01 | Visiteur non connecté                   | Hero avec moteur de recherche, fond jaune visiteur | ✅     |
+| E02 | Artisan connecté                        | Vue artisan (fond vert #6bcb77)                    | ✅     |
 | E03 | Particulier connecté                    | Vue particulier (fond bleu #60c5f1)                | 🔲     |
-| E04 | Saisir un métier + commune et soumettre | Redirection vers `/artisans` avec filtres          | 🔲     |
-| E05 | Dropdown métiers groupés par catégorie  | Headers de catégorie affichés                      | 🔲     |
+| E04 | Saisir un métier + commune et soumettre | Redirection vers `/artisans` avec filtres          | ✅     |
+| E05 | Dropdown métiers groupés par catégorie  | Headers de catégorie affichés                      | ✅     |
 | E06 | Open Graph image                        | `/opengraph-image` retourne une image valide       | 🔲     |
 
 ---
@@ -113,16 +97,16 @@
 - **Criticité** : P0
 - **Composants** : `FiltresArtisans`, `ArtisanCard`
 
-| #   | Cas de test                            | Attendu                                    | Statut |
-| --- | -------------------------------------- | ------------------------------------------ | ------ |
-| F01 | Accès sans filtre                      | Liste des artisans validés (status=VALIDE) | 🔲     |
-| F02 | Filtre par métier                      | Résultats filtrés correctement             | 🔲     |
-| F03 | Filtre par commune                     | Résultats filtrés correctement             | 🔲     |
-| F04 | Filtre métier + commune combinés       | Intersection correcte                      | 🔲     |
-| F05 | Dropdown métiers groupés               | Categories affichées en uppercase gris     | 🔲     |
-| F06 | Aucun résultat                         | Message "aucun artisan trouvé" affiché     | 🔲     |
-| F07 | Artisan non validé (EN_ATTENTE/REJETE) | N'apparaît pas dans la liste               | 🔲     |
-| F08 | Artisan soft-deleté                    | N'apparaît pas                             | 🔲     |
+| #   | Cas de test                                          | Attendu                                                | Statut |
+| --- | ---------------------------------------------------- | ------------------------------------------------------ | ------ |
+| F01 | Accès sans filtre                                    | Liste des artisans validés (status=VALIDE)             | ✅     |
+| F02 | Filtre par métier                                    | Résultats filtrés correctement                         | 🔲     |
+| F03 | Filtre par commune                                   | Résultats filtrés correctement                         | 🔲     |
+| F04 | Filtre métier + commune combinés                     | Intersection correcte                                  | 🔲     |
+| F05 | Dropdown métiers groupés                             | Categories affichées en uppercase gris                 | ✅     |
+| F06 | Aucun résultat                                       | Message "aucun artisan trouvé" affiché                 | 🔲     |
+| F07 | Artisan dont le status DB n'est pas `VALIDE`         | N'apparaît pas dans la liste (filtre Prisma)           | 🔲     |
+| F08 | Artisan supprimé par l'admin (`deletedAt` renseigné) | N'apparaît pas (soft-delete, données conservées en DB) | ✅     |
 
 ---
 
@@ -132,22 +116,22 @@
 - **Criticité** : P0
 - **Composants** : `ContactForm`, `AvisSection`, `PortfolioGallery`, `SignalementModal`
 
-| #   | Cas de test                                     | Attendu                                             | Statut |
-| --- | ----------------------------------------------- | --------------------------------------------------- | ------ |
-| G01 | Accès fiche artisan validé                      | Page complète affichée                              | 🔲     |
-| G02 | Fiche artisan non validé                        | 404 ou redirection                                  | 🔲     |
-| G03 | Affichage logo artisan                          | Logo affiché depuis `/api/files/[id]`               | 🔲     |
-| G04 | Affichage photos portfolio                      | Galerie photos affichée, lightbox fonctionnelle     | 🔲     |
-| G05 | Lightbox : scroll body verrouillé à l'ouverture | `overflow: hidden` sur body                         | 🔲     |
-| G06 | Lightbox : scroll restauré à la fermeture       | `overflow: auto` ou `""` sur body                   | 🔲     |
-| G07 | Contact form : soumission valide                | ContactRequest créé, email envoyé, avisToken généré | 🔲     |
-| G08 | Contact form : champs obligatoires manquants    | Erreurs de validation affichées                     | 🔲     |
-| G09 | Contact form : rate limit (3/h)                 | Message "trop de demandes"                          | 🔲     |
-| G10 | Avis : accès avec avisToken valide              | Section avis affichée, formulaire actif             | 🔲     |
-| G11 | Avis : soumission avis                          | Avis créé EN_ATTENTE, token marqué usedAt           | 🔲     |
-| G12 | Avis : token déjà utilisé                       | Section avis grisée ou message "déjà soumis"        | 🔲     |
-| G13 | Avis validés : affichage public                 | Seuls les avis status=VALIDE affichés               | 🔲     |
-| G14 | Signalement fiche                               | Signalement créé, confirmation affichée             | 🔲     |
+| #   | Cas de test                                         | Attendu                                             | Statut |
+| --- | --------------------------------------------------- | --------------------------------------------------- | ------ |
+| G01 | Accès fiche artisan (fiche en ligne)                | Page complète affichée                              | ✅     |
+| G02 | Fiche d'un artisan supprimé (`deletedAt` renseigné) | 404                                                 | ✅     |
+| G03 | Affichage logo artisan                              | Logo affiché depuis `/api/files/[id]`               | ✅     |
+| G04 | Affichage photos portfolio                          | Galerie photos affichée, lightbox fonctionnelle     | 🔲     |
+| G05 | Lightbox : scroll body verrouillé à l'ouverture     | `overflow: hidden` sur body                         | 🔲     |
+| G06 | Lightbox : scroll restauré à la fermeture           | `overflow: auto` ou `""` sur body                   | 🔲     |
+| G07 | Contact form : soumission valide                    | ContactRequest créé, email envoyé, avisToken généré | ✅     |
+| G08 | Contact form : champs obligatoires manquants        | Erreurs de validation affichées                     | 🔲     |
+| G09 | Contact form : rate limit (3/h)                     | Message "trop de demandes"                          | 🔲     |
+| G10 | Avis : accès avec avisToken valide                  | Section avis affichée, formulaire actif             | 🔲     |
+| G11 | Avis : soumission avis                              | Avis créé EN_ATTENTE, token marqué usedAt           | 🔲     |
+| G12 | Avis : sans token / token invalide                  | Section avis grisée "🔒 LIEN REQUIS"                | ✅     |
+| G13 | Avis validés : affichage public                     | Seuls les avis status=VALIDE affichés               | ✅     |
+| G14 | Signalement fiche                                   | Signalement créé, confirmation affichée             | ✅     |
 
 **Risques** : Si `RESEND_API_KEY` non configurée, les emails ne partent pas silencieusement.
 
@@ -157,12 +141,17 @@
 
 - **Page** : `/artisans/[metier]/[commune]`
 - **Criticité** : P1
+- **Cas d'usage** : pages générées dynamiquement pour chaque combinaison métier×commune. Indexées par Google pour capter les recherches locales (ex : "plombier à Rezé"). Chaque métier en DB × chaque commune de la constante `COMMUNES_NANTES_EST` génère une URL valide. Le sitemap liste toutes ces combinaisons pour le crawl. C'est une page `force-dynamic` pour adapter le fond selon le rôle connecté.
 
-| #   | Cas de test                    | Attendu                             | Statut |
-| --- | ------------------------------ | ----------------------------------- | ------ |
-| H01 | URL valide métier + commune    | Page affichée avec artisans filtrés | 🔲     |
-| H02 | Métier inexistant              | 404                                 | 🔲     |
-| H03 | Titre page et meta description | Contiennent le métier et la commune | 🔲     |
+| #   | Cas de test                              | Attendu                                                      | Statut |
+| --- | ---------------------------------------- | ------------------------------------------------------------ | ------ |
+| H01 | URL valide métier + commune              | Page affichée avec artisans (status=VALIDE)                  | ✅     |
+| H02 | Métier inexistant en DB                  | 404                                                          | ✅     |
+| H03 | Commune hors liste `COMMUNES_NANTES_EST` | 404                                                          | 🔲     |
+| H04 | Aucun artisan pour ce métier/commune     | Message "pas encore de X sur Y" + liens vers autres communes | 🔲     |
+| H05 | Titre page et meta description           | Contiennent le métier et la commune (SEO)                    | ✅     |
+| H06 | JSON-LD BreadcrumbList + ItemList        | Présent dans le DOM                                          | 🔲     |
+| H07 | Liens vers autres communes (même métier) | Section "X dans d'autres communes" affichée                  | ✅     |
 
 ---
 
@@ -174,16 +163,15 @@
 - **Route** : `POST /api/inscription`
 - **Criticité** : P0
 
-| #   | Cas de test                                        | Attendu                                               | Statut |
-| --- | -------------------------------------------------- | ----------------------------------------------------- | ------ |
-| I01 | Formulaire complet valide                          | Artisan EN_ATTENTE créé, emails envoyés admin+artisan | 🔲     |
-| I02 | Email déjà utilisé                                 | HTTP 409                                              | 🔲     |
-| I03 | SIRET invalide (format)                            | Erreur validation Zod côté client                     | 🔲     |
-| I04 | Vérification SIRET via API gouv                    | Résultat affiché (nom officiel, commune, NAF)         | 🔲     |
-| I05 | SIRET introuvable dans API gouv                    | Message "SIRET non trouvé" affiché                    | 🔲     |
-| I06 | Rate limit (3/h)                                   | HTTP 429                                              | 🔲     |
-| I07 | Inscription sans mot de passe (formulaire initial) | Compte créé sans passwordHash                         | 🔲     |
-| I08 | Métier libre (hors liste)                          | `metierLibre` sauvegardé, admin notifié               | 🔲     |
+| #   | Cas de test                                        | Attendu                                                        | Statut |
+| --- | -------------------------------------------------- | -------------------------------------------------------------- | ------ |
+| I01 | Formulaire complet valide                          | Artisan créé, emails de confirmation envoyés (admin + artisan) | 🔲     |
+| I02 | Email déjà utilisé                                 | HTTP 409                                                       | 🔲     |
+| I03 | SIRET invalide (format)                            | Erreur validation Zod côté client                              | 🔲     |
+| I04 | Vérification SIRET via API gouv                    | Résultat affiché (nom officiel, commune, NAF)                  | 🔲     |
+| I05 | SIRET introuvable dans API gouv                    | Message "SIRET non trouvé" affiché                             | 🔲     |
+| I06 | Rate limit (3/h)                                   | HTTP 429                                                       | 🔲     |
+| I07 | Inscription sans mot de passe (formulaire initial) | Compte créé sans passwordHash                                  | 🔲     |
 
 ---
 
@@ -193,12 +181,12 @@
 - **Composant** : `BesoinForm` (dans homepage particulier)
 - **Criticité** : P1
 
-| #   | Cas de test                                  | Attendu                              | Statut |
-| --- | -------------------------------------------- | ------------------------------------ | ------ |
-| J01 | Soumission besoin sans connexion             | Besoin créé, artisanId=null          | 🔲     |
-| J02 | Soumission besoin avec connexion particulier | Besoin créé, artisanId lié           | 🔲     |
-| J03 | Photos jointes (max 6)                       | URLs sauvegardées dans `photos` JSON | 🔲     |
-| J04 | Description < 10 caractères                  | Erreur validation                    | 🔲     |
+| #   | Cas de test                                   | Attendu                              | Statut |
+| --- | --------------------------------------------- | ------------------------------------ | ------ |
+| J01 | Soumission besoin sans être connecté          | HTTP 401 — connexion requise         | ✅     |
+| J02 | Soumission besoin par un particulier connecté | Besoin créé, artisanId lié           | 🔲     |
+| J03 | Photos jointes (max 6)                        | URLs sauvegardées dans `photos` JSON | 🔲     |
+| J04 | Description < 10 caractères                   | Erreur validation                    | 🔲     |
 
 ---
 
@@ -223,18 +211,17 @@
 - **Route** : `GET|PATCH /api/mon-espace/profile`, `PATCH /api/mon-espace/account`
 - **Criticité** : P0
 
-| #   | Cas de test                           | Attendu                                  | Statut |
-| --- | ------------------------------------- | ---------------------------------------- | ------ |
-| L01 | Accès non authentifié                 | Redirection vers `/connexion`            | 🔲     |
-| L02 | Accès artisan validé                  | Dashboard avec fiche, stats, messages    | 🔲     |
-| L03 | Accès artisan EN_ATTENTE              | Info "fiche en cours de validation"      | 🔲     |
-| L04 | Modifier prenom, nom, téléphone       | Changements sauvegardés                  | 🔲     |
-| L05 | Modifier description (max 2000 chars) | Sauvegardé, compteur caractères          | 🔲     |
-| L06 | Modifier accroche (max 200 chars)     | Sauvegardé                               | 🔲     |
-| L07 | Changer email                         | Mise à jour sans conflit                 | 🔲     |
-| L08 | Changer mot de passe                  | Hash mis à jour, ancienne session valide | 🔲     |
-| L09 | Ajouter/supprimer métiers             | Relations ArtisanMetier mises à jour     | 🔲     |
-| L10 | Ajouter/supprimer communes            | Relations ArtisanCommune mises à jour    | 🔲     |
+| #   | Cas de test                           | Attendu                                    | Statut |
+| --- | ------------------------------------- | ------------------------------------------ | ------ |
+| L01 | Accès non authentifié                 | Redirection vers `/connexion`              | ✅     |
+| L02 | Accès artisan connecté                | Dashboard avec fiche, stats, messages      | ✅     |
+| L04 | Modifier prenom, nom, téléphone       | Changements sauvegardés                    | 🔲     |
+| L05 | Modifier description (max 2000 chars) | Sauvegardé, compteur caractères            | 🔲     |
+| L06 | Modifier accroche (max 200 chars)     | Sauvegardé                                 | 🔲     |
+| L07 | Changer email                         | Mise à jour sans conflit                   | 🔲     |
+| L08 | Changer mot de passe                  | Hash mis à jour, ancienne session valide   | 🔲     |
+| L09 | Dernières demandes reçues affichées   | ContactRequests visibles dans le dashboard | ✅     |
+| L10 | Ajouter/supprimer communes            | Relations ArtisanCommune mises à jour      | 🔲     |
 
 ---
 
@@ -277,7 +264,7 @@
 
 | #   | Cas de test                                  | Attendu                                                        | Statut |
 | --- | -------------------------------------------- | -------------------------------------------------------------- | ------ |
-| O01 | Accès non authentifié                        | Redirection `/connexion`                                       | 🔲     |
+| O01 | Accès non authentifié                        | Redirection `/connexion`                                       | ✅     |
 | O02 | Créer une conversation particulier → artisan | Conversation créée (unique par paire)                          | 🔲     |
 | O03 | Envoyer un message                           | Message créé `lu=false`                                        | 🔲     |
 | O04 | Artisan répond                               | Message avec `expediteur="artisan"`                            | 🔲     |
@@ -296,24 +283,24 @@
 
 | #   | Cas de test                      | Attendu                                                       | Statut |
 | --- | -------------------------------- | ------------------------------------------------------------- | ------ |
-| P01 | Accès non admin                  | Redirection vers `/admin/login`                               | 🔲     |
-| P02 | Accès admin authentifié          | KPIs, liste artisans, demandes de contact, signalements, avis | 🔲     |
-| P03 | KPIs : total artisans validés    | Chiffre correct                                               | 🔲     |
-| P04 | Navigation par ancres (sections) | Scroll vers la bonne section                                  | 🔲     |
+| P01 | Accès non admin                  | Redirection vers `/admin/login`                               | ✅     |
+| P02 | Accès admin authentifié          | KPIs, liste artisans, demandes de contact, signalements, avis | ✅     |
+| P03 | KPIs : total artisans validés    | Chiffre correct (11 validés, 0 rejetés)                       | ✅     |
+| P04 | Navigation par ancres (sections) | Scroll vers la bonne section                                  | ✅     |
 
 ---
 
-### 6.2 Validation/rejet artisan
+### 6.2 Gestion des artisans (admin)
 
-- **Route** : `PATCH /api/admin/artisans/[id]`
-- **Criticité** : P0
+- **Route** : `DELETE /api/admin/artisans/[id]`
+- **Note** : Il n'y a plus de système de validation manuelle par l'admin. Le passage EN_ATTENTE → VALIDE sera géré par validation email (à implémenter). L'admin ne peut que supprimer les artisans (soft delete).
+- **Criticité** : P1
 
-| #   | Cas de test                     | Attendu                                      | Statut |
-| --- | ------------------------------- | -------------------------------------------- | ------ |
-| Q01 | Valider artisan EN_ATTENTE      | Status → VALIDE, fiche visible publiquement  | 🔲     |
-| Q02 | Rejeter artisan                 | Status → REJETE                              | 🔲     |
-| Q03 | Supprimer artisan (soft delete) | `deletedAt` renseigné, fiche disparaît du FO | 🔲     |
-| Q04 | Action sans token admin         | HTTP 401                                     | 🔲     |
+| #   | Cas de test                               | Attendu                                                                | Statut |
+| --- | ----------------------------------------- | ---------------------------------------------------------------------- | ------ |
+| Q01 | Supprimer artisan (soft delete) via admin | `deletedAt` renseigné, fiche disparaît du FO, label "Supprimé" affiché | ✅     |
+| Q02 | Artisan supprimé non visible en FO        | La fiche artisan renvoie 404                                           | ✅     |
+| Q03 | Action DELETE sans token admin            | HTTP 401                                                               | ✅     |
 
 ---
 
@@ -324,12 +311,12 @@
 
 | #   | Cas de test                                  | Attendu                                           | Statut |
 | --- | -------------------------------------------- | ------------------------------------------------- | ------ |
-| R01 | Lister tous les métiers                      | Liste avec count artisans                         | 🔲     |
-| R02 | Créer un métier                              | Slug auto-généré (NFD + kebab-case), créé en base | 🔲     |
-| R03 | Créer métier avec label dupliqué (même slug) | HTTP 409                                          | 🔲     |
-| R04 | Modifier label/catégorie d'un métier         | Mise à jour, slug inchangé                        | 🔲     |
-| R05 | Supprimer métier sans artisans               | Suppression OK                                    | 🔲     |
-| R06 | Supprimer métier avec artisans liés          | Bloqué, erreur explicite (`_count.artisans > 0`)  | 🔲     |
+| R01 | Lister tous les métiers                      | Liste avec count artisans par catégorie           | ✅     |
+| R02 | Créer un métier                              | Slug auto-généré (NFD + kebab-case), créé en base | ✅     |
+| R03 | Créer métier avec label dupliqué (même slug) | HTTP 409, message erreur affiché                  | ✅     |
+| R04 | Modifier label/catégorie d'un métier         | Mise à jour, slug inchangé                        | ✅     |
+| R05 | Supprimer métier sans artisans               | Confirmation dialog, suppression OK               | ✅     |
+| R06 | Supprimer métier avec artisans liés          | Bouton désactivé (disabled), action impossible    | ✅     |
 
 ---
 
@@ -350,20 +337,9 @@
 - **Route** : `PATCH /api/admin/signalements/[id]`
 - **Criticité** : P1
 
-| #   | Cas de test            | Attendu                               | Statut |
-| --- | ---------------------- | ------------------------------------- | ------ |
-| T01 | Traiter un signalement | Status mis à jour, visible dans admin | 🔲     |
-
----
-
-### 6.6 Assignation de métiers (admin)
-
-- **Route** : `PATCH /api/admin/artisans/[id]/metiers`
-- **Criticité** : P2
-
-| #   | Cas de test                                             | Attendu            | Statut |
-| --- | ------------------------------------------------------- | ------------------ | ------ |
-| U01 | Assigner un métier officiel à un artisan "métier libre" | ArtisanMetier créé | 🔲     |
+| #   | Cas de test                         | Attendu                                               | Statut |
+| --- | ----------------------------------- | ----------------------------------------------------- | ------ |
+| T01 | Traiter un signalement (marquer lu) | Signalement marqué lu, disparaît de la liste/compteur | ✅     |
 
 ---
 
@@ -378,7 +354,7 @@
 | --- | ---------------------------------- | -------------------------------- | ------ |
 | V01 | Accéder à un fichier existant      | Binary avec Content-Type correct | 🔲     |
 | V02 | Accéder à un fichier inexistant    | HTTP 404                         | 🔲     |
-| V03 | Logos affichés sur fiches artisans | Image chargée correctement       | 🔲     |
+| V03 | Logos affichés sur fiches artisans | Images chargées correctement     | ✅     |
 | V04 | Photos portfolio affichées         | Images chargées correctement     | 🔲     |
 
 ---
@@ -387,9 +363,9 @@
 
 | #   | Cas de test                        | Attendu                                 | Statut |
 | --- | ---------------------------------- | --------------------------------------- | ------ |
-| W01 | `sitemap.ts` retourne URLs valides | XML sitemap accessible à `/sitemap.xml` | 🔲     |
-| W02 | `robots.ts` correctement configuré | `/robots.txt` accessible                | 🔲     |
-| W03 | `manifest.ts`                      | `/manifest.webmanifest` accessible      | 🔲     |
+| W01 | `sitemap.ts` retourne URLs valides | XML sitemap accessible à `/sitemap.xml` | ✅     |
+| W02 | `robots.ts` correctement configuré | `/robots.txt` accessible                | ✅     |
+| W03 | `manifest.ts`                      | `/manifest.webmanifest` accessible      | ✅     |
 | W04 | `apple-icon.tsx` + `icon.tsx`      | Favicons générés                        | 🔲     |
 | W05 | Open Graph homepage                | Image générée, dimensions correctes     | 🔲     |
 
@@ -397,16 +373,16 @@
 
 ## 9. Sécurité — Checklist transversale
 
-| #   | Vérification                                                              | Statut |
-| --- | ------------------------------------------------------------------------- | ------ |
-| X01 | Routes `/api/admin/*` rejettent les non-admins (401)                      | 🔲     |
-| X02 | Routes `/api/mon-espace/*` rejettent les non-connectés (401)              | 🔲     |
-| X03 | Un artisan ne peut pas modifier la fiche d'un autre                       | 🔲     |
-| X04 | Rate limiting actif sur les routes sensibles (auth, contact, inscription) | 🔲     |
-| X05 | Tokens (reset, magic link, avis) à usage unique                           | 🔲     |
-| X06 | Soft delete : artisans supprimés absents du FO                            | 🔲     |
-| X07 | Validation Zod côté serveur sur toutes les routes POST/PATCH              | 🔲     |
-| X08 | SIRET non obligatoire mais validé si fourni (format 14 chiffres)          | 🔲     |
+| #   | Vérification                                                               | Statut |
+| --- | -------------------------------------------------------------------------- | ------ |
+| X01 | Routes `/api/admin/*` rejettent les non-admins (401)                       | ✅     |
+| X02 | Pages protégées `/mon-espace` redirigent vers `/connexion` si non connecté | ✅     |
+| X03 | Un artisan ne peut pas modifier la fiche d'un autre                        | 🔲     |
+| X04 | Rate limiting actif sur les routes sensibles (auth, contact, inscription)  | 🔲     |
+| X05 | Tokens (reset password, avis après contact) à usage unique                 | 🔲     |
+| X06 | Soft delete : artisans supprimés absents du FO                             | ✅     |
+| X07 | `/api/besoins` POST requiert authentification (401 sans session)           | ✅     |
+| X08 | SIRET non obligatoire mais validé si fourni (format 14 chiffres)           | 🔲     |
 
 ---
 
@@ -414,7 +390,7 @@
 
 | #   | Scénario                                                            | Attendu                    | Statut |
 | --- | ------------------------------------------------------------------- | -------------------------- | ------ |
-| Y01 | Inscription artisan → validation admin → fiche visible FO           | Workflow complet           | 🔲     |
+| Y01 | Inscription artisan → connexion → fiche visible en FO               | Workflow complet           | 🔲     |
 | Y02 | Contact FO → email artisan → avis via token                         | Workflow contact → avis    | 🔲     |
 | Y03 | Artisan modifie sa fiche → visible immédiatement sur fiche publique | Pas de cache bloquant      | 🔲     |
 | Y04 | Particulier dépose un besoin → visible dans admin                   | Besoin NOUVEAU listé       | 🔲     |
@@ -452,7 +428,7 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/annuaire_artisans
 
 1. Sécurité (section 9) — blocages fondamentaux
 2. Auth (section 1) — prérequis pour tout le reste
-3. Inscription artisan + validation admin (Y01) — workflow central
+3. Inscription artisan + connexion + fiche visible FO (Y01) — workflow central
 4. Pages publiques (sections 2, 3) — FO
 5. Espace artisan (sections 4, 5) — FO authentifié
 6. Admin (section 6) — BO

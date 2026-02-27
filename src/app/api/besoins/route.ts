@@ -16,20 +16,22 @@ export async function POST(req: Request) {
     const session = await auth();
     const userId = (session?.user as { id?: string })?.id;
 
+    if (!userId) {
+      return NextResponse.json({ error: "Connexion requise." }, { status: 401 });
+    }
+
     const body: unknown = await req.json();
     const data = BesoinSchema.parse(body);
 
-    // Persister le prénom sur le compte particulier connecté (silencieux si absent)
-    if (userId) {
-      await prisma.artisan.updateMany({
-        where: { id: userId },
-        data: { prenom: data.prenom },
-      });
-    }
+    // Persister le prénom sur le compte connecté
+    await prisma.artisan.updateMany({
+      where: { id: userId },
+      data: { prenom: data.prenom },
+    });
 
     await prisma.besoin.create({
       data: {
-        artisanId: userId ?? null,
+        artisanId: userId,
         metierSlug: data.metierSlug,
         commune: data.commune,
         description: data.description,
