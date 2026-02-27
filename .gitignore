@@ -49,3 +49,10 @@ next-env.d.ts
 # Uploads utilisateurs (garder le dossier via .gitkeep)
 /public/uploads/besoins/*
 !/public/uploads/besoins/.gitkeep
+
+# Python virtualenv
+.venv/
+
+# Scripts temporaires (vidés à chaque clôture d'étape)
+scripts/tmp/*
+!scripts/tmp/.gitkeep
