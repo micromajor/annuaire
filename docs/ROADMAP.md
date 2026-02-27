@@ -1,6 +1,6 @@
 # Roadmap — OyezArtisans · Réseau local d'artisans
 
-> Dernière mise à jour : 26 février 2026 — Suppression mécanisme draft/validation + système signalement
+> Dernière mise à jour : 2026 — Phase de qualification (QA_PLAN.md créé, copilot-instructions enrichi)
 > Statuts : `[ ]` à faire · `[~]` en cours · `[x]` terminé
 
 ---
@@ -154,6 +154,7 @@ V4 — Communauté locale (clients, assos, territorio)
 - [~] Portfolio chantiers sur la fiche artisan (photos + description) ← prochain
 - [x] SEO : sitemap.xml, meta dynamiques, pages par commune (commit 9ca7208)
 - [x] RGPD : mentions légales, politique confidentialité, suppression de compte (commit eec52d5)
+- [x] **Phase de qualification** : création `docs/QA_PLAN.md` (113 cas de test FO+BO, P0/P1/P2), enrichissement copilot-instructions avec procédure QA, retrait artisans fictifs prod, nettoyage repo
 
 ---
 

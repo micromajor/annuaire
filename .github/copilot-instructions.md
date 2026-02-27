@@ -270,4 +270,52 @@ Avant chaque `git push`, je dois avoir effectué **au moins** les vérifications
 - `docs/ROADMAP.md` — progression du projet
 - `docs/REFERENTIEL_FONCTIONNEL.md` — fonctionnalités détaillées
 - `docs/REFERENTIEL_TECHNIQUE.md` — stack et décisions d'architecture
+- `docs/QA_PLAN.md` — plan de qualification exhaustif
 - `docs/ADR/` — Architecture Decision Records
+
+---
+
+## Processus QA
+
+### Référentiel de test
+
+Le fichier `docs/QA_PLAN.md` est la **source de vérité QA** du projet. Il contient :
+
+- Toutes les fonctionnalités FO + BO avec criticité P0/P1/P2
+- Les cas de test numérotés (happy path + cas limites + sécurité)
+- Le statut de chaque test (🔲 / ✅ / ❌ / ⚠️)
+- Les risques et bugs connus
+
+### Règle de mise à jour du QA_PLAN
+
+- Toute nouvelle fonctionnalité ajoutée **doit avoir ses cas de test dans `QA_PLAN.md` avant le push**.
+- Toute fonctionnalité modifiée : vérifier les cas de test existants et les mettre à jour si nécessaire.
+- Un bug découvert en test **doit être tracé** dans la section "Bugs connus" du QA_PLAN avant correction.
+
+### Cycles de qualification
+
+**Avant chaque push en prod**, exécuter au minimum les tests P0 des sections impactées :
+
+| Type de changement                   | Sections QA obligatoires |
+| ------------------------------------ | ------------------------ |
+| Auth / sessions                      | Section 1 (A, B, C, D)   |
+| Pages publiques                      | Sections 2, 3            |
+| Upload fichiers                      | Section 7                |
+| Routes admin                         | Section 6 + X01-X04      |
+| Modifications de composants partagés | Section 10 (régressions) |
+| Release majeure                      | Toutes les sections P0   |
+
+### Convention des statuts
+
+- `🔲` Non testé
+- `✅` Testé et conforme
+- `❌` Bug confirmé — créer un ticket `[BUG] #ID — description`
+- `⚠️` Comportement ambigu — documenter la note inline avant de clore
+
+### Criticité des défauts
+
+| Priorité | Impact                                                       | SLA de correction        |
+| -------- | ------------------------------------------------------------ | ------------------------ |
+| P0       | Bloquant en prod (perte de données, 500, auth cassée)        | Corriger avant tout push |
+| P1       | Dégradation notable (feature inaccessible, email non envoyé) | Sprint en cours          |
+| P2       | Mineur (esthétique, confort)                                 | Backlog                  |
