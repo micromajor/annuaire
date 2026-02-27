@@ -17,6 +17,61 @@ Tu ne te contentes pas d'exécuter : tu questionnes, proposes des alternatives, 
 
 ---
 
+## Philosophie UX — Guider et assister l'utilisateur
+
+> Règle fondamentale : **nos utilisateurs (artisans du BTP, particuliers locaux) ne sont pas des experts du web**. Chaque écran doit se comporter comme un assistant, pas comme un formulaire.
+
+### Principe directeur
+
+L'interface doit **anticiper la confusion** et **éliminer l'incertitude** à chaque étape. Un artisan qui ne comprend pas ce qu'il doit faire abandonne. Un particulier qui ne reçoit pas de feedback pense que ça n'a pas marché.
+
+### Règles concrètes à appliquer systématiquement
+
+#### 1. Toujours indiquer l'état et les prochaines étapes
+
+- Après toute action (soumission de formulaire, upload, envoi) → **confirmer visuellement** ce qui s'est passé et ce qui va se passer.
+- Les statuts ambigus (`EN_ATTENTE`) doivent être **expliqués en langue naturelle** : ne jamais afficher un label technique sans contexte.
+- Exemple : ~~"⏳ En attente de validation"~~ → ✅ "📨 Fiche soumise — en attente de validation. Vous recevrez un email sous 48h."
+
+#### 2. Toujours donner une porte de sortie en cas de doute
+
+- Si l'utilisateur peut se demander "est-ce que ça a marché ?" → prévoir un mécanisme de **re-confirmation** (ex : bouton "Je n'ai pas reçu l'email").
+- Les boutons de re-envoi/retry doivent toujours être **rate-limited** (cooldown visible) pour éviter le mitaillage serveur.
+- Le cooldown doit être **persisté** (localStorage ou cookie) pour survivre aux rechargements de page.
+
+#### 3. Textes d'aide contextuels sur les champs importants
+
+- Tout champ dont le but n'est pas évident pour un non-initié doit avoir une **aide inline** (texte gris sous le label, tooltip, ou exemple de valeur).
+- Les placeholders ne suffisent pas — ils disparaissent dès que l'utilisateur tape.
+- Exemples : description → _"Ce texte apparaît sur votre fiche publique. Parlez de votre expérience, vos spécialités."_ ; accroche → _"1 phrase courte affichée en évidence. Ex : 'Maçon depuis 20 ans à Nantes'"_
+
+#### 4. Feedbacks d'erreur humains, pas techniques
+
+- Jamais de messages d'erreur technique bruts (`422 Unprocessable Entity`).
+- Les erreurs de validation sont affichées **inline, sous le champ concerné**, en français courant.
+- Les erreurs globales (réseau, serveur) ont un message rassurant + une action possible ("Réessayer").
+
+#### 5. Checklist de progression pour les parcours multi-étapes
+
+- Tout parcours avec plusieurs étapes (ex : création de fiche artisan) doit avoir un **indicateur de progression** visible.
+- Cela peut être une barre de progression, un stepper, ou une checklist "Ce qu'il vous reste à faire".
+- L'utilisateur doit savoir en permanence où il en est et ce qu'il lui manque.
+
+#### 6. Ne jamais laisser un état terminal sans explication
+
+- Fiche rejetée → expliquer **pourquoi** (ou comment corriger) et proposer une action claire ("Modifier et re-soumettre").
+- Fiche validée → féliciter, montrer le lien vers la fiche publique, proposer les prochaines améliorations (logo, portfolio).
+- Compte sans fiche → guider explicitement vers la complétion du profil.
+
+### Ce que ça implique techniquement
+
+- Les emails transactionnels sont **obligatoires** à chaque transition d'état importante (soumission, validation, rejet).
+- Les rate limits sur les actions répétables (renvoi email, contact) doivent toujours retourner un `nextAllowedAt` pour que le frontend affiche un compte à rebours précis.
+- Les états de chargement (`loading`) sont **toujours visibles** sur les boutons qui déclenchent une action réseau.
+- Les composants client persistant un état (cooldown, progression) utilisent `localStorage` avec fallback gracieux si indisponible.
+
+---
+
 ## Principes de code
 
 ### Général
