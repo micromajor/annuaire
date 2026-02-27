@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
-import { auth, signOut } from "@/lib/auth";
+import { auth } from "@/lib/auth";
+import { signOutAction } from "@/app/actions";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/client";
 import AutoSignOut from "@/components/ui/AutoSignOut";
@@ -63,12 +64,7 @@ export default async function MonEspacePage() {
           </Link>
           <nav className="flex items-center gap-3">
             <NavMessagerieIcon />
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/" });
-              }}
-            >
+            <form action={signOutAction}>
               <button
                 type="submit"
                 aria-label="Se déconnecter"
@@ -257,12 +253,7 @@ export default async function MonEspacePage() {
         </Link>
         <nav className="flex items-center gap-3">
           <NavMessagerieIcon />
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/" });
-            }}
-          >
+          <form action={signOutAction}>
             <button
               type="submit"
               aria-label="Se déconnecter"

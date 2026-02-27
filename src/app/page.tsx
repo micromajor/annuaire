@@ -6,7 +6,8 @@ import HeroSearch from "@/components/features/HeroSearch";
 import { type BesoinItem } from "@/components/features/MatchingBesoins";
 import ArtisanHomeView from "@/components/features/ArtisanHomeView";
 import ParticulierHome from "@/components/features/ParticulierHome";
-import { auth, signOut } from "@/lib/auth";
+import { auth } from "@/lib/auth";
+import { signOutAction } from "@/app/actions";
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import { prisma } from "@/lib/db/client";
 import AutoSignOut from "@/components/ui/AutoSignOut";
@@ -161,12 +162,7 @@ export default async function HomePage() {
                     <circle cx="12" cy="7" r="4" />
                   </svg>
                 </Link>
-                <form
-                  action={async () => {
-                    "use server";
-                    await signOut({ redirectTo: "/" });
-                  }}
-                >
+                <form action={signOutAction}>
                   <button
                     type="submit"
                     aria-label="Se déconnecter"
@@ -213,12 +209,7 @@ export default async function HomePage() {
                     <circle cx="12" cy="7" r="4" />
                   </svg>
                 </Link>
-                <form
-                  action={async () => {
-                    "use server";
-                    await signOut({ redirectTo: "/" });
-                  }}
-                >
+                <form action={signOutAction}>
                   <button
                     type="submit"
                     aria-label="Se déconnecter"
@@ -250,12 +241,7 @@ export default async function HomePage() {
                 >
                   Administration
                 </Link>
-                <form
-                  action={async () => {
-                    "use server";
-                    await signOut({ redirectTo: "/" });
-                  }}
-                >
+                <form action={signOutAction}>
                   <button
                     type="submit"
                     aria-label="Se déconnecter"

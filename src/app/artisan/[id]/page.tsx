@@ -3,7 +3,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db/client";
-import { auth, signOut } from "@/lib/auth";
+import { auth } from "@/lib/auth";
+import { signOutAction } from "@/app/actions";
 import ContactForm from "@/components/features/ContactForm";
 import AvisList from "@/components/features/AvisList";
 import AvisForm from "@/components/features/AvisForm";
@@ -211,12 +212,7 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                     <circle cx="12" cy="7" r="4" />
                   </svg>
                 </Link>
-                <form
-                  action={async () => {
-                    "use server";
-                    await signOut({ redirectTo: "/" });
-                  }}
-                >
+                <form action={signOutAction}>
                   <button
                     type="submit"
                     aria-label="Se deconnecter"
