@@ -36,16 +36,20 @@ export async function POST(req: NextRequest) {
   if (!(await requireAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const body = await req.json();
-  const parsed = z.object({ label: z.string().min(1).max(80) }).safeParse(body);
+  const parsed = z
+    .object({ label: z.string().min(1).max(80), categorie: z.string().max(80).optional() })
+    .safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Label invalide" }, { status: 400 });
 
-  const { label } = parsed.data;
+  const { label, categorie } = parsed.data;
   const slug = slugify(label);
 
   const existing = await prisma.metier.findUnique({ where: { slug } });
   if (existing)
     return NextResponse.json({ error: "Un métier avec ce slug existe déjà" }, { status: 409 });
 
-  const metier = await prisma.metier.create({ data: { slug, label } });
+  const metier = await prisma.metier.create({
+    data: { slug, label, categorie: categorie ?? null },
+  });
   return NextResponse.json(metier, { status: 201 });
 }
