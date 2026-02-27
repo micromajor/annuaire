@@ -147,7 +147,7 @@ export default function MetierCombobox({ metiers, selected, onChange, error }: P
         <div
           id={listId}
           role="listbox"
-          className="absolute z-[999] mt-1 max-h-72 w-full overflow-y-auto rounded-xl border-2 border-[#1a1a1a] bg-white shadow-lg"
+          className="absolute z-[1050] mt-1 max-h-72 w-full overflow-y-auto rounded-xl border-2 border-[#1a1a1a] bg-white shadow-lg"
           style={{ boxShadow: "3px 3px 0 #1a1a1a" }}
         >
           {hasResults ? (
