@@ -228,6 +228,11 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
                   className="sr-only"
                 />
                 <p className="mt-1.5 text-xs text-gray-400">PNG, JPG, WebP ou SVG · max 2 Mo</p>
+                <p className="mt-1 text-xs text-gray-400">
+                  💡 <span className="font-semibold">Recommandé :</span> image carrée, minimum{" "}
+                  <span className="font-semibold">400×400 px</span> — pour un affichage optimal sur
+                  la carte de partage réseaux sociaux.
+                </p>
                 {form.logoUrl && (
                   <button
                     type="button"

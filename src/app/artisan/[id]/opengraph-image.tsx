@@ -169,99 +169,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
 
       {/* CORPS */}
       <div style={{ display: "flex", flex: 1, zIndex: 1 }}>
-        {/* Colonne gauche — avatar / note */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 260,
-            background: "#ffd93d",
-            borderRight: "8px solid #1a1a2e",
-            gap: 20,
-            padding: "28px 24px",
-            flexShrink: 0,
-          }}
-        >
-          {/* Logo ou emoji dans encadre BD */}
-          {logoDataUrl ? (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 144,
-                height: 144,
-                borderRadius: 20,
-                border: "6px solid #1a1a2e",
-                background: "#fff",
-                overflow: "hidden",
-              }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={logoDataUrl}
-                alt={nom}
-                width={144}
-                height={144}
-                style={{
-                  objectFit: "contain",
-                  width: "100%",
-                  height: "100%",
-                }}
-              />
-            </div>
-          ) : (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 144,
-                height: 144,
-                background: "#fff",
-                borderRadius: 20,
-                border: "6px solid #1a1a2e",
-                fontSize: 72,
-                boxShadow: "5px 5px 0 #1a1a2e",
-              }}
-            >
-              {emoji}
-            </div>
-          )}
-
-          {/* Note etoiles */}
-          {moyenne !== null && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 4,
-                background: "#fff",
-                border: "4px solid #1a1a2e",
-                borderRadius: 16,
-                padding: "10px 18px",
-                boxShadow: "4px 4px 0 #1a1a2e",
-              }}
-            >
-              <div style={{ display: "flex", gap: 3 }}>
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <span key={i} style={{ fontSize: 22, color: i <= stars ? "#ff9500" : "#ddd" }}>
-                    &#9733;
-                  </span>
-                ))}
-              </div>
-              <span style={{ fontSize: 22, fontWeight: 900, color: "#1a1a2e" }}>
-                {moyenne.toFixed(1)}/5
-              </span>
-              <span style={{ fontSize: 14, color: "#666", fontWeight: 700 }}>{avisCount} avis</span>
-            </div>
-          )}
-        </div>
-
-        {/* Colonne droite — infos artisan */}
+        {/* Colonne gauche — infos artisan (fond jaune) */}
         <div
           style={{
             display: "flex",
@@ -373,6 +281,74 @@ export default async function Image({ params }: { params: Promise<{ id: string }
                   {tel}
                 </span>
               </div>
+            </div>
+          )}
+
+          {/* Note etoiles — integree dans la colonne gauche */}
+          {moyenne !== null && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  background: "#fff",
+                  border: "3px solid #1a1a2e",
+                  borderRadius: 12,
+                  padding: "6px 16px",
+                  boxShadow: "3px 3px 0 #1a1a2e",
+                }}
+              >
+                <div style={{ display: "flex", gap: 2 }}>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <span key={i} style={{ fontSize: 20, color: i <= stars ? "#ff9500" : "#ddd" }}>
+                      &#9733;
+                    </span>
+                  ))}
+                </div>
+                <span style={{ fontSize: 20, fontWeight: 900, color: "#1a1a2e" }}>
+                  {moyenne.toFixed(1)}/5
+                </span>
+                <span style={{ fontSize: 14, color: "#666", fontWeight: 700 }}>
+                  ({avisCount} avis)
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Colonne droite — grand fond blanc, logo maximise */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 260,
+            background: "#ffffff",
+            borderLeft: "8px solid #1a1a2e",
+            flexShrink: 0,
+            padding: "24px",
+          }}
+        >
+          {logoDataUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoDataUrl}
+              alt={nom}
+              width={212}
+              height={212}
+              style={{ objectFit: "contain", width: 212, height: 212 }}
+            />
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 110,
+              }}
+            >
+              {emoji}
             </div>
           )}
         </div>
