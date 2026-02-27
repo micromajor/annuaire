@@ -11,6 +11,7 @@ import PortfolioUploader from "@/components/features/PortfolioUploader";
 import DangerZone from "@/components/features/DangerZone";
 import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapper";
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
+import ResendConfirmationButton from "@/components/features/ResendConfirmationButton";
 
 export default async function MonEspacePage() {
   const session = await auth();
@@ -233,9 +234,9 @@ export default async function MonEspacePage() {
   );
 
   const statusLabel: Record<string, string> = {
-    EN_ATTENTE: ficheVide ? "⚙️ Profil à compléter" : "⏳ En attente de validation",
+    EN_ATTENTE: ficheVide ? "⚙️ Profil à compléter" : "📨 Fiche soumise — en attente de validation",
     VALIDE: "✅ Fiche en ligne",
-    REJETE: "❌ Fiche rejetée",
+    REJETE: "❌ Fiche rejetée — corrigez et renvoyez",
   };
   const statusColor: Record<string, string> = {
     EN_ATTENTE: ficheVide ? "bg-gray-200 text-gray-600" : "bg-[#ffd93d] text-[#1a1a2e]",
@@ -383,6 +384,13 @@ export default async function MonEspacePage() {
               </div>
             );
           })()}
+
+        {/* Carte de confirmation : visible uniquement quand EN_ATTENTE + fiche soumise */}
+        {artisan.status === "EN_ATTENTE" && !ficheVide && (
+          <div className="mb-6">
+            <ResendConfirmationButton email={artisan.email} />
+          </div>
+        )}
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {/* Formulaire de modification / complétion */}

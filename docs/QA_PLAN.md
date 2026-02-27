@@ -212,20 +212,23 @@
 ### 4.1 Mon Espace — Dashboard artisan
 
 - **Page** : `/mon-espace`
-- **Route** : `GET|PATCH /api/mon-espace/profile`, `PATCH /api/mon-espace/account`
+- **Route** : `GET|PATCH /api/mon-espace/profile`, `PATCH /api/mon-espace/account`, `POST /api/mon-espace/resend-confirmation`
 - **Criticité** : P0
 
-| #   | Cas de test                           | Attendu                                    | Statut |
-| --- | ------------------------------------- | ------------------------------------------ | ------ |
-| L01 | Accès non authentifié                 | Redirection vers `/connexion`              | ✅     |
-| L02 | Accès artisan connecté                | Dashboard avec fiche, stats, messages      | ✅     |
-| L04 | Modifier prenom, nom, téléphone       | Changements sauvegardés                    | ✅     |
-| L05 | Modifier description (max 2000 chars) | Sauvegardé, compteur caractères            | ✅     |
-| L06 | Modifier accroche (max 200 chars)     | Sauvegardé                                 | ✅     |
-| L07 | Changer email                         | Mise à jour sans conflit                   | ⚠️     |
-| L08 | Changer mot de passe                  | Hash mis à jour, ancienne session valide   | ⚠️     |
-| L09 | Dernières demandes reçues affichées   | ContactRequests visibles dans le dashboard | ✅     |
-| L10 | Ajouter/supprimer communes            | Relations ArtisanCommune mises à jour      | ✅     |
+| #   | Cas de test                                       | Attendu                                                                                        | Statut |
+| --- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------ |
+| L01 | Accès non authentifié                             | Redirection vers `/connexion`                                                                  | ✅     |
+| L02 | Accès artisan connecté                            | Dashboard avec fiche, stats, messages                                                          | ✅     |
+| L04 | Modifier prenom, nom, téléphone                   | Changements sauvegardés                                                                        | ✅     |
+| L05 | Modifier description (max 2000 chars)             | Sauvegardé, compteur caractères                                                                | ✅     |
+| L06 | Modifier accroche (max 200 chars)                 | Sauvegardé                                                                                     | ✅     |
+| L07 | Changer email                                     | Mise à jour sans conflit                                                                       | ⚠️     |
+| L08 | Changer mot de passe                              | Hash mis à jour, ancienne session valide                                                       | ⚠️     |
+| L09 | Dernières demandes reçues affichées               | ContactRequests visibles dans le dashboard                                                     | ✅     |
+| L10 | Ajouter/supprimer communes                        | Relations ArtisanCommune mises à jour                                                          | ✅     |
+| L11 | Statut EN_ATTENTE + fiche soumise → badge + carte | Badge "📨 Fiche soumise — en attente de validation", carte avec email + bouton renvoi affichés | ✅     |
+| L12 | Bouton "renvoyer email" — 1er clic                | 200, bouton désactivé avec compte à rebours 10min                                              | ✅     |
+| L13 | Bouton "renvoyer email" — 2ème clic (rate limit)  | 429, message "Patientez quelques minutes", `nextAllowedAt` retourné                            | ✅     |
 
 ---
 

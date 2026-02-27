@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
 import { z } from "zod";
-import { Resend } from "resend";
-
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+import { sendConfirmationSoumission, sendAdminNouvelleInscription } from "@/lib/email";
 
 // Extraire le type du client de transaction depuis la signature de $transaction
 type TxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
@@ -77,6 +75,19 @@ export async function PUT(req: NextRequest) {
     communePairs,
   } = parsed.data;
 
+  // Détecter une première soumission (artisan sans métier jusqu'ici)
+  const currentArtisan = await prisma.artisan.findUnique({
+    where: { id: artisanId },
+    select: {
+      status: true,
+      email: true,
+      prenom: true,
+      metiers: { take: 1, select: { metierId: true } },
+    },
+  });
+  const isFirstSubmission =
+    (currentArtisan?.metiers.length ?? 0) === 0 && currentArtisan?.status === "EN_ATTENTE";
+
   // Résoudre les métiers
   const metiers = await prisma.metier.findMany({
     where: { slug: { in: metierSlugs } },
@@ -134,31 +145,53 @@ export async function PUT(req: NextRequest) {
     return updatedArtisan;
   });
 
-  // Notification admin si l'artisan re-soumet après rejet
-  if (updated.status === "EN_ATTENTE" && resend) {
+  const nomAffiche = updated.raisonSociale ?? `${updated.prenom} ${updated.nom}`;
+  const metierLabels = metiers.map((m: { label: string }) => m.label).join(", ");
+  const communeNoms = communes.map((c: { nom: string }) => c.nom).join(", ");
+
+  if (isFirstSubmission) {
+    // 1ère soumission : email de confirmation à l'artisan + notification admin
+    await Promise.allSettled([
+      sendConfirmationSoumission({
+        destinataireEmail: updated.email,
+        prenomArtisan: updated.prenom || nomAffiche,
+      }),
+      sendAdminNouvelleInscription({
+        nomArtisan: nomAffiche,
+        emailArtisan: updated.email,
+        metierLabels: metierLabels || "(aucun)",
+        communeNoms: communeNoms || "(aucune)",
+        artisanId: updated.id,
+      }),
+    ]);
+  } else if (currentArtisan?.status === "REJETE") {
+    // Re-soumission après rejet uniquement : notification admin
+    const APP_URL = process.env.NEXTAUTH_URL ?? "https://oyezartisans.fr";
     const adminEmail = process.env.ADMIN_EMAIL ?? "contact@oyezartisans.fr";
-    const nomAffiche = updated.raisonSociale ?? `${updated.prenom} ${updated.nom}`;
-    const metierLabels = metiers.map((m: { label: string }) => m.label).join(", ");
-    await resend.emails
-      .send({
-        from: "OyezArtisans <noreply@oyezartisans.fr>",
-        to: adminEmail,
-        subject: `🔄 Fiche corrigée en attente de validation : ${nomAffiche}`,
-        html: `
-        <h2>Fiche artisan corrigée — nouvelle demande de validation</h2>
-        <p>L'artisan <strong>${nomAffiche}</strong> a modifié sa fiche suite à un rejet et la resoumet à validation.</p>
-        <ul>
-          <li><strong>Email :</strong> ${updated.email}</li>
-          ${updated.telephone ? `<li><strong>Tél :</strong> ${updated.telephone}</li>` : ""}
-          <li><strong>Métiers :</strong> ${metierLabels || "(aucun)"}</li>
-          ${updated.metierLibre ? `<li><strong>Métier libre :</strong> ${updated.metierLibre}</li>` : ""}
-          <li><strong>Communes :</strong> ${communes.map((c: { nom: string }) => c.nom).join(", ")}</li>
-        </ul>
-        <p><a href="${process.env.NEXTAUTH_URL ?? "https://oyezartisans.fr"}/admin">Valider depuis le back-office →</a></p>
-      `,
-      })
-      .catch(() => null); // non-bloquant
+    const { Resend } = await import("resend");
+    const resendClient = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+    if (resendClient) {
+      await resendClient.emails
+        .send({
+          from: `OyezArtisans <${process.env.EMAIL_FROM ?? "onboarding@resend.dev"}>`,
+          to: adminEmail,
+          subject: `🔄 Fiche corrigée en attente de validation : ${nomAffiche}`,
+          html: `
+          <h2>Fiche artisan corrigée — nouvelle demande de validation</h2>
+          <p>L'artisan <strong>${nomAffiche}</strong> a modifié sa fiche suite à un rejet et la resoumet à validation.</p>
+          <ul>
+            <li><strong>Email :</strong> ${updated.email}</li>
+            ${updated.telephone ? `<li><strong>Tél :</strong> ${updated.telephone}</li>` : ""}
+            <li><strong>Métiers :</strong> ${metierLabels || "(aucun)"}</li>
+            ${updated.metierLibre ? `<li><strong>Métier libre :</strong> ${updated.metierLibre}</li>` : ""}
+            <li><strong>Communes :</strong> ${communeNoms}</li>
+          </ul>
+          <p><a href="${APP_URL}/admin">Valider depuis le back-office →</a></p>
+        `,
+        })
+        .catch(() => null);
+    }
   }
 
-  return NextResponse.json({ ok: true, artisanId: updated.id });
+  return NextResponse.json({ ok: true, artisanId: updated.id, firstSubmission: isFirstSubmission });
 }
