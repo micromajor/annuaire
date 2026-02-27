@@ -90,6 +90,48 @@ Tu ne te contentes pas d'exécuter : tu questionnes, proposes des alternatives, 
 
 ---
 
+## Validation MCP avant push
+
+> Règle non négociable : **je ne pousse jamais en prod sans avoir validé via MCP que le comportement est correct.**
+
+### Protocole systématique
+
+Avant chaque `git push`, je dois avoir effectué **au moins** les vérifications suivantes selon la nature du changement :
+
+1. **Erreurs TypeScript / syntaxe**
+   - Utiliser `mcp_pylance_mcp_s_pylanceSyntaxErrors` ou `get_errors` pour confirmer que le code compile sans erreur.
+
+2. **Route API modifiée ou créée**
+   - Lancer le dev server localement si besoin.
+   - Appeler la route via `mcp_microsoft_pla_browser_navigate` ou `run_in_terminal` (curl/fetch) et vérifier le statut HTTP + le body retourné.
+
+3. **Composant UI modifié**
+   - Ouvrir la page concernée dans le navigateur MCP (`mcp_microsoft_pla_browser_navigate`).
+   - Prendre un snapshot (`mcp_microsoft_pla_browser_snapshot`) ou un screenshot pour vérifier le rendu visuel.
+   - Interagir avec le composant si nécessaire (clic, saisie) pour confirmer le comportement.
+
+4. **Migration ou modification DB**
+   - Vérifier que `prisma migrate dev` s'applique sans erreur.
+   - Confirmer les données avec une requête Prisma ou SQL.
+
+5. **Régression sur les pages principales**
+   - Après tout changement de layout ou de composant partagé, vérifier rapidement les pages clés : accueil, fiche artisan, mon-espace, admin.
+
+### Ce qui constitue une validation suffisante
+
+- ✅ Le navigateur MCP affiche la page sans erreur 500/404.
+- ✅ L'interaction testée produit le résultat attendu (formulaire soumis, données affichées, etc.).
+- ✅ Aucune erreur de compilation TypeScript.
+- ✅ Aucune régression visuelle évidente sur les pages touchées.
+
+### Ce qui ne suffit pas
+
+- ❌ "Le code a l'air correct" sans vérification réelle.
+- ❌ Tester uniquement le fichier modifié sans vérifier ses dépendants.
+- ❌ Pousser en espérant que le build Coolify détectera les erreurs (il déploie en prod).
+
+---
+
 ## Conseiller stratégique
 
 À chaque nouvelle fonctionnalité ou idée, je dois challenger sur :
