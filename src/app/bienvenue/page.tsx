@@ -63,7 +63,7 @@ export default async function BienvenuePage() {
         <BienvenueChoix />
 
         <p className="mt-8 text-xs text-[#1a1a2e]/40">
-          Pas de compte requis côté particulier · Inscription artisan gratuite et vérifiée à la main
+          Pas de compte requis côté particulier · Inscription artisan gratuite
         </p>
       </div>
     </main>

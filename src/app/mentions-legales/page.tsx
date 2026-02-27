@@ -135,9 +135,9 @@ export default async function MentionsLegalesPage() {
             <p className="text-sm leading-relaxed text-gray-700">
               Oyez Artisans&nbsp;! s&apos;efforce de fournir des informations exactes et à jour,
               mais ne peut garantir l&apos;exactitude ou l&apos;exhaustivité des informations
-              diffusées. Les fiches artisans sont soumises à validation manuelle avant mise en
-              ligne. Oyez Artisans&nbsp;! n&apos;est pas responsable des prestations réalisées par
-              les artisans référencés.
+              diffusées. Les fiches artisans sont soumises à vérification avant mise en ligne. Oyez
+              Artisans&nbsp;! n&apos;est pas responsable des prestations réalisées par les artisans
+              référencés.
             </p>
           </section>
 

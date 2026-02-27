@@ -306,7 +306,7 @@ Avant chaque `git push`, je dois avoir effectué **au moins** les vérifications
 - Fonctionnalités V1 :
   - Annuaire consultable avec fiches artisans
   - **Mise en relation directe** client particulier ↔ artisan (formulaire de contact / messagerie simple)
-  - Inscription artisan (libre avec validation manuelle)
+  - Inscription artisan (libre — Google OAuth auto-validé, email/password via lien de vérification)
   - Saisie manuelle complémentaire par l'équipe (mix)
 
 ### Identité visuelle
