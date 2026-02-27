@@ -125,11 +125,18 @@ Avant chaque `git push`, je dois avoir effectué **au moins** les vérifications
 - ✅ Aucune régression visuelle évidente sur les pages touchées.
 
 6. **Espace disque sur le VPS**
-   - Avant tout push, vérifier l'espace disponible : `ssh root@37.27.222.18 "df -h /"`.
-   - Si le disque est rempli à plus de **50%**, effectuer un nettoyage avant de pousser :
-     - `docker system prune -f` (images/conteneurs/réseaux non utilisés)
-     - `docker image prune -a -f` si besoin de récupérer plus d'espace
-   - Un disque plein lors du build Coolify fait échouer silencieusement le déploiement.
+   - Avant tout push, vérifier que le VPS a au moins **50% d'espace disque libre** :
+     ```bash
+     ssh root@37.27.222.18 "df -h /"
+     ```
+   - Si l'espace libre est < 50%, effectuer un nettoyage avant de pousser :
+     ```bash
+     # Supprimer les images Docker non utilisées
+     ssh root@37.27.222.18 "docker system prune -af --volumes"
+     # Vérifier les logs volumineux
+     ssh root@37.27.222.18 "du -sh /var/log/* | sort -rh | head -10"
+     ```
+   - Ne jamais pousser si le disque est saturé — le build Coolify échoue silencieusement ou corrompt des fichiers.
 
 ### Ce qui constitue une validation suffisante
 
@@ -137,14 +144,14 @@ Avant chaque `git push`, je dois avoir effectué **au moins** les vérifications
 - ✅ L'interaction testée produit le résultat attendu (formulaire soumis, données affichées, etc.).
 - ✅ Aucune erreur de compilation TypeScript.
 - ✅ Aucune régression visuelle évidente sur les pages touchées.
-- ✅ Disque VPS disponible à ≥ 50%.
+- ✅ Le VPS a au moins 50% d'espace disque libre.
 
 ### Ce qui ne suffit pas
 
 - ❌ "Le code a l'air correct" sans vérification réelle.
 - ❌ Tester uniquement le fichier modifié sans vérifier ses dépendants.
 - ❌ Pousser en espérant que le build Coolify détectera les erreurs (il déploie en prod).
-- ❌ Pousser sans avoir vérifié l'espace disque du VPS.
+- ❌ Ignorer un disque VPS proche de la saturation.
 
 ---
 
