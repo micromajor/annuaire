@@ -93,7 +93,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               email: user.email,
               prenom,
               nom,
-              status: "EN_ATTENTE",
+              // Google a déjà vérifié l'email → fiche directement publiable
+              status: "VALIDE",
             },
             select: {
               id: true,
@@ -105,6 +106,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             },
           });
           isNew = true;
+        }
+
+        // Artisan Google existant encore EN_ATTENTE (cas de migration) → auto-valider
+        if (!isNew && artisan.status === "EN_ATTENTE") {
+          await prisma.artisan.update({
+            where: { id: artisan.id },
+            data: { status: "VALIDE" },
+          });
+          artisan = { ...artisan, status: "VALIDE" };
         }
 
         // Lier le compte OAuth s'il ne l'est pas encore

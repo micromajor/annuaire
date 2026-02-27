@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
-import { sendConfirmationSoumission } from "@/lib/email";
+import { sendEmailVerification } from "@/lib/email";
+import crypto from "crypto";
 
 // Rate limit : 1 renvoi toutes les 10 minutes par artisan (en mémoire)
 const COOLDOWN_MS = 10 * 60 * 1000;
@@ -19,7 +20,14 @@ export async function POST() {
   // Vérifier que l'artisan est bien EN_ATTENTE (pas VALIDE, pas REJETE)
   const artisan = await prisma.artisan.findUnique({
     where: { id: artisanId },
-    select: { status: true, email: true, prenom: true, metiers: { take: 1 } },
+    select: {
+      status: true,
+      email: true,
+      prenom: true,
+      passwordHash: true,
+      emailVerificationToken: true,
+      metiers: { select: { artisanId: true }, take: 1 },
+    },
   });
 
   if (!artisan) {
@@ -36,6 +44,17 @@ export async function POST() {
   if (artisan.metiers.length === 0) {
     return NextResponse.json(
       { error: "Complétez d'abord votre fiche avant de renvoyer l'email." },
+      { status: 400 }
+    );
+  }
+
+  // Compte sans mot de passe = compte Google OAuth (devrait être auto-validé — cas de migration)
+  if (!artisan.passwordHash) {
+    return NextResponse.json(
+      {
+        error:
+          "Votre compte Google sera validé automatiquement à votre prochaine connexion. Déconnectez-vous et reconnectez-vous avec Google.",
+      },
       { status: 400 }
     );
   }
@@ -57,9 +76,20 @@ export async function POST() {
   resendLimitMap.set(artisanId, now);
   const nextAllowedAt = now + COOLDOWN_MS;
 
-  await sendConfirmationSoumission({
+  // Réutiliser le token existant ou en générer un nouveau si absent/expiré
+  let token = artisan.emailVerificationToken;
+  if (!token) {
+    token = crypto.randomBytes(32).toString("hex");
+    await prisma.artisan.update({
+      where: { id: artisanId },
+      data: { emailVerificationToken: token },
+    });
+  }
+
+  await sendEmailVerification({
     destinataireEmail: artisan.email,
     prenomArtisan: artisan.prenom || "artisan",
+    token,
   });
 
   return NextResponse.json({ ok: true, nextAllowedAt });

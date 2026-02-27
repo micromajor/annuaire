@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
 import { z } from "zod";
-import { sendConfirmationSoumission, sendAdminNouvelleInscription } from "@/lib/email";
+import { sendEmailVerification, sendAdminNouvelleInscription } from "@/lib/email";
+import crypto from "crypto";
 
 // Extraire le type du client de transaction depuis la signature de $transaction
 type TxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
@@ -82,11 +83,15 @@ export async function PUT(req: NextRequest) {
       status: true,
       email: true,
       prenom: true,
+      passwordHash: true,
       metiers: { take: 1, select: { metierId: true } },
     },
   });
+  // isFirstSubmission : 1ère fois que l'artisan email/password soumet un métier
   const isFirstSubmission =
-    (currentArtisan?.metiers.length ?? 0) === 0 && currentArtisan?.status === "EN_ATTENTE";
+    (currentArtisan?.metiers.length ?? 0) === 0 &&
+    currentArtisan?.status === "EN_ATTENTE" &&
+    !!currentArtisan?.passwordHash;
 
   // Résoudre les métiers
   const metiers = await prisma.metier.findMany({
@@ -130,8 +135,8 @@ export async function PUT(req: NextRequest) {
         accroche: accroche || null,
         logoUrl: logoUrl || null,
         metierLibre: metierLibre || null,
-        // Remet en attente si la fiche était rejetée
-        ...(current?.status === "REJETE" ? { status: "EN_ATTENTE" } : {}),
+        // Re-soumission après rejet → auto-VALIDE (plus de validation manuelle)
+        ...(current?.status === "REJETE" ? { status: "VALIDE" } : {}),
       },
     });
 
@@ -150,11 +155,17 @@ export async function PUT(req: NextRequest) {
   const communeNoms = communes.map((c: { nom: string }) => c.nom).join(", ");
 
   if (isFirstSubmission) {
-    // 1ère soumission : email de confirmation à l'artisan + notification admin
+    // 1ère soumission email/password : générer token + envoyer lien de vérification + notifier admin
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    await prisma.artisan.update({
+      where: { id: artisanId },
+      data: { emailVerificationToken: verificationToken },
+    });
     await Promise.allSettled([
-      sendConfirmationSoumission({
+      sendEmailVerification({
         destinataireEmail: updated.email,
         prenomArtisan: updated.prenom || nomAffiche,
+        token: verificationToken,
       }),
       sendAdminNouvelleInscription({
         nomArtisan: nomAffiche,
@@ -165,7 +176,7 @@ export async function PUT(req: NextRequest) {
       }),
     ]);
   } else if (currentArtisan?.status === "REJETE") {
-    // Re-soumission après rejet uniquement : notification admin
+    // Re-soumission après rejet : auto-VALIDE (fait en transaction), juste notifier l'admin
     const APP_URL = process.env.NEXTAUTH_URL ?? "https://oyezartisans.fr";
     const adminEmail = process.env.ADMIN_EMAIL ?? "contact@oyezartisans.fr";
     const { Resend } = await import("resend");
@@ -175,10 +186,10 @@ export async function PUT(req: NextRequest) {
         .send({
           from: `OyezArtisans <${process.env.EMAIL_FROM ?? "onboarding@resend.dev"}>`,
           to: adminEmail,
-          subject: `🔄 Fiche corrigée en attente de validation : ${nomAffiche}`,
+          subject: `🔄 Fiche corrigée et remise en ligne : ${nomAffiche}`,
           html: `
-          <h2>Fiche artisan corrigée — nouvelle demande de validation</h2>
-          <p>L'artisan <strong>${nomAffiche}</strong> a modifié sa fiche suite à un rejet et la resoumet à validation.</p>
+          <h2>Fiche artisan corrigée — remise en ligne automatiquement</h2>
+          <p>L'artisan <strong>${nomAffiche}</strong> a corrigé sa fiche suite à un rejet. Elle est maintenant <strong>en ligne</strong>.</p>
           <ul>
             <li><strong>Email :</strong> ${updated.email}</li>
             ${updated.telephone ? `<li><strong>Tél :</strong> ${updated.telephone}</li>` : ""}
@@ -186,7 +197,8 @@ export async function PUT(req: NextRequest) {
             ${updated.metierLibre ? `<li><strong>Métier libre :</strong> ${updated.metierLibre}</li>` : ""}
             <li><strong>Communes :</strong> ${communeNoms}</li>
           </ul>
-          <p><a href="${APP_URL}/admin">Valider depuis le back-office →</a></p>
+          <p style="font-size:12px;color:#999;">Vous pouvez la rejeter à nouveau depuis le back-office si nécessaire.</p>
+          <p><a href="${APP_URL}/admin">Accéder au back-office →</a></p>
         `,
         })
         .catch(() => null);

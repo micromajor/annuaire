@@ -14,8 +14,14 @@ import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapp
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import ResendConfirmationButton from "@/components/features/ResendConfirmationButton";
 
-export default async function MonEspacePage() {
+export default async function MonEspacePage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string>>;
+}) {
   const session = await auth();
+  const params = await searchParams;
+  const emailVerfied = params?.verified === "1";
 
   const role = (session?.user as { role?: string })?.role;
 
@@ -216,8 +222,8 @@ export default async function MonEspacePage() {
       ? artisan.avis.reduce((s: number, a: { note: number }) => s + a.note, 0) / artisan.avis.length
       : null;
 
-  // Fiche jamais soumise = pas de métier (Google pré-remplit le prénom, mais ça ne signifie rien)
-  const ficheVide = artisan.status === "EN_ATTENTE" && artisan.metiers.length === 0;
+  // Fiche vide = pas encore de métier (indépendant du statut)
+  const ficheVide = artisan.metiers.length === 0;
 
   const nomAffiche = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
   const metierLabels = artisan.metiers.map((m: { metier: { label: string } }) => m.metier.label);
@@ -230,13 +236,13 @@ export default async function MonEspacePage() {
   );
 
   const statusLabel: Record<string, string> = {
-    EN_ATTENTE: ficheVide ? "⚙️ Profil à compléter" : "📨 Fiche soumise — en attente de validation",
-    VALIDE: "✅ Fiche en ligne",
+    EN_ATTENTE: ficheVide ? "⚙️ Profil à compléter" : "� Email de vérification envoyé",
+    VALIDE: ficheVide ? "⚙️ Profil à compléter" : "✅ Fiche en ligne",
     REJETE: "❌ Fiche rejetée — corrigez et renvoyez",
   };
   const statusColor: Record<string, string> = {
     EN_ATTENTE: ficheVide ? "bg-gray-200 text-gray-600" : "bg-[#ffd93d] text-[#1a1a2e]",
-    VALIDE: "bg-[#6bcb77] text-white",
+    VALIDE: ficheVide ? "bg-gray-200 text-gray-600" : "bg-[#6bcb77] text-white",
     REJETE: "bg-[#ff6b6b] text-white",
   };
 
@@ -292,6 +298,21 @@ export default async function MonEspacePage() {
             {statusLabel[artisan.status]}
           </span>
         </div>
+
+        {/* Banner succès vérification email */}
+        {emailVerfied && (
+          <div
+            className="mb-6 rounded-2xl border-4 border-[#6bcb77] bg-[#f0fff4] p-4"
+            style={{ boxShadow: "4px 4px 0 #6bcb77" }}
+          >
+            <p className="bd-titre text-lg text-[#166534]">
+              🎉 Email confirmé — votre fiche est en ligne !
+            </p>
+            <p className="mt-1 text-sm text-[#166534]">
+              Votre fiche est maintenant visible par tous les visiteurs.
+            </p>
+          </div>
+        )}
 
         {/* Bandeau draft en attente */}
         {artisan.hasPendingDraft &&
@@ -376,8 +397,8 @@ export default async function MonEspacePage() {
             );
           })()}
 
-        {/* Carte de confirmation : visible uniquement quand EN_ATTENTE + fiche soumise */}
-        {artisan.status === "EN_ATTENTE" && !ficheVide && (
+        {/* Carte de vérification email : visible uniquement pour artisans email/password EN_ATTENTE avec fiche complète */}
+        {artisan.status === "EN_ATTENTE" && !ficheVide && !!artisan.passwordHash && (
           <div className="mb-6">
             <ResendConfirmationButton email={artisan.email} />
           </div>

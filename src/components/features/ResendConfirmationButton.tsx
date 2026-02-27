@@ -88,18 +88,18 @@ export default function ResendConfirmationButton({ email }: { email: string }) {
       style={{ boxShadow: "5px 5px 0 #ffd93d" }}
     >
       <p className="bd-titre mb-1 text-lg text-[#1a1a2e]">
-        📨 Fiche soumise — en attente de validation
+        � Confirmez votre email pour publier votre fiche
       </p>
       <p className="mb-1 text-sm text-gray-700">
-        Notre équipe vérifie votre fiche manuellement. Vous recevrez une confirmation à{" "}
-        <strong className="text-[#1a1a2e]">{email}</strong> sous <strong>48h</strong>.
+        Un email de confirmation a été envoyé à <strong className="text-[#1a1a2e]">{email}</strong>.
+        Cliquez sur le lien dans cet email pour que votre fiche soit visible publiquement.
       </p>
       <p className="mb-4 text-sm text-gray-500">
-        Vos informations sont enregistrées, vous n&apos;avez rien de plus à faire.
+        Vous n&apos;avez pas reçu l&apos;email ? Vérifiez vos spams, ou renvoyez-le ci-dessous.
       </p>
 
       {status === "sent" && !isCooling && (
-        <p className="mb-2 text-sm font-bold text-[#6bcb77]">✅ Email de confirmation renvoyé !</p>
+        <p className="mb-2 text-sm font-bold text-[#6bcb77]">✅ Lien de vérification renvoyé !</p>
       )}
       {status === "sent" && isCooling && (
         <p className="mb-2 text-sm font-bold text-[#6bcb77]">
@@ -118,7 +118,7 @@ export default function ResendConfirmationButton({ email }: { email: string }) {
           ? "Envoi…"
           : isCooling
             ? `Renvoyer dans ${Math.floor(remaining / 60)}m${remaining % 60}s`
-            : "Je n'ai pas reçu l'email — renvoyer →"}
+            : "Renvoyer le lien de vérification →"}
       </button>
     </div>
   );

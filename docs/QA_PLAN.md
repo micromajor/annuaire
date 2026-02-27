@@ -215,20 +215,21 @@
 - **Route** : `GET|PATCH /api/mon-espace/profile`, `PATCH /api/mon-espace/account`, `POST /api/mon-espace/resend-confirmation`
 - **Criticité** : P0
 
-| #   | Cas de test                                       | Attendu                                                                                        | Statut |
-| --- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------ |
-| L01 | Accès non authentifié                             | Redirection vers `/connexion`                                                                  | ✅     |
-| L02 | Accès artisan connecté                            | Dashboard avec fiche, stats, messages                                                          | ✅     |
-| L04 | Modifier prenom, nom, téléphone                   | Changements sauvegardés                                                                        | ✅     |
-| L05 | Modifier description (max 2000 chars)             | Sauvegardé, compteur caractères                                                                | ✅     |
-| L06 | Modifier accroche (max 200 chars)                 | Sauvegardé                                                                                     | ✅     |
-| L07 | Changer email                                     | Mise à jour sans conflit                                                                       | ⚠️     |
-| L08 | Changer mot de passe                              | Hash mis à jour, ancienne session valide                                                       | ⚠️     |
-| L09 | Dernières demandes reçues affichées               | ContactRequests visibles dans le dashboard                                                     | ✅     |
-| L10 | Ajouter/supprimer communes                        | Relations ArtisanCommune mises à jour                                                          | ✅     |
-| L11 | Statut EN_ATTENTE + fiche soumise → badge + carte | Badge "📨 Fiche soumise — en attente de validation", carte avec email + bouton renvoi affichés | ✅     |
-| L12 | Bouton "renvoyer email" — 1er clic                | 200, bouton désactivé avec compte à rebours 10min                                              | ✅     |
-| L13 | Bouton "renvoyer email" — 2ème clic (rate limit)  | 429, message "Patientez quelques minutes", `nextAllowedAt` retourné                            | ✅     |
+| #   | Cas de test                                  | Attendu                                                                                                 | Statut |
+| --- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------ |
+| L01 | Accès non authentifié                        | Redirection vers `/connexion`                                                                           | ✅     |
+| L02 | Accès artisan connecté                       | Dashboard avec fiche, stats, messages                                                                   | ✅     |
+| L04 | Modifier prenom, nom, téléphone              | Changements sauvegardés                                                                                 | ✅     |
+| L05 | Modifier description (max 2000 chars)        | Sauvegardé, compteur caractères                                                                         | ✅     |
+| L06 | Modifier accroche (max 200 chars)            | Sauvegardé                                                                                              | ✅     |
+| L07 | Changer email                                | Mise à jour sans conflit                                                                                | ⚠️     |
+| L08 | Changer mot de passe                         | Hash mis à jour, ancienne session valide                                                                | ⚠️     |
+| L09 | Dernières demandes reçues affichées          | ContactRequests visibles dans le dashboard                                                              | ✅     |
+| L10 | Ajouter/supprimer communes                   | Relations ArtisanCommune mises à jour                                                                   | ✅     |
+| L11 | Google OAuth → statut VALIDE direct          | À la création du compte Google, l'artisan est directement VALIDE (badge "Fiche en ligne")               | ✅     |
+| L12 | Email/password 1ère soumission → email vérif | Email avec lien de vérification envoyé, statut reste EN_ATTENTE, carte "Confirmez votre email" affichée | 🔲     |
+| L13 | Lien de vérification valide → VALIDE         | `GET /api/auth/verify-email?token=...` → status VALIDE, redirect `/mon-espace?verified=1`, banner vert  | 🔲     |
+| L14 | Bouton renvoi lien — rate limit (10 min)     | 1er clic = 200 + cooldown, 2ème clic = 429 + `nextAllowedAt`                                            | 🔲     |
 
 ---
 
@@ -300,7 +301,7 @@
 ### 6.2 Gestion des artisans (admin)
 
 - **Route** : `DELETE /api/admin/artisans/[id]`
-- **Note** : Il n'y a plus de système de validation manuelle par l'admin. Le passage EN_ATTENTE → VALIDE sera géré par validation email (à implémenter). L'admin ne peut que supprimer les artisans (soft delete).
+- **Note** : Il n'y a plus de validation manuelle par l'admin. Le passage EN_ATTENTE → VALIDE est géré automatiquement : Google OAuth = VALIDE à la création du compte, email/password = clic sur le lien de vérification envoyé par email. L'admin ne peut que supprimer les artisans (soft delete).
 - **Criticité** : P1
 
 | #   | Cas de test                               | Attendu                                                                | Statut |

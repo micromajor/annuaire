@@ -58,19 +58,26 @@ export async function sendPasswordResetEmail({
   }
 }
 
-export async function sendConfirmationSoumission({
+/**
+ * Email de vérification d'adresse email pour les artisans email/password.
+ * Le lien redirige vers /api/auth/verify-email?token=... qui passe le compte à VALIDE.
+ */
+export async function sendEmailVerification({
   destinataireEmail,
   prenomArtisan,
+  token,
 }: {
   destinataireEmail: string;
   prenomArtisan: string;
+  token: string;
 }) {
+  const lienVerification = `${APP_URL}/api/auth/verify-email?token=${token}`;
   const lienEspace = `${APP_URL}/mon-espace`;
   try {
     await resend.emails.send({
       from: `OyezArtisans <${FROM}>`,
       to: destinataireEmail,
-      subject: `📨 Votre fiche est bien reçue — OyezArtisans`,
+      subject: `✅ Confirmez votre email pour publier votre fiche — OyezArtisans`,
       html: `
 <!DOCTYPE html>
 <html lang="fr">
@@ -88,20 +95,24 @@ export async function sendConfirmationSoumission({
           <td style="padding:28px;">
             <p style="margin:0 0 8px;font-size:16px;color:#1a1a2e;">Bonjour <strong>${prenomArtisan}</strong>,</p>
             <p style="margin:0 0 16px;font-size:15px;color:#444;">
-              Votre fiche artisan a bien été reçue et est en cours de vérification par notre équipe.
+              Votre fiche est prête ! Il ne reste plus qu'à confirmer votre adresse email pour la rendre publique.
             </p>
             <div style="background:#fff8f0;border-left:4px solid #6bcb77;border-radius:4px;padding:14px 16px;margin-bottom:24px;">
               <p style="margin:0;font-size:14px;color:#333;">
-                ✅ Nous validons chaque fiche manuellement pour garantir la qualité du réseau.<br>
-                Vous recevrez une confirmation sous <strong>48h</strong>.
+                👆 Cliquez sur le bouton ci-dessous pour <strong>confirmer votre email et publier votre fiche</strong>.
+                <br>Ce lien est valable <strong>7 jours</strong>.
               </p>
             </div>
-            <p style="margin:0 0 20px;font-size:14px;color:#666;">
-              En attendant, vous pouvez compléter ou modifier votre fiche à tout moment depuis votre espace.
-            </p>
-            <a href="${lienEspace}" style="display:inline-block;background:#ffd93d;color:#1a1a2e;font-weight:900;font-size:15px;padding:12px 24px;border-radius:8px;border:2px solid #1a1a2e;text-decoration:none;box-shadow:3px 3px 0 #1a1a2e;">
-              Mon espace artisan →
+            <a href="${lienVerification}" style="display:inline-block;background:#6bcb77;color:#fff;font-weight:900;font-size:15px;padding:14px 28px;border-radius:8px;border:2px solid #1a1a2e;text-decoration:none;box-shadow:3px 3px 0 #1a1a2e;">
+              ✅ Confirmer mon email et publier ma fiche →
             </a>
+            <p style="margin:20px 0 0;font-size:13px;color:#888;">
+              Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br>
+              <a href="${lienVerification}" style="color:#1a1a2e;word-break:break-all;">${lienVerification}</a>
+            </p>
+            <p style="margin:16px 0 0;font-size:13px;color:#999;">
+              Vous pouvez continuer à modifier votre fiche depuis <a href="${lienEspace}" style="color:#1a1a2e;">votre espace</a> à tout moment.
+            </p>
           </td>
         </tr>
         <tr>
@@ -119,7 +130,7 @@ export async function sendConfirmationSoumission({
       `,
     });
   } catch (err) {
-    console.error("[email] Échec confirmation soumission:", err);
+    console.error("[email] Échec envoi email vérification:", err);
   }
 }
 
@@ -142,13 +153,13 @@ export async function sendAdminNouvelleInscription({
     await resend.emails.send({
       from: `OyezArtisans <${FROM}>`,
       to: adminEmail,
-      subject: `🔨 Nouvelle fiche artisan à valider : ${nomArtisan}`,
+      subject: `🔨 Nouvelle inscription artisan : ${nomArtisan}`,
       html: `
 <!DOCTYPE html>
 <html lang="fr">
 <head><meta charset="UTF-8"></head>
 <body style="font-family:sans-serif;padding:32px;background:#fff8f0;">
-  <h2 style="color:#1a1a2e;">Nouvelle fiche artisan en attente de validation</h2>
+  <h2 style="color:#1a1a2e;">Nouvelle inscription artisan (auto-validée par email)</h2>
   <table style="border-collapse:collapse;width:100%;max-width:480px;">
     <tr><td style="padding:6px 12px;font-weight:bold;color:#555;">Artisan</td><td style="padding:6px 12px;">${nomArtisan}</td></tr>
     <tr style="background:#f9f9f9;"><td style="padding:6px 12px;font-weight:bold;color:#555;">Email</td><td style="padding:6px 12px;">${emailArtisan}</td></tr>
@@ -157,7 +168,7 @@ export async function sendAdminNouvelleInscription({
   </table>
   <p style="margin-top:24px;">
     <a href="${lienAdmin}" style="display:inline-block;background:#ffd93d;color:#1a1a2e;font-weight:900;padding:12px 24px;border-radius:8px;border:2px solid #1a1a2e;text-decoration:none;">
-      Valider depuis le back-office →
+      Voir l'artisan dans le back-office →
     </a>
   </p>
   <p style="font-size:12px;color:#999;">ID artisan : ${artisanId}</p>

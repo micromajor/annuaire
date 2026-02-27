@@ -35,6 +35,7 @@ model Artisan {
   metierLibre   String?       // métier libre soumis par l'artisan s'il n'est pas dans la liste
   portfolioPhotos Json?        // tableau d'URLs de photos de chantier
   passwordHash  String?       // null = artisan sans compte (flux token uniquement)
+  emailVerificationToken String? @unique  // token one-shot pour valider l'email (artisans email/password)
   status          ArtisanStatus @default(EN_ATTENTE)
   hasPendingDraft Boolean       @default(false)
   draftData       Json?         // modifications en attente de validation
