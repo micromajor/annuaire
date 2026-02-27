@@ -323,11 +323,11 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            width: 260,
+            width: 360,
             background: "#ffffff",
             borderLeft: "8px solid #1a1a2e",
             flexShrink: 0,
-            padding: "24px",
+            padding: "28px 30px",
           }}
         >
           {logoDataUrl ? (
@@ -335,9 +335,9 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             <img
               src={logoDataUrl}
               alt={nom}
-              width={212}
-              height={212}
-              style={{ objectFit: "contain", width: 212, height: 212 }}
+              width={300}
+              height={220}
+              style={{ objectFit: "contain", width: 300, height: 220 }}
             />
           ) : (
             <div
@@ -345,7 +345,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 110,
+                fontSize: 120,
               }}
             >
               {emoji}
