@@ -124,11 +124,27 @@ Avant chaque `git push`, je dois avoir effectué **au moins** les vérifications
 - ✅ Aucune erreur de compilation TypeScript.
 - ✅ Aucune régression visuelle évidente sur les pages touchées.
 
+6. **Espace disque sur le VPS**
+   - Avant tout push, vérifier l'espace disponible : `ssh root@37.27.222.18 "df -h /"`.
+   - Si le disque est rempli à plus de **50%**, effectuer un nettoyage avant de pousser :
+     - `docker system prune -f` (images/conteneurs/réseaux non utilisés)
+     - `docker image prune -a -f` si besoin de récupérer plus d'espace
+   - Un disque plein lors du build Coolify fait échouer silencieusement le déploiement.
+
+### Ce qui constitue une validation suffisante
+
+- ✅ Le navigateur MCP affiche la page sans erreur 500/404.
+- ✅ L'interaction testée produit le résultat attendu (formulaire soumis, données affichées, etc.).
+- ✅ Aucune erreur de compilation TypeScript.
+- ✅ Aucune régression visuelle évidente sur les pages touchées.
+- ✅ Disque VPS disponible à ≥ 50%.
+
 ### Ce qui ne suffit pas
 
 - ❌ "Le code a l'air correct" sans vérification réelle.
 - ❌ Tester uniquement le fichier modifié sans vérifier ses dépendants.
 - ❌ Pousser en espérant que le build Coolify détectera les erreurs (il déploie en prod).
+- ❌ Pousser sans avoir vérifié l'espace disque du VPS.
 
 ---
 
