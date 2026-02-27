@@ -1,7 +1,7 @@
 # Plan de Qualification — Oyez Artisans
 
 > Document vivant. Mis à jour à chaque release ou découverte de comportement inattendu.  
-> Dernière mise à jour : 27 février 2026 — Exécution des tests MCP : 35+ cas validés
+> Dernière mise à jour : 27 février 2026 — Exécution des tests MCP : 55+ cas validés (session 2)
 
 ---
 
@@ -32,7 +32,7 @@
 | --- | ------------------------------------------------ | ---------------------------------------------------- | ------ |
 | A01 | Connexion avec email + mot de passe valides      | Redirection vers `/mon-espace` ou `/` selon le rôle  | ✅     |
 | A02 | Connexion avec mot de passe incorrect            | Message d'erreur, pas de redirection                 | ✅     |
-| A03 | Connexion avec email inexistant                  | Message d'erreur générique (sans révéler l'absence)  | ✅     |
+| A03 | Connexion avec email inexistant                  | Message d'erreur générique (sans révéler l'absence)  | ⚠️     |
 | A04 | Rate limit : 5 tentatives/h dépassées            | HTTP 429 + message clair                             | 🔲     |
 | A05 | Mot de passe oublié : envoi email reset          | Confirmation "email envoyé" sans révéler l'existence | ✅     |
 | A06 | Inscription avec email déjà pris (avec password) | HTTP 409, message "compte existe déjà"               | 🔲     |
@@ -64,11 +64,11 @@
 
 | #   | Cas de test                          | Attendu                                                 | Statut |
 | --- | ------------------------------------ | ------------------------------------------------------- | ------ |
-| C01 | Demande de reset pour email existant | Email envoyé, réponse "succès" sans révéler l'existence | 🔲     |
-| C02 | Demande pour email inexistant        | Même réponse "succès" (pas de fuite d'info)             | 🔲     |
-| C03 | Utiliser le token de reset valide    | Mot de passe changé, token invalidé                     | 🔲     |
-| C04 | Token expiré (> 1h)                  | Erreur "lien expiré", redirection vers nouvelle demande | 🔲     |
-| C05 | Token déjà utilisé                   | Erreur "lien déjà utilisé"                              | 🔲     |
+| C01 | Demande de reset pour email existant | Email envoyé, réponse "succès" sans révéler l'existence | ✅     |
+| C02 | Demande pour email inexistant        | Même réponse "succès" (pas de fuite d'info)             | ✅     |
+| C03 | Utiliser le token de reset valide    | Mot de passe changé, token invalidé                     | ✅     |
+| C04 | Token expiré (> 1h)                  | Erreur "lien expiré", redirection vers nouvelle demande | ✅     |
+| C05 | Token déjà utilisé                   | Erreur "lien déjà utilisé"                              | ✅     |
 
 ---
 
@@ -127,8 +127,8 @@
 | G07 | Contact form : soumission valide                    | ContactRequest créé, email envoyé, avisToken généré | ✅     |
 | G08 | Contact form : champs obligatoires manquants        | Erreurs de validation affichées                     | 🔲     |
 | G09 | Contact form : rate limit (3/h)                     | Message "trop de demandes"                          | 🔲     |
-| G10 | Avis : accès avec avisToken valide                  | Section avis affichée, formulaire actif             | 🔲     |
-| G11 | Avis : soumission avis                              | Avis créé EN_ATTENTE, token marqué usedAt           | 🔲     |
+| G10 | Avis : accès avec avisToken valide                  | Section avis affichée, formulaire actif             | ✅     |
+| G11 | Avis : soumission avis                              | Avis créé EN_ATTENTE, token marqué usedAt           | ✅     |
 | G12 | Avis : sans token / token invalide                  | Section avis grisée "🔒 LIEN REQUIS"                | ✅     |
 | G13 | Avis validés : affichage public                     | Seuls les avis status=VALIDE affichés               | ✅     |
 | G14 | Signalement fiche                                   | Signalement créé, confirmation affichée             | ✅     |
@@ -215,9 +215,9 @@
 | --- | ------------------------------------- | ------------------------------------------ | ------ |
 | L01 | Accès non authentifié                 | Redirection vers `/connexion`              | ✅     |
 | L02 | Accès artisan connecté                | Dashboard avec fiche, stats, messages      | ✅     |
-| L04 | Modifier prenom, nom, téléphone       | Changements sauvegardés                    | 🔲     |
-| L05 | Modifier description (max 2000 chars) | Sauvegardé, compteur caractères            | 🔲     |
-| L06 | Modifier accroche (max 200 chars)     | Sauvegardé                                 | 🔲     |
+| L04 | Modifier prenom, nom, téléphone       | Changements sauvegardés                    | ✅     |
+| L05 | Modifier description (max 2000 chars) | Sauvegardé, compteur caractères            | ✅     |
+| L06 | Modifier accroche (max 200 chars)     | Sauvegardé                                 | ✅     |
 | L07 | Changer email                         | Mise à jour sans conflit                   | 🔲     |
 | L08 | Changer mot de passe                  | Hash mis à jour, ancienne session valide   | 🔲     |
 | L09 | Dernières demandes reçues affichées   | ContactRequests visibles dans le dashboard | ✅     |
@@ -327,7 +327,7 @@
 
 | #   | Cas de test                | Attendu                                 | Statut |
 | --- | -------------------------- | --------------------------------------- | ------ |
-| S01 | Valider un avis EN_ATTENTE | Status → VALIDE, avis visible sur fiche | 🔲     |
+| S01 | Valider un avis EN_ATTENTE | Status → VALIDE, avis visible sur fiche | ✅     |
 | S02 | Rejeter un avis            | Status → REJETE, avis masqué            | 🔲     |
 
 ---
@@ -337,9 +337,9 @@
 - **Route** : `PATCH /api/admin/signalements/[id]`
 - **Criticité** : P1
 
-| #   | Cas de test                         | Attendu                                               | Statut |
-| --- | ----------------------------------- | ----------------------------------------------------- | ------ |
-| T01 | Traiter un signalement (marquer lu) | Signalement marqué lu, disparaît de la liste/compteur | ✅     |
+| #   | Cas de test                           | Attendu                                               | Statut |
+| --- | ------------------------------------- | ----------------------------------------------------- | ------ |
+| T01 | Traiter un signalement (✓ Marquer lu) | Signalement marqué lu, disparaît de la liste/compteur | ✅     |
 
 ---
 
@@ -377,12 +377,13 @@
 | --- | -------------------------------------------------------------------------- | ------ |
 | X01 | Routes `/api/admin/*` rejettent les non-admins (401)                       | ✅     |
 | X02 | Pages protégées `/mon-espace` redirigent vers `/connexion` si non connecté | ✅     |
-| X03 | Un artisan ne peut pas modifier la fiche d'un autre                        | 🔲     |
+| X03 | Un artisan ne peut pas modifier la fiche d'un autre                        | ✅     |
 | X04 | Rate limiting actif sur les routes sensibles (auth, contact, inscription)  | 🔲     |
 | X05 | Tokens (reset password, avis après contact) à usage unique                 | 🔲     |
 | X06 | Soft delete : artisans supprimés absents du FO                             | ✅     |
 | X07 | `/api/besoins` POST requiert authentification (401 sans session)           | ✅     |
 | X08 | SIRET non obligatoire mais validé si fourni (format 14 chiffres)           | 🔲     |
+| X09 | Filtre commune listing case-sensitive (`Vertou` ≠ `vertou` en DB)          | ⚠️     |
 
 ---
 
@@ -391,10 +392,10 @@
 | #   | Scénario                                                            | Attendu                    | Statut |
 | --- | ------------------------------------------------------------------- | -------------------------- | ------ |
 | Y01 | Inscription artisan → connexion → fiche visible en FO               | Workflow complet           | 🔲     |
-| Y02 | Contact FO → email artisan → avis via token                         | Workflow contact → avis    | 🔲     |
-| Y03 | Artisan modifie sa fiche → visible immédiatement sur fiche publique | Pas de cache bloquant      | 🔲     |
+| Y02 | Contact FO → email artisan → avis via token                         | Workflow contact → avis    | ✅     |
+| Y03 | Artisan modifie sa fiche → visible immédiatement sur fiche publique | Pas de cache bloquant      | ✅     |
 | Y04 | Particulier dépose un besoin → visible dans admin                   | Besoin NOUVEAU listé       | 🔲     |
-| Y05 | Fond de page adapté au rôle sur toutes les pages SSR                | Vert/bleu/jaune selon rôle | 🔲     |
+| Y05 | Fond de page adapté au rôle sur toutes les pages SSR                | Vert/bleu/jaune selon rôle | ⚠️     |
 
 ---
 

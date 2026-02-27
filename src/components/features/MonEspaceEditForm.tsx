@@ -172,11 +172,6 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
               l&apos;annuaire.
             </p>
           )}
-          {artisan.status === "VALIDE" && artisan.prenom && (
-            <p className="mt-1 text-xs font-bold text-[#fb923c]">
-              ⚠️ Toute modification remettra votre fiche en attente de validation.
-            </p>
-          )}
         </div>
         {artisan.prenom && (
           <button
