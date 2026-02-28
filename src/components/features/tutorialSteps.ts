@@ -24,15 +24,12 @@ export const TUTORIAL_STEPS: Record<"artisan" | "particulier", TutorialStep[]> =
       content:
         "Ce guide vous montre <strong>pas à pas</strong> comment bien configurer votre espace — ça prend moins de 5 minutes. Suivez les instructions en bas de chaque bulle !",
     },
-    // ── Étape 1 — Ouvrir le formulaire (action : clic sur Modifier)
+    // ── Étape 1 — Formulaire visible en permanence
     {
       target: "edit-form",
-      title: "Votre fiche artisan",
+      title: "Votre formulaire de fiche",
       content:
-        "C'est ici que vous renseignez <strong>toutes vos informations</strong>. Commencez par ouvrir le formulaire.",
-      actionHint:
-        "👆 Cliquez sur le bouton <strong>Modifier</strong> pour ouvrir votre formulaire.",
-      action: { type: "click", selector: "[data-tuto='btn-modifier']" },
+        "C'est ici que vous renseignez <strong>toutes vos informations</strong>. Le formulaire est toujours accessible — modifiez à tout moment !",
       placement: "bottom",
       spotlightPadding: 10,
     },

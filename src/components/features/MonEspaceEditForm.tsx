@@ -47,8 +47,6 @@ type Props = {
 
 export default function MonEspaceEditForm({ artisan, metiers }: Props) {
   const router = useRouter();
-  const [open, setOpen] = useState(!artisan.prenom); // Auto-ouvert si profil incomplet
-
   const [form, setForm] = useState({
     prenom: artisan.prenom ?? "",
     nom: artisan.nom ?? "",
@@ -73,6 +71,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
   const [loading, setLoading] = useState(false);
   const [logoLoading, setLogoLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [collapsed, setCollapsed] = useState(!!artisan.prenom); // Réduit si profil déjà complet
 
   // Efface l'erreur de zone dès qu'une commune est sélectionnée
   useEffect(() => {
@@ -159,21 +158,21 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
     }
 
     setSuccess(true);
-    setOpen(false);
+    setCollapsed(true);
     router.refresh();
   }
 
   return (
     <div
       data-tuto="edit-form"
-      className="col-span-full rounded-2xl border-4 border-[#1a1a1a] bg-white"
+      className="rounded-2xl border-4 border-[#1a1a1a] bg-white"
       style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
     >
       {/* Header de la carte */}
-      <div className="flex items-center justify-between border-b-4 border-[#1a1a1a] p-6">
+      <div className="flex items-center justify-between border-b-4 border-[#1a1a1a] px-6 py-4">
         <div>
           <h2 className="bd-titre text-xl text-[#1a1a2e]">
-            {!artisan.prenom ? "⚠️ Complétez votre fiche" : "✏️ Modifier ma fiche"}
+            {!artisan.prenom ? "⚠️ Complétez votre fiche" : "✏️ Ma fiche"}
           </h2>
           {!artisan.prenom && (
             <p className="mt-1 text-sm text-gray-500">
@@ -183,20 +182,26 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           )}
         </div>
         {artisan.prenom && (
-          <button
-            data-tuto="btn-modifier"
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            className="rounded-xl border-3 border-[#1a1a1a] bg-[#ffd93d] px-4 py-2 text-sm font-black text-[#1a1a2e] hover:bg-[#ffc800]"
-            style={{ border: "3px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a" }}
-          >
-            {open ? "Annuler" : "Modifier"}
-          </button>
+          <div className="flex items-center gap-3">
+            {success && <span className="text-sm font-bold text-[#6bcb77]">✓ Enregistré !</span>}
+            <button
+              type="button"
+              onClick={() => setCollapsed((c) => !c)}
+              className="rounded-xl px-4 py-2 text-sm font-black text-[#1a1a2e] transition-colors hover:bg-[#ffd93d]/60"
+              style={{
+                border: "3px solid #1a1a1a",
+                boxShadow: "2px 2px 0 #1a1a1a",
+                background: collapsed ? "#ffd93d" : "#fff",
+              }}
+            >
+              {collapsed ? "✏️ Modifier" : "✕ Réduire"}
+            </button>
+          </div>
         )}
       </div>
 
-      {/* Formulaire */}
-      {open && (
+      {/* Formulaire — visible si profil incomplet ou expandé */}
+      {!collapsed && (
         <form onSubmit={handleSubmit} className="space-y-6 p-6">
           {/* Logo */}
           <fieldset>
@@ -556,11 +561,21 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
             <p className="text-xs text-gray-400">
               <span className="text-[#ff6b6b]">*</span> Champs obligatoires
             </p>
-            {success && (
-              <span className="text-sm font-bold text-[#6bcb77]">✓ Fiche mise à jour !</span>
-            )}
           </div>
         </form>
+      )}
+
+      {/* Résumé compact quand réduit */}
+      {collapsed && artisan.prenom && (
+        <div className="flex flex-wrap items-center gap-3 px-6 py-4 text-sm text-gray-500">
+          <span className="font-black text-[#1a1a2e]">
+            {artisan.prenom} {artisan.nom}
+          </span>
+          {artisan.raisonSociale && (
+            <span className="text-gray-400">· {artisan.raisonSociale}</span>
+          )}
+          {artisan.telephone && <span>📞 {artisan.telephone}</span>}
+        </div>
       )}
     </div>
   );

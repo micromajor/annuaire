@@ -98,94 +98,149 @@ export default async function MonEspacePage({
           </nav>
         </header>
 
-        <main className="mx-auto max-w-3xl px-4 py-10">
-          <h1 className="bd-titre mb-1 text-4xl text-[#1a1a2e]">
-            Bonjour, {particulier?.prenom ?? "vous"} 👋
-          </h1>
-          <p className="mb-8 text-sm font-semibold text-[#1a1a2e]/60">
-            Retrouvez ici vos annonces publiées.
-          </p>
+        <main className="mx-auto max-w-5xl px-4 py-8">
+          {/* Titre + CTA */}
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h1 className="bd-titre text-4xl text-[#1a1a2e]">
+                Bonjour, {particulier?.prenom ?? "vous"} 👋
+              </h1>
+              <p className="mt-1 text-sm font-semibold text-[#1a1a2e]/60">
+                Retrouvez ici vos annonces et vos échanges avec les artisans.
+              </p>
+            </div>
+            <Link
+              href="/"
+              className="shrink-0 rounded-2xl border-4 border-[#1a1a1a] bg-[#ffd93d] px-5 py-3 text-sm font-black text-[#1a1a2e] transition-transform hover:-translate-y-0.5"
+              style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+            >
+              + Déposer une annonce
+            </Link>
+          </div>
 
-          {/* Bouton messages */}
-          <Link
-            data-tuto="messages-particulier"
-            href="/messages"
-            className="mb-6 flex items-center justify-between rounded-2xl border-4 border-[#1a1a1a] bg-white px-5 py-3"
-            style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
-          >
-            <span className="font-black text-[#1a1a2e]">💬 Mes messages</span>
-            {messagesNonLus > 0 && (
-              <span
-                className="rounded-full bg-[#ff6b6b] px-2.5 py-0.5 text-xs font-black text-white"
-                style={{ border: "2px solid #1a1a1a" }}
-              >
-                {messagesNonLus} nouveau{messagesNonLus > 1 ? "x" : ""}
-              </span>
-            )}
-          </Link>
-
-          <div data-tuto="besoins-list">
-            {besoins.length === 0 ? (
-              <div
-                className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-8 text-center"
-                style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
-              >
-                <p className="mb-2 text-3xl">📋</p>
-                <p className="font-bold text-[#1a1a2e]/60">
-                  Aucune annonce publiée pour l&apos;instant.
-                </p>
-                <Link
-                  href="/"
-                  className="mt-4 inline-block text-sm font-bold text-[#1a1a2e] underline"
-                >
-                  ← Déposer une annonce
-                </Link>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {besoins.map((b) => (
+          {/* Grid 2 colonnes */}
+          <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
+            {/* Colonne principale : annonces */}
+            <div>
+              <h2 className="bd-titre mb-3 text-xl text-[#1a1a2e]">Mes annonces</h2>
+              <div data-tuto="besoins-list">
+                {besoins.length === 0 ? (
                   <div
-                    key={b.id}
-                    className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-5"
-                    style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+                    className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-8 text-center"
+                    style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="font-black text-[#1a1a2e]">
-                          {b.metierSlug} · {b.commune}
-                        </p>
-                        <p className="mt-1 text-sm text-gray-600">{b.description}</p>
-                      </div>
-                      <span
-                        className="shrink-0 rounded-full px-3 py-1 text-xs font-black"
-                        style={{
-                          background: b.status === "NOUVEAU" ? "#ffd93d" : "#6bcb77",
-                          border: "2px solid #1a1a1a",
-                          color: "#1a1a2e",
-                        }}
-                      >
-                        {b.status}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-xs text-gray-400">
-                      Publié le{" "}
-                      {b.createdAt.toLocaleDateString("fr-FR", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
+                    <p className="mb-2 text-3xl">📋</p>
+                    <p className="font-bold text-[#1a1a2e]/60">
+                      Aucune annonce publiée pour l&apos;instant.
+                    </p>
+                    <p className="mt-2 text-sm text-gray-400">
+                      Utilisez le bouton <strong>+ Déposer une annonce</strong> en haut de page.
                     </p>
                   </div>
-                ))}
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {besoins.map((b) => {
+                      const statutLabel: Record<string, string> = {
+                        NOUVEAU: "📬 En attente de réponse",
+                        LU: "👀 Vu par un artisan",
+                        ACCEPTE: "✅ Artisan trouvé !",
+                        FERME: "🔒 Clôturé",
+                      };
+                      const statutColor: Record<string, string> = {
+                        NOUVEAU: "#ffd93d",
+                        LU: "#60c5f1",
+                        ACCEPTE: "#6bcb77",
+                        FERME: "#e5e7eb",
+                      };
+                      return (
+                        <div
+                          key={b.id}
+                          className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-5"
+                          style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="font-black text-[#1a1a2e]">
+                                {b.metierSlug} · {b.commune}
+                              </p>
+                              <p className="mt-1 line-clamp-2 text-sm text-gray-600">
+                                {b.description}
+                              </p>
+                            </div>
+                            <span
+                              className="shrink-0 rounded-full px-3 py-1 text-xs font-black text-[#1a1a2e]"
+                              style={{
+                                background: statutColor[b.status] ?? "#e5e7eb",
+                                border: "2px solid #1a1a1a",
+                              }}
+                            >
+                              {statutLabel[b.status] ?? b.status}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-xs text-gray-400">
+                            Publiée le{" "}
+                            {b.createdAt.toLocaleDateString("fr-FR", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          {/* /besoins-list */}
+            </div>
 
-          {/* Suppression de compte */}
-          <div className="mt-10">
-            <DangerZone />
+            {/* Sidebar : messages + liens + danger */}
+            <div className="flex flex-col gap-4">
+              {/* Messages */}
+              <Link
+                data-tuto="messages-particulier"
+                href="/messages"
+                className="flex items-center justify-between rounded-2xl border-4 border-[#1a1a1a] bg-white px-5 py-4 transition-transform hover:-translate-y-0.5"
+                style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+              >
+                <div>
+                  <p className="font-black text-[#1a1a2e]">💬 Mes messages</p>
+                  <p className="mt-0.5 text-xs text-gray-400">
+                    {messagesNonLus > 0
+                      ? `${messagesNonLus} non lu${messagesNonLus > 1 ? "s" : ""}`
+                      : "Aucun message non lu"}
+                  </p>
+                </div>
+                {messagesNonLus > 0 && (
+                  <span
+                    className="rounded-full bg-[#ff6b6b] px-2.5 py-0.5 text-xs font-black text-white"
+                    style={{ border: "2px solid #1a1a1a" }}
+                  >
+                    {messagesNonLus}
+                  </span>
+                )}
+              </Link>
+
+              {/* Liens rapides */}
+              <div
+                className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-4"
+                style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+              >
+                <p className="mb-3 text-xs font-black tracking-wide text-gray-400 uppercase">
+                  Besoin d&apos;un artisan ?
+                </p>
+                <Link
+                  href="/artisans"
+                  className="flex items-center gap-2 rounded-xl border-2 border-[#1a1a1a] bg-[#fff8f0] px-3 py-2 text-sm font-bold text-[#1a1a2e] transition-colors hover:bg-[#ffd93d]"
+                >
+                  🔍 Voir l&apos;annuaire
+                </Link>
+              </div>
+
+              {/* Danger */}
+              <DangerZone />
+            </div>
           </div>
+
           <TutorialGuide role="particulier" prenom={particulier?.prenom} />
         </main>
       </div>
@@ -321,89 +376,6 @@ export default async function MonEspacePage({
           </div>
         )}
 
-        {/* Bandeau draft en attente */}
-        {artisan.hasPendingDraft &&
-          artisan.draftData &&
-          (() => {
-            const draft = artisan.draftData as {
-              prenom?: string;
-              nom?: string;
-              raisonSociale?: string | null;
-              telephone?: string | null;
-              siret?: string | null;
-              siteWeb?: string | null;
-              description?: string | null;
-              logoUrl?: string | null;
-              metierLabels?: string[];
-              communeLabels?: string[];
-            };
-            type DraftEntry = { label: string; value: string };
-            const liveMetierLabels = artisan.metiers
-              .map((m) => m.metier.label)
-              .sort()
-              .join(", ");
-            const liveCommuneLabels = artisan.communes
-              .map((c) => c.commune.nom)
-              .sort()
-              .join(", ");
-            const changed = <T extends string | null | undefined>(live: T, next: T): boolean =>
-              (live ?? "") !== (next ?? "");
-            const champs: DraftEntry[] = [
-              changed(artisan.raisonSociale, draft.raisonSociale)
-                ? { label: "Raison sociale", value: draft.raisonSociale || "(supprimée)" }
-                : null,
-              changed(artisan.telephone, draft.telephone)
-                ? { label: "Téléphone", value: draft.telephone || "(supprimé)" }
-                : null,
-              changed(artisan.siret, draft.siret)
-                ? { label: "SIRET", value: draft.siret || "(supprimé)" }
-                : null,
-              changed(artisan.siteWeb, draft.siteWeb)
-                ? { label: "Site web", value: draft.siteWeb || "(supprimé)" }
-                : null,
-              changed(artisan.description, draft.description)
-                ? { label: "Description", value: draft.description || "(supprimée)" }
-                : null,
-              changed(artisan.accroche, (draft as { accroche?: string | null }).accroche)
-                ? {
-                    label: "Accroche",
-                    value: (draft as { accroche?: string | null }).accroche || "(supprimée)",
-                  }
-                : null,
-              changed(artisan.logoUrl, draft.logoUrl)
-                ? { label: "Logo", value: "Nouveau logo soumis" }
-                : null,
-              changed(liveMetierLabels, draft.metierLabels?.slice().sort().join(", "))
-                ? { label: "Métiers", value: draft.metierLabels?.join(", ") || "(aucun)" }
-                : null,
-              changed(liveCommuneLabels, draft.communeLabels?.slice().sort().join(", "))
-                ? { label: "Zones", value: draft.communeLabels?.join(", ") || "(aucune)" }
-                : null,
-            ].filter(Boolean) as DraftEntry[];
-            return (
-              <div
-                className="mb-6 rounded-2xl border-4 border-[#a78bfa] bg-[#f5f0ff] p-5"
-                style={{ boxShadow: "5px 5px 0 #a78bfa" }}
-              >
-                <p className="bd-titre mb-1 text-lg text-[#7c3aed]">⏳ Modifications en attente</p>
-                <p className="mb-4 text-sm text-gray-600">
-                  Vos modifications sont en cours de vérification. Votre fiche reste visible en
-                  ligne avec vos informations actuelles.
-                </p>
-                {champs.length > 0 && (
-                  <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
-                    {champs.map(({ label, value }) => (
-                      <div key={label} className="contents">
-                        <dt className="font-bold text-[#7c3aed]">{label}</dt>
-                        <dd className="break-words text-gray-700">{value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                )}
-              </div>
-            );
-          })()}
-
         {/* Carte de vérification email : visible uniquement pour artisans email/password EN_ATTENTE avec fiche complète */}
         {artisan.status === "EN_ATTENTE" && !ficheVide && !!artisan.passwordHash && (
           <div className="mb-6">
@@ -411,257 +383,253 @@ export default async function MonEspacePage({
           </div>
         )}
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Formulaire de modification / complétion */}
-          <MonEspaceEditForm
-            metiers={allMetiers}
-            artisan={{
-              prenom: artisan.prenom,
-              nom: artisan.nom,
-              raisonSociale: artisan.raisonSociale,
-              telephone: artisan.telephone,
-              siret: artisan.siret,
-              siteWeb: artisan.siteWeb,
-              description: artisan.description,
-              accroche: artisan.accroche,
-              instagram: artisan.instagram,
-              facebook: artisan.facebook,
-              youtube: artisan.youtube,
-              linkedin: artisan.linkedin,
-              twitterX: artisan.twitterX,
-              whatsapp: artisan.whatsapp,
-              logoUrl: artisan.logoUrl,
-              metierSlugs: artisan.metiers.map((m: { metier: { slug: string } }) => m.metier.slug),
-              communePairs,
-              status: artisan.status,
-            }}
-          />
+        {/* Grid 2 colonnes : formulaire principal | sidebar */}
+        <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+          {/* ── Colonne principale : formulaire + demandes ── */}
+          <div className="flex min-w-0 flex-col gap-6">
+            <MonEspaceEditForm
+              metiers={allMetiers}
+              artisan={{
+                prenom: artisan.prenom,
+                nom: artisan.nom,
+                raisonSociale: artisan.raisonSociale,
+                telephone: artisan.telephone,
+                siret: artisan.siret,
+                siteWeb: artisan.siteWeb,
+                description: artisan.description,
+                accroche: artisan.accroche,
+                instagram: artisan.instagram,
+                facebook: artisan.facebook,
+                youtube: artisan.youtube,
+                linkedin: artisan.linkedin,
+                twitterX: artisan.twitterX,
+                whatsapp: artisan.whatsapp,
+                logoUrl: artisan.logoUrl,
+                metierSlugs: artisan.metiers.map(
+                  (m: { metier: { slug: string } }) => m.metier.slug
+                ),
+                communePairs,
+                status: artisan.status,
+              }}
+            />
 
-          {/* Carte — infos (lecture seule, visible quand profil complet) */}
-          {artisan.prenom && (
+            {/* Demandes de contact reçues */}
             <div
-              data-tuto="fiche-card"
-              className="col-span-full rounded-2xl border-4 border-[#1a1a1a] bg-white p-6"
+              className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-6"
               style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
             >
-              <div className="mb-4 flex items-center justify-between gap-2">
-                <h2 className="bd-titre text-xl text-[#1a1a2e]">Ma fiche</h2>
-              </div>
-
-              {/* Logo + identité */}
-              <div className="mb-4 flex items-center gap-4">
-                {artisan.logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={artisan.logoUrl}
-                    alt="Logo"
-                    className="h-24 w-36 shrink-0 rounded-xl object-contain"
-                    style={{ border: "3px solid #1a1a1a" }}
-                  />
-                ) : (
-                  <div
-                    className="flex h-24 w-36 shrink-0 items-center justify-center rounded-xl bg-[#fff8f0] text-2xl"
-                    style={{ border: "3px solid #1a1a1a" }}
-                  >
-                    🔨
-                  </div>
-                )}
-                <div>
-                  <p className="font-black text-[#1a1a2e]">{nomAffiche}</p>
-                  {artisan.raisonSociale && (
-                    <p className="text-sm text-gray-500">
-                      {artisan.prenom} {artisan.nom}
-                    </p>
+              <h2 className="bd-titre mb-3 text-xl text-[#1a1a2e]">Dernières demandes reçues</h2>
+              {artisan.contacts.length === 0 ? (
+                <p className="text-sm text-gray-400">Aucune demande pour l&apos;instant.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {artisan.contacts.map(
+                    (c: {
+                      id: string;
+                      clientPrenom: string;
+                      clientNom: string;
+                      typeTraux: string;
+                      message: string;
+                      clientEmail: string;
+                      clientTel?: string | null;
+                    }) => (
+                      <li key={c.id} className="rounded-xl border-2 border-gray-100 p-3 text-sm">
+                        <p className="font-bold text-[#1a1a2e]">
+                          {c.clientPrenom} {c.clientNom}
+                        </p>
+                        <p className="text-gray-500">{c.typeTraux}</p>
+                        <p className="mt-1 text-gray-700">{c.message}</p>
+                        <p className="mt-1 text-xs text-gray-400">
+                          {c.clientEmail}
+                          {c.clientTel ? ` · ${c.clientTel}` : ""}
+                        </p>
+                      </li>
+                    )
                   )}
-                </div>
-              </div>
+                </ul>
+              )}
+            </div>
+          </div>
 
-              <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <dt className="font-bold text-gray-500">Métiers</dt>
-                <dd>{metierLabels.join(", ") || <span className="text-gray-300">—</span>}</dd>
-              </dl>
+          {/* ── Sidebar : aperçu fiche + actions + stats ── */}
+          <div className="flex flex-col gap-5">
+            {/* Aperçu de la fiche publique */}
+            {artisan.prenom && (
+              <div
+                data-tuto="fiche-card"
+                className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-5"
+                style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
+              >
+                <h2 className="bd-titre mb-3 text-xl text-[#1a1a2e]">Ma fiche</h2>
 
-              {/* Carte zones */}
-              {communeNoms.length > 0 ? (
-                <div className="mt-4">
-                  <p className="mb-2 text-sm font-bold text-gray-500">Zones d&apos;intervention</p>
-                  <div className="mb-3 overflow-hidden rounded-xl border-2 border-[#1a1a1a]">
-                    <CarteZoneLectureWrapper communeNoms={communeNoms} />
+                {/* Logo + identité */}
+                <div className="mb-3 flex items-center gap-3">
+                  {artisan.logoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={artisan.logoUrl}
+                      alt="Logo"
+                      className="h-16 w-16 shrink-0 rounded-xl object-contain"
+                      style={{ border: "3px solid #1a1a1a" }}
+                    />
+                  ) : (
+                    <div
+                      className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#fff8f0] text-xl"
+                      style={{ border: "3px solid #1a1a1a" }}
+                    >
+                      🔨
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-black text-[#1a1a2e]">{nomAffiche}</p>
+                    {artisan.raisonSociale && (
+                      <p className="text-xs text-gray-500">
+                        {artisan.prenom} {artisan.nom}
+                      </p>
+                    )}
+                    {artisan.telephone && (
+                      <p className="mt-0.5 text-sm text-gray-600">📞 {artisan.telephone}</p>
+                    )}
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {communeNoms.map((nom: string) => (
+                </div>
+
+                {/* Métiers */}
+                {metierLabels.length > 0 && (
+                  <div className="mb-3 flex flex-wrap gap-1.5">
+                    {metierLabels.map((m: string) => (
                       <span
-                        key={nom}
-                        className="rounded-full border-2 border-[#1a1a1a] bg-[#fff8f0] px-2 py-0.5 text-xs font-semibold text-[#1a1a2e]"
+                        key={m}
+                        className="rounded-full border-2 border-[#1a1a1a] bg-[#ffd93d] px-2 py-0.5 text-xs font-bold text-[#1a1a2e]"
                       >
-                        📍 {nom}
+                        {m}
                       </span>
                     ))}
                   </div>
-                </div>
-              ) : (
-                <dl className="mt-2 grid grid-cols-2 gap-x-4 text-sm">
-                  <dt className="font-bold text-gray-500">Zones</dt>
-                  <dd>
-                    <span className="text-gray-300">—</span>
-                  </dd>
-                </dl>
-              )}
-              <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                {artisan.telephone && (
-                  <>
-                    <dt className="font-bold text-gray-500">Téléphone</dt>
-                    <dd>{artisan.telephone}</dd>
-                  </>
                 )}
-                {artisan.siret && (
-                  <>
-                    <dt className="font-bold text-gray-500">SIRET</dt>
-                    <dd className="font-mono">{artisan.siret}</dd>
-                  </>
-                )}
-                {artisan.siteWeb && (
-                  <>
-                    <dt className="font-bold text-gray-500">Site web</dt>
-                    <dd>
-                      <a
-                        href={artisan.siteWeb}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#1a1a2e] underline"
-                      >
-                        {artisan.siteWeb.replace(/^https?:\/\//, "")}
-                      </a>
-                    </dd>
-                  </>
-                )}
-              </dl>
 
-              {artisan.description && (
-                <p className="mt-4 border-t pt-3 text-sm whitespace-pre-wrap text-gray-600">
-                  {artisan.description}
-                </p>
-              )}
-              {artisan.status === "VALIDE" && (
-                <div data-tuto="share-zone" className="mt-4 space-y-2">
-                  <Link
-                    href={`/artisan/${artisan.id}`}
-                    className="inline-block text-sm font-bold text-[#1a1a2e] underline"
+                {/* Accroche */}
+                {artisan.accroche && (
+                  <p className="mb-3 text-sm text-gray-500 italic">
+                    &laquo;&nbsp;{artisan.accroche}&nbsp;&raquo;
+                  </p>
+                )}
+
+                {/* Carte zones */}
+                {communeNoms.length > 0 && (
+                  <div className="mb-3">
+                    <p className="mb-1.5 text-xs font-bold tracking-wide text-gray-400 uppercase">
+                      Zones d&apos;intervention
+                    </p>
+                    <div className="mb-2 overflow-hidden rounded-xl border-2 border-[#1a1a1a]">
+                      <CarteZoneLectureWrapper communeNoms={communeNoms} />
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {communeNoms.slice(0, 4).map((nom: string) => (
+                        <span
+                          key={nom}
+                          className="rounded-full border border-[#1a1a1a] bg-[#fff8f0] px-2 py-0.5 text-xs font-semibold text-[#1a1a2e]"
+                        >
+                          📍 {nom}
+                        </span>
+                      ))}
+                      {communeNoms.length > 4 && (
+                        <span className="rounded-full border border-gray-300 px-2 py-0.5 text-xs font-semibold text-gray-500">
+                          +{communeNoms.length - 4} communes
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Partage — zone visible si fiche en ligne */}
+                {artisan.status === "VALIDE" && (
+                  <div
+                    data-tuto="share-zone"
+                    className="space-y-2 border-t-2 border-dashed border-gray-200 pt-3"
                   >
-                    Voir ma fiche publique →
-                  </Link>
-                  <ShareButton
-                    url={`${process.env.NEXT_PUBLIC_APP_URL ?? "https://oyezartisans.fr"}/artisan/${artisan.id}`}
-                    title={`${nomAffiche} — ${metierLabels.join(", ")} à ${communeNoms[0] ?? "Loire-Atlantique"}`}
-                    text={`Découvrez la fiche de ${nomAffiche} sur Oyez Artisans !`}
-                  />
-                  <SocialPreviewButton artisanId={artisan.id} />
-                </div>
+                    <Link
+                      href={`/artisan/${artisan.id}`}
+                      className="inline-block text-sm font-bold text-[#1a1a2e] underline"
+                    >
+                      Voir ma fiche publique →
+                    </Link>
+                    <ShareButton
+                      url={`${process.env.NEXT_PUBLIC_APP_URL ?? "https://oyezartisans.fr"}/artisan/${artisan.id}`}
+                      title={`${nomAffiche} — ${metierLabels.join(", ")} à ${communeNoms[0] ?? "Loire-Atlantique"}`}
+                      text={`Découvrez la fiche de ${nomAffiche} sur Oyez Artisans !`}
+                    />
+                    <SocialPreviewButton artisanId={artisan.id} />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Messages clients */}
+            <Link
+              data-tuto="messages-link"
+              href="/messages"
+              className="flex items-center justify-between rounded-2xl border-4 border-[#1a1a1a] bg-white p-5 transition-transform hover:-translate-y-0.5 hover:shadow-lg"
+              style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
+            >
+              <div>
+                <h2 className="bd-titre mb-0.5 text-lg text-[#1a1a2e]">💬 Messages clients</h2>
+                <p className="text-sm text-gray-400">
+                  {messagesNonLusArtisan > 0
+                    ? `${messagesNonLusArtisan} non lu${messagesNonLusArtisan > 1 ? "s" : ""}`
+                    : "Aucun nouveau message"}
+                </p>
+              </div>
+              {messagesNonLusArtisan > 0 && (
+                <span
+                  className="rounded-full bg-[#ff6b6b] px-3 py-1 text-sm font-black text-white"
+                  style={{ border: "2px solid #1a1a1a" }}
+                >
+                  {messagesNonLusArtisan}
+                </span>
+              )}
+            </Link>
+
+            {/* Avis clients */}
+            <div
+              className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-5"
+              style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
+            >
+              <h2 className="bd-titre mb-1 text-lg text-[#1a1a2e]">Avis clients</h2>
+              {moyenneAvis !== null ? (
+                <p className="mb-3 text-3xl font-black text-[#6bcb77]">
+                  {moyenneAvis.toFixed(1)} <span className="text-lg text-gray-400">/ 5</span>
+                </p>
+              ) : (
+                <p className="mb-2 text-sm text-gray-400">Aucun avis validé pour l&apos;instant.</p>
+              )}
+              {artisan.avis.map(
+                (a: { id: string; auteurPrenom: string; note: number; commentaire: string }) => (
+                  <div key={a.id} className="mb-2 border-t pt-2 text-xs">
+                    <span className="font-bold">{a.auteurPrenom}</span>{" "}
+                    <span className="text-yellow-500">
+                      {"★".repeat(a.note)}
+                      {"☆".repeat(5 - a.note)}
+                    </span>
+                    <p className="line-clamp-2 text-gray-600">{a.commentaire}</p>
+                  </div>
+                )
               )}
             </div>
-          )}
 
-          {/* Carte — avis */}
-          <div
-            className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-6"
-            style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
-          >
-            <h2 className="bd-titre mb-1 text-xl text-[#1a1a2e]">Avis clients</h2>
-            {moyenneAvis !== null ? (
-              <p className="mb-3 text-3xl font-black text-[#6bcb77]">
-                {moyenneAvis.toFixed(1)} <span className="text-lg text-gray-400">/ 5</span>
-              </p>
-            ) : (
-              <p className="mb-3 text-sm text-gray-400">Aucun avis validé pour l&apos;instant.</p>
-            )}
-            {artisan.avis.map(
-              (a: { id: string; auteurPrenom: string; note: number; commentaire: string }) => (
-                <div key={a.id} className="mb-2 border-t pt-2 text-sm">
-                  <span className="font-bold">{a.auteurPrenom}</span>{" "}
-                  <span className="text-yellow-500">
-                    {"★".repeat(a.note)}
-                    {"☆".repeat(5 - a.note)}
-                  </span>
-                  <p className="text-gray-600">{a.commentaire}</p>
-                </div>
-              )
-            )}
-          </div>
-
-          {/* Carte — messages */}
-          <Link
-            data-tuto="messages-link"
-            href="/messages"
-            className="flex items-center justify-between rounded-2xl border-4 border-[#1a1a1a] bg-white p-6 transition-transform hover:-translate-y-0.5 hover:shadow-lg"
-            style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
-          >
-            <div>
-              <h2 className="bd-titre mb-1 text-xl text-[#1a1a2e]">💬 Messages clients</h2>
-              <p className="text-sm text-gray-400">
-                {messagesNonLusArtisan > 0
-                  ? `${messagesNonLusArtisan} non lu${messagesNonLusArtisan > 1 ? "s" : ""}`
-                  : "Aucun nouveau message"}
-              </p>
+            {/* Photos de chantier */}
+            <div data-tuto="portfolio-card">
+              <PortfolioUploader
+                initialPhotos={
+                  Array.isArray(artisan.portfolioPhotos)
+                    ? (artisan.portfolioPhotos as string[])
+                    : []
+                }
+              />
             </div>
-            {messagesNonLusArtisan > 0 && (
-              <span
-                className="rounded-full bg-[#ff6b6b] px-3 py-1 text-sm font-black text-white"
-                style={{ border: "2px solid #1a1a1a" }}
-              >
-                {messagesNonLusArtisan}
-              </span>
-            )}
-          </Link>
 
-          {/* Carte — portfolio photos */}
-          <div data-tuto="portfolio-card">
-            <PortfolioUploader
-              initialPhotos={
-                Array.isArray(artisan.portfolioPhotos) ? (artisan.portfolioPhotos as string[]) : []
-              }
-            />
-          </div>
-          {/* /portfolio-card */}
-
-          {/* Suppression de compte */}
-          <DangerZone />
-          <TutorialGuide role="artisan" prenom={artisan.prenom} />
-
-          {/* Carte — demandes de contact */}
-          <div
-            className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-6 sm:col-span-2"
-            style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
-          >
-            <h2 className="bd-titre mb-3 text-xl text-[#1a1a2e]">Dernières demandes reçues</h2>
-            {artisan.contacts.length === 0 ? (
-              <p className="text-sm text-gray-400">Aucune demande pour l&apos;instant.</p>
-            ) : (
-              <ul className="space-y-3">
-                {artisan.contacts.map(
-                  (c: {
-                    id: string;
-                    clientPrenom: string;
-                    clientNom: string;
-                    typeTraux: string;
-                    message: string;
-                    clientEmail: string;
-                    clientTel?: string | null;
-                  }) => (
-                    <li key={c.id} className="rounded-xl border-2 border-gray-100 p-3 text-sm">
-                      <p className="font-bold text-[#1a1a2e]">
-                        {c.clientPrenom} {c.clientNom}
-                      </p>
-                      <p className="text-gray-500">{c.typeTraux}</p>
-                      <p className="mt-1 text-gray-700">{c.message}</p>
-                      <p className="mt-1 text-xs text-gray-400">
-                        {c.clientEmail}
-                        {c.clientTel ? ` · ${c.clientTel}` : ""}
-                      </p>
-                    </li>
-                  )
-                )}
-              </ul>
-            )}
+            {/* Suppression de compte */}
+            <DangerZone />
+            <TutorialGuide role="artisan" prenom={artisan.prenom} />
           </div>
         </div>
       </main>
