@@ -29,6 +29,34 @@ const METIER_EMOJIS: Record<string, string> = {
   charpentier: "&#128297;",
 };
 
+function extractSocialHandle(network: string, raw: string): string {
+  try {
+    const url = raw.trim();
+    const u = new URL(url.startsWith("http") ? url : `https://${url}`);
+    const path = u.pathname.replace(/^\/+/, "").replace(/\/+$/, "");
+    const last = path.split("/").pop() ?? path;
+    switch (network) {
+      case "instagram":
+      case "facebook":
+      case "twitterX":
+        return `@${last}`;
+      case "youtube":
+        return last.startsWith("@") ? last : `@${last}`;
+      case "linkedin":
+        return path.replace(/^(in|company)\//, "").split("/")[0];
+      case "whatsapp": {
+        const digits = url.replace(/\D/g, "");
+        if (digits.startsWith("33") && digits.length >= 11) return `0${digits.slice(2, 12)}`;
+        return digits.slice(-10);
+      }
+      default:
+        return url;
+    }
+  } catch {
+    return raw;
+  }
+}
+
 interface Props {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ avisToken?: string }>;
@@ -247,7 +275,7 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
           </nav>
         </header>
 
-        <main className="mx-auto w-full max-w-6xl px-4 pt-6 pb-16">
+        <main className="mx-auto w-full max-w-[1500px] px-4 pt-6 pb-16">
           {isOwnFiche && (
             <div className="mb-4 flex items-center gap-3 rounded-xl border-2 border-[#1a1a2e] bg-[#1a1a2e] px-4 py-3 text-sm font-bold text-white">
               <span>&#128064;</span>
@@ -369,16 +397,6 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                 </div>
               </div>
 
-              {/* Portfolio photos */}
-              {portfolioPhotos.length > 0 && (
-                <div className="bd-card p-6">
-                  <h2 className="bd-titre mb-4 text-xl text-[#1a1a2e] sm:text-2xl">
-                    &#128247; R&eacute;alisations
-                  </h2>
-                  <PortfolioPhotos photos={portfolioPhotos} artisanNom={nomAffiche} />
-                </div>
-              )}
-
               {/* Formulaire de contact */}
               <div id="contact" className="bd-card p-6">
                 <h2 className="bd-titre mb-1 text-xl text-[#1a1a2e] sm:text-3xl">
@@ -440,14 +458,148 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                 <div className="mt-4 border-t-2 border-dashed border-gray-200 pt-4">
                   <MessagerieButton artisanId={artisan.id} artisanNom={nomAffiche} />
                 </div>
+
+                {/* Réseaux sociaux */}
+                {(artisan.instagram ||
+                  artisan.facebook ||
+                  artisan.youtube ||
+                  artisan.linkedin ||
+                  artisan.twitterX ||
+                  artisan.whatsapp) && (
+                  <div className="mt-4 border-t-2 border-dashed border-gray-200 pt-4">
+                    <h3 className="mb-3 text-xs font-black tracking-wider text-gray-400 uppercase">
+                      R&eacute;seaux sociaux
+                    </h3>
+                    <div className="flex flex-col gap-1">
+                      {artisan.instagram && (
+                        <a
+                          href={artisan.instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-gray-100"
+                        >
+                          <span
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-black text-white"
+                            style={{ background: "#E1306C" }}
+                          >
+                            IG
+                          </span>
+                          <span className="truncate">
+                            {extractSocialHandle("instagram", artisan.instagram)}
+                          </span>
+                        </a>
+                      )}
+                      {artisan.facebook && (
+                        <a
+                          href={artisan.facebook}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-gray-100"
+                        >
+                          <span
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-black text-white"
+                            style={{ background: "#1877F2" }}
+                          >
+                            FB
+                          </span>
+                          <span className="truncate">
+                            {extractSocialHandle("facebook", artisan.facebook)}
+                          </span>
+                        </a>
+                      )}
+                      {artisan.youtube && (
+                        <a
+                          href={artisan.youtube}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-gray-100"
+                        >
+                          <span
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-black text-white"
+                            style={{ background: "#FF0000" }}
+                          >
+                            YT
+                          </span>
+                          <span className="truncate">
+                            {extractSocialHandle("youtube", artisan.youtube)}
+                          </span>
+                        </a>
+                      )}
+                      {artisan.linkedin && (
+                        <a
+                          href={artisan.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-gray-100"
+                        >
+                          <span
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-black text-white"
+                            style={{ background: "#0A66C2" }}
+                          >
+                            LI
+                          </span>
+                          <span className="truncate">
+                            {extractSocialHandle("linkedin", artisan.linkedin)}
+                          </span>
+                        </a>
+                      )}
+                      {artisan.twitterX && (
+                        <a
+                          href={artisan.twitterX}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-gray-100"
+                        >
+                          <span
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-black text-white"
+                            style={{ background: "#000000" }}
+                          >
+                            𝕏
+                          </span>
+                          <span className="truncate">
+                            {extractSocialHandle("twitterX", artisan.twitterX)}
+                          </span>
+                        </a>
+                      )}
+                      {artisan.whatsapp && (
+                        <a
+                          href={`https://wa.me/${artisan.whatsapp.replace(/\D/g, "").replace(/^0/, "33")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-gray-100"
+                        >
+                          <span
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-black text-white"
+                            style={{ background: "#25D366" }}
+                          >
+                            WA
+                          </span>
+                          <span className="truncate">
+                            {extractSocialHandle("whatsapp", artisan.whatsapp)}
+                          </span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
+
+          {/* Portfolio photos — pleine largeur, sous la grille */}
+          {portfolioPhotos.length > 0 && (
+            <div className="bd-card mt-6 p-6">
+              <h2 className="bd-titre mb-4 text-xl text-[#1a1a2e] sm:text-2xl">
+                &#128247; R&eacute;alisations
+              </h2>
+              <PortfolioPhotos photos={portfolioPhotos} artisanNom={nomAffiche} />
+            </div>
+          )}
         </main>
 
         {/* Footer minimaliste */}
         <footer className="relative z-10 border-t-2 border-[#1a1a1a]/10 px-6 py-3">
-          <div className="mx-auto flex max-w-6xl items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
+          <div className="mx-auto flex max-w-[1500px] items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
             <span>&copy; 2026 Oyez Artisans !</span>
             <div className="flex items-center gap-4">
               <SignalementModal artisanId={artisan.id} nomArtisan={nomAffiche} />

@@ -209,22 +209,33 @@ export default function TutorialGuide({ role, prenom }: Props) {
     let left = spotRect.left + spotRect.width / 2 - tooltipW / 2;
     left = Math.max(12, Math.min(vw - tooltipW - 12, left));
 
+    // Hauteur max estimée du tooltip — sert à clamper la position verticale
+    const TOOLTIP_MAX_H = 360;
+
     if (placement === "bottom") {
+      // Clamp : ne pas dépasser le bas du viewport
+      const safeTop = Math.max(12, Math.min(spotBottom + 16, vh - TOOLTIP_MAX_H - 12));
       return {
         position: "fixed",
-        top: spotBottom + 16,
+        top: safeTop,
         left,
         width: tooltipW,
+        maxHeight: Math.min(TOOLTIP_MAX_H, vh - safeTop - 12),
+        overflowY: "auto" as const,
         zIndex: 10003,
       };
     } else {
+      // Tooltips au-dessus du spotlight : ancré depuis la position estimée
+      const tooltipBottom = Math.min(spaceAbove - 16, vh - 12);
+      const safeTop = Math.max(12, tooltipBottom - TOOLTIP_MAX_H);
       return {
         position: "fixed",
-        top: spaceAbove - 16,
+        top: safeTop,
         left,
         width: tooltipW,
+        maxHeight: Math.min(TOOLTIP_MAX_H, tooltipBottom - safeTop),
+        overflowY: "auto" as const,
         zIndex: 10003,
-        transform: "translateY(-100%)",
       };
     }
   }

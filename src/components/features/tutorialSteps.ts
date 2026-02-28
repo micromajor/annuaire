@@ -111,7 +111,7 @@ export const TUTORIAL_STEPS: Record<"artisan" | "particulier", TutorialStep[]> =
       target: "social-section",
       title: "Réseaux sociaux",
       content:
-        "Ajoutez vos profils <strong>Instagram, Facebook, YouTube</strong>… Ils apparaissent sur votre image de partage et rassurent les clients.",
+        "Ajoutez vos profils <strong>Instagram, Facebook, YouTube, LinkedIn ou WhatsApp</strong>… Ils apparaissent sur votre fiche publique et rassurent les clients.",
       actionHint: "🌐 Collez vos liens si vous en avez, puis cliquez <strong>C'est fait</strong>.",
       interactive: true,
       placement: "bottom",

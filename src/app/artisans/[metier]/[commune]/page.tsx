@@ -165,7 +165,7 @@ export default async function LandingMetierCommune({ params }: PageProps) {
           </Link>
         </header>
 
-        <main className="mx-auto w-full max-w-6xl px-4 pt-4 pb-16">
+        <main className="mx-auto w-full max-w-[1500px] px-4 pt-4 pb-16">
           {/* Breadcrumb */}
           <nav
             className="mb-6 flex flex-wrap items-center gap-1 text-xs font-semibold text-[#1a1a2e]/60"
@@ -297,7 +297,7 @@ export default async function LandingMetierCommune({ params }: PageProps) {
         </main>
 
         <footer className="mt-auto border-t-2 border-[#1a1a1a]/10 px-6 py-3">
-          <div className="mx-auto flex max-w-6xl items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
+          <div className="mx-auto flex max-w-[1500px] items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
             <span>&copy; 2026 Oyez Artisans !</span>
             <div className="flex gap-4">
               <Link href="/mentions-legales" className="hover:text-[#1a1a2e]">

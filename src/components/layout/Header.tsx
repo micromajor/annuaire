@@ -9,7 +9,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b-4 border-[#1a1a1a] bg-[#1a1a2e]">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      <div className="mx-auto flex max-w-[1500px] items-center justify-between px-4 py-3">
         {/* Logo */}
         <Link
           href="/"

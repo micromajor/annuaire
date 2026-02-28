@@ -192,7 +192,7 @@ export default async function ArtisansPage({
       <main className="relative flex-1 px-4 pt-8 pb-24">
         <FloatingTools />
 
-        <div className="relative z-10 mx-auto w-full max-w-5xl">
+        <div className="relative z-10 mx-auto w-full max-w-[1500px]">
           {/* Badge + H1 */}
           <div className="mb-10 text-center">
             <span className="bd-badge bd-badge-bleu bd-anim-pop mb-8 inline-flex">
@@ -262,7 +262,7 @@ export default async function ArtisansPage({
 
       {/* Footer minimaliste */}
       <footer className="relative z-10 border-t-2 border-[#1a1a1a]/10 px-6 py-3">
-        <div className="mx-auto flex max-w-6xl items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
           <span>© 2026 Oyez Artisans !</span>
           <div className="flex gap-4">
             <Link href="/mentions-legales" className="hover:text-[#1a1a2e]">

@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Footer() {
   return (
     <footer className="mt-16 border-t-4 border-[#1a1a1a] bg-[#1a1a2e] text-white">
-      <div className="mx-auto max-w-6xl px-4 py-10">
+      <div className="mx-auto max-w-[1500px] px-4 py-10">
         <div className="grid gap-8 sm:grid-cols-3">
           {/* Bloc marque */}
           <div>

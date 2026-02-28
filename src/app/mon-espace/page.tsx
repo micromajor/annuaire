@@ -292,7 +292,7 @@ export default async function MonEspacePage({
         </nav>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-10">
+      <main className="mx-auto max-w-[1500px] px-4 py-10">
         {/* Titre */}
         <div className="mb-8">
           <h1 className="bd-titre text-4xl text-[#1a1a2e]">
