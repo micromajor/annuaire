@@ -114,10 +114,6 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
     }
   }
 
-  function toggleMulti<T>(arr: T[], value: T): T[] {
-    return arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
-  }
-
   function clientValidate(): Record<string, string[]> {
     const errs: Record<string, string[]> = {};
     if (!form.prenom.trim()) errs.prenom = ["Prénom requis"];
@@ -169,6 +165,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
 
   return (
     <div
+      data-tuto="edit-form"
       className="col-span-full rounded-2xl border-4 border-[#1a1a1a] bg-white"
       style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
     >
@@ -367,7 +364,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Accroche */}
-          <fieldset>
+          <fieldset data-tuto="accroche-field">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Phrase d&apos;accroche
             </legend>
@@ -382,6 +379,96 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
             />
             <p className="mt-1 text-right text-xs text-gray-400">{form.accroche.length}/200</p>
             {errors.accroche && <p className="mt-1 text-xs text-[#ff6b6b]">{errors.accroche[0]}</p>}
+          </fieldset>
+
+          {/* Réseaux sociaux */}
+          <fieldset data-tuto="social-section">
+            <legend className="mb-1 text-sm font-black tracking-wide text-gray-400 uppercase">
+              Réseaux sociaux
+            </legend>
+            <p className="mb-3 text-xs text-gray-400">
+              Ces liens apparaîtront sur votre fiche et votre image de partage.
+            </p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs font-bold" style={{ color: "#e1306c" }}>
+                  Instagram
+                </label>
+                <input
+                  type="url"
+                  value={form.instagram}
+                  onChange={(e) => setForm({ ...form, instagram: e.target.value })}
+                  placeholder="https://instagram.com/votre-compte"
+                  className="w-full rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#e1306c]"
+                  style={{ border: "3px solid #1a1a1a" }}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-bold" style={{ color: "#1877f2" }}>
+                  Facebook
+                </label>
+                <input
+                  type="url"
+                  value={form.facebook}
+                  onChange={(e) => setForm({ ...form, facebook: e.target.value })}
+                  placeholder="https://facebook.com/votre-page"
+                  className="w-full rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#1877f2]"
+                  style={{ border: "3px solid #1a1a1a" }}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-bold" style={{ color: "#ff0000" }}>
+                  YouTube
+                </label>
+                <input
+                  type="url"
+                  value={form.youtube}
+                  onChange={(e) => setForm({ ...form, youtube: e.target.value })}
+                  placeholder="https://youtube.com/@votre-chaine"
+                  className="w-full rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#ff0000]"
+                  style={{ border: "3px solid #1a1a1a" }}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-bold" style={{ color: "#0a66c2" }}>
+                  LinkedIn
+                </label>
+                <input
+                  type="url"
+                  value={form.linkedin}
+                  onChange={(e) => setForm({ ...form, linkedin: e.target.value })}
+                  placeholder="https://linkedin.com/in/votre-profil"
+                  className="w-full rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#0a66c2]"
+                  style={{ border: "3px solid #1a1a1a" }}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-bold" style={{ color: "#1a1a1a" }}>
+                  X / Twitter
+                </label>
+                <input
+                  type="url"
+                  value={form.twitterX}
+                  onChange={(e) => setForm({ ...form, twitterX: e.target.value })}
+                  placeholder="https://x.com/votre-compte"
+                  className="w-full rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#1a1a1a]"
+                  style={{ border: "3px solid #1a1a1a" }}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-bold" style={{ color: "#25d366" }}>
+                  WhatsApp
+                </label>
+                <input
+                  type="url"
+                  value={form.whatsapp}
+                  onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
+                  placeholder="https://wa.me/33612345678"
+                  className="w-full rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#25d366]"
+                  style={{ border: "3px solid #1a1a1a" }}
+                />
+              </div>
+            </div>
           </fieldset>
 
           {/* Description */}

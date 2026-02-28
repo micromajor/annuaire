@@ -14,6 +14,7 @@ import DangerZone from "@/components/features/DangerZone";
 import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapper";
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import ResendConfirmationButton from "@/components/features/ResendConfirmationButton";
+import TutorialGuide from "@/components/features/TutorialGuide";
 
 export default async function MonEspacePage({
   searchParams,
@@ -107,6 +108,7 @@ export default async function MonEspacePage({
 
           {/* Bouton messages */}
           <Link
+            data-tuto="messages-particulier"
             href="/messages"
             className="mb-6 flex items-center justify-between rounded-2xl border-4 border-[#1a1a1a] bg-white px-5 py-3"
             style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
@@ -122,65 +124,69 @@ export default async function MonEspacePage({
             )}
           </Link>
 
-          {besoins.length === 0 ? (
-            <div
-              className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-8 text-center"
-              style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
-            >
-              <p className="mb-2 text-3xl">📋</p>
-              <p className="font-bold text-[#1a1a2e]/60">
-                Aucune annonce publiée pour l&apos;instant.
-              </p>
-              <Link
-                href="/"
-                className="mt-4 inline-block text-sm font-bold text-[#1a1a2e] underline"
+          <div data-tuto="besoins-list">
+            {besoins.length === 0 ? (
+              <div
+                className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-8 text-center"
+                style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
               >
-                ← Déposer une annonce
-              </Link>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              {besoins.map((b) => (
-                <div
-                  key={b.id}
-                  className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-5"
-                  style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+                <p className="mb-2 text-3xl">📋</p>
+                <p className="font-bold text-[#1a1a2e]/60">
+                  Aucune annonce publiée pour l&apos;instant.
+                </p>
+                <Link
+                  href="/"
+                  className="mt-4 inline-block text-sm font-bold text-[#1a1a2e] underline"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-black text-[#1a1a2e]">
-                        {b.metierSlug} · {b.commune}
-                      </p>
-                      <p className="mt-1 text-sm text-gray-600">{b.description}</p>
+                  ← Déposer une annonce
+                </Link>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {besoins.map((b) => (
+                  <div
+                    key={b.id}
+                    className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-5"
+                    style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-black text-[#1a1a2e]">
+                          {b.metierSlug} · {b.commune}
+                        </p>
+                        <p className="mt-1 text-sm text-gray-600">{b.description}</p>
+                      </div>
+                      <span
+                        className="shrink-0 rounded-full px-3 py-1 text-xs font-black"
+                        style={{
+                          background: b.status === "NOUVEAU" ? "#ffd93d" : "#6bcb77",
+                          border: "2px solid #1a1a1a",
+                          color: "#1a1a2e",
+                        }}
+                      >
+                        {b.status}
+                      </span>
                     </div>
-                    <span
-                      className="shrink-0 rounded-full px-3 py-1 text-xs font-black"
-                      style={{
-                        background: b.status === "NOUVEAU" ? "#ffd93d" : "#6bcb77",
-                        border: "2px solid #1a1a1a",
-                        color: "#1a1a2e",
-                      }}
-                    >
-                      {b.status}
-                    </span>
+                    <p className="mt-2 text-xs text-gray-400">
+                      Publié le{" "}
+                      {b.createdAt.toLocaleDateString("fr-FR", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </p>
                   </div>
-                  <p className="mt-2 text-xs text-gray-400">
-                    Publié le{" "}
-                    {b.createdAt.toLocaleDateString("fr-FR", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
+          {/* /besoins-list */}
 
           {/* Suppression de compte */}
           <div className="mt-10">
             <DangerZone />
           </div>
+          <TutorialGuide role="particulier" prenom={particulier?.prenom} />
         </main>
       </div>
     );
@@ -434,6 +440,7 @@ export default async function MonEspacePage({
           {/* Carte — infos (lecture seule, visible quand profil complet) */}
           {artisan.prenom && (
             <div
+              data-tuto="fiche-card"
               className="col-span-full rounded-2xl border-4 border-[#1a1a1a] bg-white p-6"
               style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
             >
@@ -536,7 +543,7 @@ export default async function MonEspacePage({
                 </p>
               )}
               {artisan.status === "VALIDE" && (
-                <div className="mt-4 space-y-2">
+                <div data-tuto="share-zone" className="mt-4 space-y-2">
                   <Link
                     href={`/artisan/${artisan.id}`}
                     className="inline-block text-sm font-bold text-[#1a1a2e] underline"
@@ -583,6 +590,7 @@ export default async function MonEspacePage({
 
           {/* Carte — messages */}
           <Link
+            data-tuto="messages-link"
             href="/messages"
             className="flex items-center justify-between rounded-2xl border-4 border-[#1a1a1a] bg-white p-6 transition-transform hover:-translate-y-0.5 hover:shadow-lg"
             style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
@@ -606,14 +614,18 @@ export default async function MonEspacePage({
           </Link>
 
           {/* Carte — portfolio photos */}
-          <PortfolioUploader
-            initialPhotos={
-              Array.isArray(artisan.portfolioPhotos) ? (artisan.portfolioPhotos as string[]) : []
-            }
-          />
+          <div data-tuto="portfolio-card">
+            <PortfolioUploader
+              initialPhotos={
+                Array.isArray(artisan.portfolioPhotos) ? (artisan.portfolioPhotos as string[]) : []
+              }
+            />
+          </div>
+          {/* /portfolio-card */}
 
           {/* Suppression de compte */}
           <DangerZone />
+          <TutorialGuide role="artisan" prenom={artisan.prenom} />
 
           {/* Carte — demandes de contact */}
           <div
