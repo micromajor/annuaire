@@ -172,13 +172,6 @@ Avant chaque `git push`, je dois avoir effectué **au moins** les vérifications
 5. **Régression sur les pages principales**
    - Après tout changement de layout ou de composant partagé, vérifier rapidement les pages clés : accueil, fiche artisan, mon-espace, admin.
 
-### Ce qui constitue une validation suffisante
-
-- ✅ Le navigateur MCP affiche la page sans erreur 500/404.
-- ✅ L'interaction testée produit le résultat attendu (formulaire soumis, données affichées, etc.).
-- ✅ Aucune erreur de compilation TypeScript.
-- ✅ Aucune régression visuelle évidente sur les pages touchées.
-
 6. **Espace disque sur le VPS**
    - Avant tout push, vérifier que le VPS a au moins **50% d'espace disque libre** :
      ```bash
@@ -193,6 +186,15 @@ Avant chaque `git push`, je dois avoir effectué **au moins** les vérifications
      ```
    - Ne jamais pousser si le disque est saturé — le build Coolify échoue silencieusement ou corrompt des fichiers.
 
+7. **Vérifier le build Coolify après chaque push**
+   - Après `git push origin main`, ouvrir le dashboard Coolify et confirmer que le build se termine en succès :
+     ```
+     mcp_microsoft_pla_browser_navigate → http://37.27.222.18:8000
+     ```
+   - Naviguer vers l'application Next.js → onglet **Deployments** → attendre le statut `✅ Running` (ou `Finished`).
+   - Si le build est en erreur (`❌ Failed`) : lire les logs du build dans Coolify, corriger le problème, puis re-pusher.
+   - Ne jamais considérer un push comme "livré en prod" sans avoir confirmé le statut `Running` dans Coolify.
+
 ### Ce qui constitue une validation suffisante
 
 - ✅ Le navigateur MCP affiche la page sans erreur 500/404.
@@ -200,6 +202,7 @@ Avant chaque `git push`, je dois avoir effectué **au moins** les vérifications
 - ✅ Aucune erreur de compilation TypeScript.
 - ✅ Aucune régression visuelle évidente sur les pages touchées.
 - ✅ Le VPS a au moins 50% d'espace disque libre.
+- ✅ Le build Coolify est en statut `Running` (pas `Failed`) après le push.
 
 ### Ce qui ne suffit pas
 
@@ -207,6 +210,7 @@ Avant chaque `git push`, je dois avoir effectué **au moins** les vérifications
 - ❌ Tester uniquement le fichier modifié sans vérifier ses dépendants.
 - ❌ Pousser en espérant que le build Coolify détectera les erreurs (il déploie en prod).
 - ❌ Ignorer un disque VPS proche de la saturation.
+- ❌ **Considérer un push comme "livré" sans avoir vérifié le statut Coolify.** Toujours naviguer sur `http://37.27.222.18:8000`, aller dans Deployments et confirmer `Running` avant de clore la tâche.
 - ❌ **Modifier un composant visuel (OG image, layout, UI) sans prendre un screenshot MCP avant le push.** Toujours démarrer le dev server et utiliser `mcp_microsoft_pla_browser_navigate` + `mcp_microsoft_pla_browser_take_screenshot` pour valider le rendu.
 
 ---
