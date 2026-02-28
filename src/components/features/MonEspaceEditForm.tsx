@@ -184,6 +184,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
         </div>
         {artisan.prenom && (
           <button
+            data-tuto="btn-modifier"
             type="button"
             onClick={() => setOpen((o) => !o)}
             className="rounded-xl border-3 border-[#1a1a1a] bg-[#ffd93d] px-4 py-2 text-sm font-black text-[#1a1a2e] hover:bg-[#ffc800]"
@@ -541,6 +542,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           {/* Actions */}
           <div className="flex flex-wrap items-center gap-4 border-t-2 border-gray-100 pt-4">
             <button
+              data-tuto="btn-enregistrer"
               type="submit"
               disabled={loading}
               className="bd-btn bd-btn-primary text-sm disabled:opacity-60"

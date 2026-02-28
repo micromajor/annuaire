@@ -73,17 +73,20 @@ export default function TutorialGuide({ role, prenom }: Props) {
       setSpotRect(null);
       return;
     }
-    const rect = el.getBoundingClientRect();
-    const pad = step.spotlightPadding ?? 8;
-    setSpotRect({
-      top: rect.top - pad,
-      left: rect.left - pad,
-      width: rect.width + pad * 2,
-      height: rect.height + pad * 2,
+    // Scroll vers l'élément d'abord (instant) pour que getBoundingClientRect
+    // retourne des coordonnées viewport correctes
+    el.scrollIntoView({ behavior: "instant" as ScrollBehavior, block: "center" });
+    // Calculer la rect après le prochain frame (layout flush garanti)
+    requestAnimationFrame(() => {
+      const rect = el.getBoundingClientRect();
+      const pad = step.spotlightPadding ?? 8;
+      setSpotRect({
+        top: rect.top - pad,
+        left: rect.left - pad,
+        width: rect.width + pad * 2,
+        height: rect.height + pad * 2,
+      });
     });
-
-    // Scroll vers l'élément cible
-    el.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [step]);
 
   // Recalcule quand l'étape change (avec délai pour laisser le scroll se stabiliser)
@@ -159,6 +162,22 @@ export default function TutorialGuide({ role, prenom }: Props) {
     return () => window.removeEventListener("keydown", handler);
   }, [active, skip, next, prev]);
 
+  // ── Écoute l'action déclenchante (clic sur un sélecteur CSS) ─────────
+  useEffect(() => {
+    if (!active || !step?.action) return;
+    let el: Element | null = null;
+    const handler = () => next();
+    // Délai court : laisse le temps au DOM de se mettre à jour (ex: après ouverture du form)
+    const t = setTimeout(() => {
+      el = document.querySelector(step.action!.selector);
+      if (el) el.addEventListener("click", handler, { once: true });
+    }, 500);
+    return () => {
+      clearTimeout(t);
+      if (el) el.removeEventListener("click", handler);
+    };
+  }, [active, stepIndex, next, step]);
+
   if (!mounted || steps.length === 0) return null;
 
   // ── Calcul positionnement du tooltip ──────────────────────────────────
@@ -171,7 +190,7 @@ export default function TutorialGuide({ role, prenom }: Props) {
         left: "50%",
         transform: "translate(-50%, -50%)",
         width: "min(480px, 92vw)",
-        zIndex: 10002,
+        zIndex: 10003,
       };
     }
 
@@ -196,7 +215,7 @@ export default function TutorialGuide({ role, prenom }: Props) {
         top: spotBottom + 16,
         left,
         width: tooltipW,
-        zIndex: 10002,
+        zIndex: 10003,
       };
     } else {
       return {
@@ -204,7 +223,7 @@ export default function TutorialGuide({ role, prenom }: Props) {
         top: spaceAbove - 16,
         left,
         width: tooltipW,
-        zIndex: 10002,
+        zIndex: 10003,
         transform: "translateY(-100%)",
       };
     }
@@ -240,41 +259,123 @@ export default function TutorialGuide({ role, prenom }: Props) {
       {active &&
         createPortal(
           <div>
-            {/* Fond sombre */}
-            <div
-              aria-hidden="true"
-              style={{
-                position: "fixed",
-                inset: 0,
-                background: "rgba(0, 0, 0, 0.72)",
-                zIndex: 10000,
-                transition: "opacity 0.3s",
-              }}
-            />
-
-            {/* Spotlight (trou dans l'overlay) */}
-            {spotRect && (
-              <div
-                aria-hidden="true"
-                style={{
-                  position: "fixed",
-                  top: spotRect.top,
-                  left: spotRect.left,
-                  width: spotRect.width,
-                  height: spotRect.height,
-                  borderRadius: 12,
-                  background: "transparent",
-                  // box-shadow géant = overlay percé autour de l'élément cible
-                  boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.72)",
-                  zIndex: 10001,
-                  pointerEvents: "none",
-                  outline: "3px solid #ffd93d",
-                  outlineOffset: 2,
-                  transition:
-                    "top 0.35s cubic-bezier(0.4,0,0.2,1), left 0.35s cubic-bezier(0.4,0,0.2,1), width 0.35s cubic-bezier(0.4,0,0.2,1), height 0.35s cubic-bezier(0.4,0,0.2,1)",
-                }}
-              />
-            )}
+            {/* Overlay — standard ou 4 cadres si step interactif/action */}
+            {(() => {
+              const isInteractive = !!(step?.interactive || step?.action);
+              if (isInteractive && spotRect) {
+                // 4 panneaux laissant le spotlight libre pour clic/saisie
+                const vw = window.innerWidth;
+                const vh = window.innerHeight;
+                return (
+                  <>
+                    {/* Dessus */}
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: spotRect.top,
+                        background: "rgba(0,0,0,0.75)",
+                        zIndex: 10001,
+                      }}
+                    />
+                    {/* Gauche */}
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        position: "fixed",
+                        top: spotRect.top,
+                        left: 0,
+                        width: spotRect.left,
+                        height: spotRect.height,
+                        background: "rgba(0,0,0,0.75)",
+                        zIndex: 10001,
+                      }}
+                    />
+                    {/* Droite */}
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        position: "fixed",
+                        top: spotRect.top,
+                        left: spotRect.left + spotRect.width,
+                        width: Math.max(0, vw - spotRect.left - spotRect.width),
+                        height: spotRect.height,
+                        background: "rgba(0,0,0,0.75)",
+                        zIndex: 10001,
+                      }}
+                    />
+                    {/* Dessous */}
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        position: "fixed",
+                        top: spotRect.top + spotRect.height,
+                        left: 0,
+                        width: "100%",
+                        height: Math.max(0, vh - spotRect.top - spotRect.height),
+                        background: "rgba(0,0,0,0.75)",
+                        zIndex: 10001,
+                      }}
+                    />
+                    {/* Bordure dorée (juste visuelle) */}
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        position: "fixed",
+                        top: spotRect.top,
+                        left: spotRect.left,
+                        width: spotRect.width,
+                        height: spotRect.height,
+                        borderRadius: 12,
+                        outline: "3px solid #ffd93d",
+                        outlineOffset: 2,
+                        zIndex: 10002,
+                        pointerEvents: "none",
+                      }}
+                    />
+                  </>
+                );
+              }
+              // Overlay standard + box-shadow spotlight (non interactif)
+              return (
+                <>
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      position: "fixed",
+                      inset: 0,
+                      background: "rgba(0,0,0,0.72)",
+                      zIndex: 10000,
+                      transition: "opacity 0.3s",
+                    }}
+                  />
+                  {spotRect && (
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        position: "fixed",
+                        top: spotRect.top,
+                        left: spotRect.left,
+                        width: spotRect.width,
+                        height: spotRect.height,
+                        borderRadius: 12,
+                        background: "transparent",
+                        boxShadow: "0 0 0 9999px rgba(0,0,0,0.72)",
+                        zIndex: 10001,
+                        pointerEvents: "none",
+                        outline: "3px solid #ffd93d",
+                        outlineOffset: 2,
+                        transition:
+                          "top 0.35s cubic-bezier(0.4,0,0.2,1), left 0.35s cubic-bezier(0.4,0,0.2,1), width 0.35s cubic-bezier(0.4,0,0.2,1), height 0.35s cubic-bezier(0.4,0,0.2,1)",
+                      }}
+                    />
+                  )}
+                </>
+              );
+            })()}
 
             {/* Tooltip ───────────────────────────────────────────────── */}
             <div
@@ -336,9 +437,32 @@ export default function TutorialGuide({ role, prenom }: Props) {
 
                 {/* Contenu */}
                 <p
-                  style={{ fontSize: 14, color: "#333", lineHeight: 1.6, marginBottom: 18 }}
+                  style={{
+                    fontSize: 14,
+                    color: "#333",
+                    lineHeight: 1.6,
+                    marginBottom: step.actionHint ? 10 : 18,
+                  }}
                   dangerouslySetInnerHTML={{ __html: interpolate(step.content) }}
                 />
+
+                {/* Indice d'action */}
+                {step.actionHint && (
+                  <div
+                    style={{
+                      background: "#fff8e1",
+                      border: "2px solid #ffd93d",
+                      borderRadius: 8,
+                      padding: "9px 12px",
+                      marginBottom: 18,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: "#1a1a2e",
+                      lineHeight: 1.5,
+                    }}
+                    dangerouslySetInnerHTML={{ __html: step.actionHint }}
+                  />
+                )}
 
                 {/* Boutons d'action */}
                 <div
@@ -385,7 +509,13 @@ export default function TutorialGuide({ role, prenom }: Props) {
                     }}
                     autoFocus
                   >
-                    {stepIndex === steps.length - 1 ? "🎉 Terminer" : "Suivant →"}
+                    {stepIndex === steps.length - 1
+                      ? "🎉 Terminer"
+                      : step?.action
+                        ? "Passer →"
+                        : step?.interactive
+                          ? "C'est fait →"
+                          : "Suivant →"}
                   </button>
 
                   <button
@@ -419,17 +549,19 @@ export default function TutorialGuide({ role, prenom }: Props) {
               </div>
             </div>
 
-            {/* Zone cliquable pour ignorer (sous le tooltip) */}
-            <div
-              onClick={skip}
-              aria-hidden="true"
-              style={{
-                position: "fixed",
-                inset: 0,
-                zIndex: 9999,
-                cursor: "pointer",
-              }}
-            />
+            {/* Zone cliquable pour ignorer — désactivée sur les steps interactifs */}
+            {!(step?.interactive || step?.action) && (
+              <div
+                onClick={skip}
+                aria-hidden="true"
+                style={{
+                  position: "fixed",
+                  inset: 0,
+                  zIndex: 9999,
+                  cursor: "pointer",
+                }}
+              />
+            )}
           </div>,
           document.body
         )}

@@ -6,8 +6,14 @@ export interface TutorialStep {
   target?: string; // data-tuto="..." sur l'élément DOM
   title: string; // supporte {prenom}
   content: string; // HTML léger autorisé (<strong>, <em>, <br>)
-  placement?: "top" | "bottom"; // positionnement du tooltip (auto si omis)
-  spotlightPadding?: number; // px de marge autour du spotlight (défaut: 8)
+  /** Instruction mise en avant sous le contenu (ex: "👆 Cliquez sur Modifier") */
+  actionHint?: string;
+  /** Écoute un clic sur un élément pour passer automatiquement à l'étape suivante */
+  action?: { type: "click"; selector: string };
+  /** Libère l'overlay sur le spotlight pour permettre l'interaction (saisie, clic) */
+  interactive?: boolean;
+  placement?: "top" | "bottom";
+  spotlightPadding?: number;
 }
 
 export const TUTORIAL_STEPS: Record<"artisan" | "particulier", TutorialStep[]> = {
@@ -16,71 +22,90 @@ export const TUTORIAL_STEPS: Record<"artisan" | "particulier", TutorialStep[]> =
     {
       title: "Bienvenue{prenom} ! 🎉",
       content:
-        "Voici votre <strong>espace artisan</strong>. Ce guide rapide vous montre l'essentiel en quelques clics. Vous pouvez l'ignorer à tout moment et le relancer via le bouton <strong>?</strong> en bas à droite.",
+        "Ce guide vous montre <strong>pas à pas</strong> comment bien configurer votre espace — ça prend moins de 5 minutes. Suivez les instructions en bas de chaque bulle !",
     },
-    // ── Étape 1 — Formulaire de fiche
+    // ── Étape 1 — Ouvrir le formulaire (action : clic sur Modifier)
     {
       target: "edit-form",
-      title: "Votre fiche",
+      title: "Votre fiche artisan",
       content:
-        "C'est ici que vous <strong>complétez votre fiche</strong> : nom, métier, téléphone, SIRET, logo… Plus votre fiche est complète, plus les particuliers vous font confiance.",
+        "C'est ici que vous renseignez <strong>toutes vos informations</strong> : nom, métiers, zones d'intervention, téléphone, SIRET…",
+      actionHint:
+        "👆 Cliquez sur le bouton <strong>Modifier</strong> pour ouvrir votre formulaire.",
+      action: { type: "click", selector: "[data-tuto='btn-modifier']" },
       placement: "bottom",
       spotlightPadding: 10,
     },
-    // ── Étape 2 — Phrase d'accroche
+    // ── Étape 2 — Phrase d'accroche (interactive : saisie libre)
     {
       target: "accroche-field",
-      title: "La phrase d'accroche",
+      title: "Phrase d'accroche",
       content:
-        'Une <strong>phrase courte et percutante</strong> qui s\'affiche en évidence sur votre fiche publique et sur votre carte de partage. Ex : <em>"Maçon depuis 20 ans, devis gratuit sous 48h."</em>',
+        'Une <strong>phrase courte et percutante</strong> affichée en évidence sur votre fiche et votre carte de partage.<br/>Ex : <em>"Maçon depuis 20 ans, devis gratuit sous 48h."</em>',
+      actionHint:
+        "✏️ Tapez votre phrase d'accroche dans le champ, puis cliquez <strong>C'est fait</strong>.",
+      interactive: true,
       placement: "bottom",
     },
-    // ── Étape 3 — Réseaux sociaux
+    // ── Étape 3 — Réseaux sociaux (interactive : saisie optionnelle)
     {
       target: "social-section",
       title: "Vos réseaux sociaux",
       content:
-        "Ajoutez vos profils <strong>Instagram, Facebook, YouTube</strong>… Ils apparaissent sur votre carte de partage et rassurent les clients avant de vous contacter.",
+        "Ajoutez vos profils <strong>Instagram, Facebook, YouTube</strong>… Ils apparaissent sur votre image de partage et rassurent les clients avant de vous contacter.",
+      actionHint: "🌐 Collez vos liens si vous en avez, puis cliquez <strong>C'est fait</strong>.",
+      interactive: true,
       placement: "bottom",
     },
-    // ── Étape 4 — Ma fiche (aperçu public)
+    // ── Étape 4 — Enregistrer (action : clic sur le bouton submit)
+    {
+      target: "btn-enregistrer",
+      title: "Enregistrez vos modifications",
+      content:
+        "Une fois vos informations remplies, <strong>cliquez sur Enregistrer</strong> pour les sauvegarder. Vos données sont mises à jour instantanément.",
+      actionHint: "💾 Cliquez sur <strong>Enregistrer ma fiche</strong> pour valider.",
+      action: { type: "click", selector: "[data-tuto='btn-enregistrer']" },
+      placement: "top",
+      spotlightPadding: 12,
+    },
+    // ── Étape 5 — Ma fiche (aperçu public)
     {
       target: "fiche-card",
       title: "Votre aperçu public",
       content:
-        "Ce bloc montre ce que <strong>les particuliers voient</strong> en cherchant votre métier. Vérifiez que tout est bien renseigné avant de partager votre lien.",
+        "Ce bloc montre ce que <strong>les particuliers voient</strong> en cherchant votre métier. Vérifiez que tout est bien renseigné avant de partager.",
       placement: "top",
       spotlightPadding: 10,
     },
-    // ── Étape 5 — Partage
+    // ── Étape 6 — Partage
     {
       target: "share-zone",
       title: "Partagez votre fiche",
       content:
-        "<strong>Partagez votre lien</strong> sur WhatsApp, par email ou sur les réseaux — plus vous la diffusez, plus vous recevez de demandes ! Vous pouvez aussi voir l'image qui s'affiche quand vous partagez.",
+        "<strong>Partagez votre lien</strong> sur WhatsApp, par email ou sur les réseaux — plus vous la diffusez, plus vous recevez de demandes !",
       placement: "top",
     },
-    // ── Étape 6 — Messages
+    // ── Étape 7 — Messages
     {
       target: "messages-link",
       title: "Vos messages clients",
       content:
-        "Chaque fois qu'un particulier vous contacte, son message apparaît ici. <strong>Répondez vite</strong> : les artisans réactifs décrochent plus de chantiers !",
+        "Quand un particulier vous contacte, son message apparaît ici. <strong>Répondez vite</strong> : les artisans réactifs décrochent plus de chantiers !",
       placement: "top",
     },
-    // ── Étape 7 — Portfolio
+    // ── Étape 8 — Portfolio
     {
       target: "portfolio-card",
       title: "Photos de vos chantiers",
       content:
-        "Ajoutez des <strong>photos de vos réalisations</strong> pour montrer la qualité de votre travail. Les clients choisissent plus facilement un artisan dont ils ont vu les chantiers.",
+        "Ajoutez des <strong>photos de vos réalisations</strong>. Les clients choisissent plus facilement un artisan dont ils ont vu les chantiers.",
       placement: "top",
     },
-    // ── Étape 8 — Fin (modal centré)
+    // ── Étape 9 — Fin (modal centré)
     {
       title: "Vous êtes prêt ! 🚀",
       content:
-        "Votre fiche est entre vos mains. Complétez-la, ajoutez des photos, et partagez votre lien. <strong>Bonne continuité !</strong><br/><br/>Ce guide est disponible à tout moment via le bouton <strong>?</strong> en bas à droite.",
+        "Votre espace est configuré. Ajoutez des photos, partagez votre lien, et les demandes arrivent !<br/><br/>Ce guide reste disponible à tout moment via le bouton <strong>?</strong> en bas à droite.",
     },
   ],
 
