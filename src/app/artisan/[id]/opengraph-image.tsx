@@ -1,6 +1,8 @@
 // OG image dynamique par fiche artisan — theme BD
 // Rendu cote serveur (Node runtime) pour acces Prisma
 import { ImageResponse } from "next/og";
+import { readFile } from "fs/promises";
+import path from "path";
 import { prisma } from "@/lib/db/client";
 
 export const alt = "Fiche artisan — Oyez Artisans !";
@@ -32,12 +34,12 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       prenom: true,
       nom: true,
       raisonSociale: true,
+      accroche: true,
       siret: true,
       telephone: true,
       logoUrl: true,
       description: true,
       metiers: { include: { metier: true } },
-      communes: { include: { commune: true } },
       avis: { where: { status: "VALIDE" }, select: { note: true } },
     },
   });
@@ -69,8 +71,8 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   }
 
   const nom = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
+  const accroche = artisan.accroche ?? null;
   const metiersLabels = artisan.metiers.map((m) => m.metier.label);
-  const communeNoms = artisan.communes.map((c) => c.commune.nom).slice(0, 4);
   const firstSlug = artisan.metiers[0]?.metier.slug ?? "";
   const emoji = METIER_EMOJI[firstSlug] ?? "\u{1F528}";
   const avisCount = artisan.avis.length;
@@ -79,6 +81,8 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const stars = moyenne !== null ? Math.round(moyenne) : 0;
   const isPro = !!artisan.siret;
   const tel = artisan.telephone;
+  // Police Bangers depuis /public/fonts
+  const bangersFont = await readFile(path.join(process.cwd(), "public/fonts/Bangers-Regular.ttf"));
   // Logo : data URI depuis DB — Satori n'accepte pas les chemins relatifs
   let logoDataUrl: string | null = null;
   if (artisan.logoUrl) {
@@ -141,20 +145,17 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           zIndex: 1,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <span style={{ fontSize: 34 }}>{"\u{1F528}"}</span>
-          <span
-            style={{
-              fontSize: 32,
-              fontWeight: 900,
-              color: "#ffd93d",
-              textTransform: "uppercase",
-              letterSpacing: 3,
-            }}
-          >
-            Oyez Artisans !
-          </span>
-        </div>
+        <span
+          style={{
+            fontFamily: "Bangers",
+            fontSize: 40,
+            fontWeight: 400,
+            color: "#ffd93d",
+            letterSpacing: 4,
+          }}
+        >
+          OYEZ ARTISANS !
+        </span>
         <span
           style={{
             fontSize: 18,
@@ -180,6 +181,37 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             gap: 16,
           }}
         >
+          {/* Nom artisan — en premier, bien visible */}
+          <div
+            style={{
+              fontFamily: "Bangers",
+              fontSize: nom.length > 20 ? 58 : nom.length > 15 ? 70 : 82,
+              fontWeight: 400,
+              color: "#1a1a2e",
+              lineHeight: 1.0,
+              letterSpacing: 2,
+              display: "flex",
+            }}
+          >
+            {nom}
+          </div>
+
+          {/* Phrase d'accroche */}
+          {accroche ? (
+            <div
+              style={{
+                fontSize: 22,
+                fontWeight: 700,
+                color: "#444",
+                fontStyle: "italic",
+                display: "flex",
+                lineHeight: 1.2,
+              }}
+            >
+              &ldquo;{accroche}&rdquo;
+            </div>
+          ) : null}
+
           {/* Badges metier + pro */}
           <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
             <div
@@ -222,44 +254,6 @@ export default async function Image({ params }: { params: Promise<{ id: string }
               </div>
             )}
           </div>
-
-          {/* Nom artisan — seuils calibres pour 720px de large */}
-          <div
-            style={{
-              fontSize: nom.length > 17 ? 52 : nom.length > 13 ? 62 : 72,
-              fontWeight: 900,
-              color: "#1a1a2e",
-              lineHeight: 1.05,
-              textShadow: "4px 4px 0 #ffd93d",
-              display: "flex",
-            }}
-          >
-            {nom}
-          </div>
-
-          {/* Zones d'intervention */}
-          {communeNoms.length > 0 && (
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  background: "#dbeeff",
-                  border: "3px solid #1a1a2e",
-                  borderRadius: 12,
-                  padding: "6px 16px",
-                  boxShadow: "3px 3px 0 #1a1a2e",
-                }}
-              >
-                <span style={{ fontSize: 22 }}>{"\u{1F4CD}"}</span>
-                <span style={{ fontSize: 20, fontWeight: 900, color: "#1a4080" }}>
-                  {communeNoms.join("  \u00B7  ")}
-                  {artisan.communes.length > 4 ? `  +${artisan.communes.length - 4}` : ""}
-                </span>
-              </div>
-            </div>
-          )}
 
           {/* Telephone — info cle pour le particulier */}
           {tel && (
@@ -369,35 +363,28 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       >
         <span
           style={{
-            fontSize: 24,
-            fontWeight: 900,
+            fontFamily: "Bangers",
+            fontSize: 30,
+            fontWeight: 400,
             color: "#1a1a2e",
-            textTransform: "uppercase",
             letterSpacing: 3,
           }}
         >
-          oyezartisans.fr
+          OYEZARTISANS.FR
         </span>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            background: "#1a1a2e",
-            color: "#ffd93d",
-            fontSize: 20,
-            fontWeight: 900,
-            padding: "12px 32px",
-            borderRadius: 50,
-            border: "4px solid #1a1a2e",
-            boxShadow: "4px 4px 0 rgba(0,0,0,0.2)",
-            letterSpacing: 1,
-          }}
-        >
-          Contacter cet artisan &#x2192;
-        </div>
       </div>
     </div>,
-    { width: 1200, height: 630 }
+    {
+      width: 1200,
+      height: 630,
+      fonts: [
+        {
+          name: "Bangers",
+          data: bangersFont,
+          style: "normal" as const,
+          weight: 400 as const,
+        },
+      ],
+    }
   );
 }
