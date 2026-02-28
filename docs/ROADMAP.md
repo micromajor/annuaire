@@ -1,6 +1,6 @@
 # Roadmap — OyezArtisans · Réseau local d'artisans
 
-> Dernière mise à jour : 28/02/2026 — Tutoriel interactif pas-à-pas : auto-avance au clic + overlay interactif (commit a3d659b)
+> Dernière mise à jour : 28/02/2026 — Badges réseaux sociaux colorés sur fiche publique + portfolio pleine largeur + layout 1500px + fix tooltip tutoriel (commit 15543a2)
 > Statuts : `[ ]` à faire · `[~]` en cours · `[x]` terminé
 
 ---
@@ -161,6 +161,8 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] **OG image — réseaux sociaux + tag PRO VÉRIFIÉ inline** (28/02/2026) : 6 nouvelles colonnes sur `Artisan` (`instagram`, `facebook`, `youtube`, `linkedin`, `twitterX`, `whatsapp`), migration `20260228121507_add_social_links`. OG image : tag PRO VÉRIFIÉ sur la même ligne que le nom (Bangers), métiers sans emoji, section basse téléphone + pills colorées réseaux sociaux. Section "Réseaux sociaux" dans `MonEspaceEditForm` avec 6 inputs URL colorés.
 - [x] **Tutoriel guidé style jeu mobile** (28/02/2026) : composant `TutorialGuide` (createPortal, spotlight box-shadow, tooltip auto-positionné top/bottom, navigation clavier ← → Entrée Échap) et `tutorialSteps.ts` (9 étapes artisan, 4 étapes particulier, extensibles). Attributs `data-tuto` sur les éléments clés. Persistance localStorage, bouton `?` flottant. Commit `e9b781d`.
 - [x] **Tutoriel interactif pas-à-pas** (28/02/2026) : enrichissement du tutoriel avec interactions guidées — `action` (auto-avance au clic sur un sélecteur DOM), `interactive` (overlay 4-cadres libérant le spotlight pour saisie), `actionHint` (boîte amber d'instruction contextuelle). Steps artisan refondus en 10 étapes : step 1 auto-avance au clic sur Modifier, steps 2-3 overlay interactif (accroche + réseaux sociaux), step 4 auto-avance au clic sur Enregistrer. Bouton Suivant adaptatif (Passer→ / C'est fait→ / Suivant→ / Terminer). Fix spotlight : `scrollIntoView` instant avant `getBoundingClientRect`. Commit `a3d659b`.
+- [x] **Fiche artisan publique enrichie** (28/02/2026) : badges réseaux sociaux colorés (IG rose, FB bleu, YT rouge, LI LinkedIn, X noir, WA vert) dans la sidebar — fonction `extractSocialHandle()` pour extraire le pseudo depuis l'URL. Portfolio "Réalisations" sorti de la grille 2 colonnes → section pleine largeur sous le contenu principal. Layout `max-w-[1500px]` appliqué sur fiche publique, mon-espace, artisans, header/footer. Commit `15543a2`.
+- [x] **Fix tooltip TutorialGuide** (28/02/2026) : les tooltips avec `placement: "top"` pouvaient sortir du viewport (`top: spaceAbove - 16` + `transform: translateY(-100%)` sans clamping). Fix : ajout `TOOLTIP_MAX_H = 360` + `safeTop = Math.max(12, tooltipBottom - TOOLTIP_MAX_H)` + `overflowY: auto` sur les deux placements. Suppression du `transform`. Tutoriel étendu à 15 étapes artisan avec `data-tuto` sur toutes les sections du formulaire. Texte étape réseaux sociaux mis à jour (LinkedIn, WhatsApp inclus). Commit `15543a2`.
 
 ---
 
