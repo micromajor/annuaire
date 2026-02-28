@@ -119,7 +119,7 @@ export default async function MonEspacePage({
           </div>
 
           {/* Grid 2 colonnes */}
-          <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
+          <div className="mon-espace-grid-sm">
             {/* Colonne principale : annonces */}
             <div>
               <h2 className="bd-titre mb-3 text-xl text-[#1a1a2e]">Mes annonces</h2>
@@ -384,7 +384,7 @@ export default async function MonEspacePage({
         )}
 
         {/* Grid 2 colonnes : formulaire principal | sidebar */}
-        <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+        <div className="mon-espace-grid">
           {/* ── Colonne principale : formulaire + demandes ── */}
           <div className="flex min-w-0 flex-col gap-6">
             <MonEspaceEditForm

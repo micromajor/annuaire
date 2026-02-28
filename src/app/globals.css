@@ -433,3 +433,28 @@ body {
   transform: translate(-3px, -3px) rotate(-0.5deg);
   box-shadow: 8px 8px 0px #1a1a1a;
 }
+
+/* =========================================================
+   GRIDS DASHBOARD MON-ESPACE
+   (Tailwind v4 ne génère pas les classes arbitraires
+   grid-cols-[1fr_Xpx] correctement avec Turbopack)
+   ========================================================= */
+.mon-espace-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .mon-espace-grid {
+    grid-template-columns: 1fr 380px;
+  }
+  .mon-espace-grid-sm {
+    grid-template-columns: 1fr 280px;
+  }
+}
+
+.mon-espace-grid-sm {
+  display: grid;
+  gap: 1.5rem;
+}
+/* end */
