@@ -286,215 +286,235 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       </div>
 
       {/* CORPS */}
-      <div style={{ display: "flex", flex: 1, zIndex: 1 }}>
-        {/* Colonne gauche — infos artisan */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            flex: 1,
-            padding: "24px 32px",
-          }}
-        >
-          {/* --- Section haute : identité --- */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {/* Nom + PRO VÉRIFIÉ sur la même ligne */}
-            <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-              <span
-                style={{
-                  fontFamily: "Bangers",
-                  fontSize: nom.length > 20 ? 58 : nom.length > 15 ? 70 : 82,
-                  fontWeight: 400,
-                  color: "#1a1a2e",
-                  lineHeight: 1.0,
-                  letterSpacing: 2,
-                  display: "flex",
-                }}
-              >
-                {nom}
-              </span>
-              {isPro ? (
-                <div
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, zIndex: 1 }}>
+        {/* Colonnes row : infos + logo */}
+        <div style={{ display: "flex", flex: 1 }}>
+          {/* Colonne gauche — infos artisan */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              flex: 1,
+              padding: "24px 32px",
+            }}
+          >
+            {/* --- Section haute : identité --- */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {/* Nom + PRO VÉRIFIÉ sur la même ligne */}
+              <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                <span
                   style={{
-                    display: "flex",
-                    background: "#6bcb77",
+                    fontFamily: "Bangers",
+                    fontSize: nom.length > 20 ? 58 : nom.length > 15 ? 70 : 82,
+                    fontWeight: 400,
                     color: "#1a1a2e",
-                    fontSize: 15,
-                    fontWeight: 900,
-                    padding: "6px 14px",
-                    border: "4px solid #1a1a2e",
-                    borderRadius: 50,
-                    letterSpacing: 1,
-                    textTransform: "uppercase",
+                    lineHeight: 1.0,
+                    letterSpacing: 2,
+                    display: "flex",
                   }}
                 >
-                  PRO V&#201;RIFI&#201;
+                  {nom}
+                </span>
+                {isPro ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      background: "#6bcb77",
+                      color: "#1a1a2e",
+                      fontSize: 15,
+                      fontWeight: 900,
+                      padding: "6px 14px",
+                      border: "4px solid #1a1a2e",
+                      borderRadius: 50,
+                      letterSpacing: 1,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    PRO V&#201;RIFI&#201;
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Métiers — un badge par métier, tous affichés */}
+              {metiersLabels.length > 0 ? (
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  {metiersLabels.map((label) => (
+                    <div
+                      key={label}
+                      style={{
+                        display: "flex",
+                        background: "#ffd93d",
+                        color: "#1a1a2e",
+                        fontSize: 20,
+                        fontWeight: 900,
+                        padding: "6px 22px",
+                        border: "4px solid #1a1a2e",
+                        borderRadius: 50,
+                        textTransform: "uppercase",
+                        letterSpacing: 2,
+                      }}
+                    >
+                      {label}
+                    </div>
+                  ))}
                 </div>
               ) : null}
-            </div>
 
-            {/* Métiers — sans emoji */}
-            {metiersLabels.length > 0 ? (
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              {/* Phrase d'accroche */}
+              {accroche ? (
                 <div
                   style={{
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: "#444",
+                    fontStyle: "italic",
                     display: "flex",
-                    background: "#ffd93d",
-                    color: "#1a1a2e",
-                    fontSize: 20,
-                    fontWeight: 900,
-                    padding: "6px 22px",
-                    border: "4px solid #1a1a2e",
-                    borderRadius: 50,
-                    textTransform: "uppercase",
-                    letterSpacing: 2,
+                    lineHeight: 1.2,
                   }}
                 >
-                  {metiersLabels.slice(0, 2).join("  /  ")}
+                  &ldquo;{accroche}&rdquo;
                 </div>
-              </div>
-            ) : null}
+              ) : null}
 
-            {/* Phrase d'accroche */}
-            {accroche ? (
-              <div
-                style={{
-                  fontSize: 22,
-                  fontWeight: 700,
-                  color: "#444",
-                  fontStyle: "italic",
-                  display: "flex",
-                  lineHeight: 1.2,
-                }}
-              >
-                &ldquo;{accroche}&rdquo;
-              </div>
-            ) : null}
-
-            {/* Note étoiles */}
-            {moyenne !== null ? (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    background: "#fff",
-                    border: "3px solid #1a1a2e",
-                    borderRadius: 12,
-                    padding: "6px 16px",
-                  }}
-                >
-                  <div style={{ display: "flex", gap: 2 }}>
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <span
-                        key={i}
-                        style={{ fontSize: 20, color: i <= stars ? "#ff9500" : "#ddd" }}
-                      >
-                        &#9733;
-                      </span>
-                    ))}
-                  </div>
-                  <span style={{ fontSize: 20, fontWeight: 900, color: "#1a1a2e" }}>
-                    {moyenne.toFixed(1)}/5
-                  </span>
-                  <span style={{ fontSize: 14, color: "#666", fontWeight: 700 }}>
-                    ({avisCount} avis)
-                  </span>
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          {/* --- Section basse : coordonnées --- */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {tel ? (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  background: "#e8f9ed",
-                  border: "3px solid #1a1a2e",
-                  borderRadius: 12,
-                  padding: "6px 20px",
-                  alignSelf: "flex-start",
-                }}
-              >
-                <span style={{ fontSize: 22 }}>{"\u{1F4DE}"}</span>
-                <span style={{ fontSize: 24, fontWeight: 900, color: "#1a5c30", letterSpacing: 1 }}>
-                  {tel}
-                </span>
-              </div>
-            ) : null}
-            {socials.length > 0 ? (
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {socials.map(({ iconUri, handle, color, network }) => (
+              {/* Note étoiles */}
+              {moyenne !== null ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div
-                    key={network}
                     style={{
                       display: "flex",
                       alignItems: "center",
                       gap: 6,
-                      background: "transparent",
-                      border: `2px solid ${color}`,
-                      borderRadius: 8,
-                      padding: "4px 10px",
+                      background: "#fff",
+                      border: "3px solid #1a1a2e",
+                      borderRadius: 12,
+                      padding: "6px 16px",
                     }}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={iconUri}
-                      width={22}
-                      height={22}
-                      alt=""
-                      style={{ width: 22, height: 22 }}
-                    />
-                    <span style={{ color, fontSize: 15, fontWeight: 900, letterSpacing: 0.5 }}>
-                      {handle}
+                    <div style={{ display: "flex", gap: 2 }}>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <span
+                          key={i}
+                          style={{ fontSize: 20, color: i <= stars ? "#ff9500" : "#ddd" }}
+                        >
+                          &#9733;
+                        </span>
+                      ))}
+                    </div>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: "#1a1a2e" }}>
+                      {moyenne.toFixed(1)}/5
+                    </span>
+                    <span style={{ fontSize: 14, color: "#666", fontWeight: 700 }}>
+                      ({avisCount} avis)
                     </span>
                   </div>
-                ))}
+                </div>
+              ) : null}
+            </div>
+
+            {/* --- Section basse : téléphone seulement --- */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {tel ? (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    background: "#e8f9ed",
+                    border: "3px solid #1a1a2e",
+                    borderRadius: 12,
+                    padding: "6px 20px",
+                    alignSelf: "flex-start",
+                  }}
+                >
+                  <span style={{ fontSize: 22 }}>{"\u{1F4DE}"}</span>
+                  <span
+                    style={{ fontSize: 24, fontWeight: 900, color: "#1a5c30", letterSpacing: 1 }}
+                  >
+                    {tel}
+                  </span>
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          {/* Colonne droite — logo sans fond ni bordure, directement sur fond jaune */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 420,
+              flexShrink: 0,
+              padding: "20px 16px 20px 8px",
+            }}
+          >
+            {logoDataUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={logoDataUrl}
+                alt={nom}
+                width={388}
+                height={388}
+                style={{ objectFit: "contain", width: 388, height: 388 }}
+              />
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 130,
+                }}
+              >
+                {emoji}
               </div>
-            ) : null}
+            )}
           </div>
         </div>
+        {/* fin colonnes row */}
 
-        {/* Colonne droite — logo sans fond ni bordure, directement sur fond jaune */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 420,
-            flexShrink: 0,
-            padding: "20px 16px 20px 8px",
-          }}
-        >
-          {logoDataUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={logoDataUrl}
-              alt={nom}
-              width={388}
-              height={388}
-              style={{ objectFit: "contain", width: 388, height: 388 }}
-            />
-          ) : (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 130,
-              }}
-            >
-              {emoji}
-            </div>
-          )}
-        </div>
+        {/* RÉSEAUX SOCIAUX — bande pleine largeur sous les deux colonnes */}
+        {socials.length > 0 ? (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 14,
+              padding: "12px 36px",
+              borderTop: "3px solid rgba(26,26,46,0.12)",
+              background: "rgba(255,255,255,0.35)",
+            }}
+          >
+            {socials.map(({ iconUri, handle, network }) => (
+              <div
+                key={network}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  flexShrink: 0,
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={iconUri}
+                  width={32}
+                  height={32}
+                  alt=""
+                  style={{ width: 32, height: 32 }}
+                />
+                <span
+                  style={{ color: "#1a1a2e", fontSize: 20, fontWeight: 900, letterSpacing: 0.3 }}
+                >
+                  {handle}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
+      {/* fin CORPS */}
 
       {/* FOOTER */}
       <div
