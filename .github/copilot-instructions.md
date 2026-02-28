@@ -207,6 +207,7 @@ Avant chaque `git push`, je dois avoir effectué **au moins** les vérifications
 - ❌ Tester uniquement le fichier modifié sans vérifier ses dépendants.
 - ❌ Pousser en espérant que le build Coolify détectera les erreurs (il déploie en prod).
 - ❌ Ignorer un disque VPS proche de la saturation.
+- ❌ **Modifier un composant visuel (OG image, layout, UI) sans prendre un screenshot MCP avant le push.** Toujours démarrer le dev server et utiliser `mcp_microsoft_pla_browser_navigate` + `mcp_microsoft_pla_browser_take_screenshot` pour valider le rendu.
 
 ---
 

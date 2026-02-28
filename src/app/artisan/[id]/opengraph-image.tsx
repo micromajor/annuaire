@@ -168,48 +168,16 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       </div>
 
       {/* CORPS */}
-      <div style={{ display: "flex", flex: 1, zIndex: 1, position: "relative" }}>
-        {/* Logo positionne en absolu — angle superieur droit, sans fond */}
-        {logoDataUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={logoDataUrl}
-            alt={nom}
-            width={440}
-            height={300}
-            style={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              width: 440,
-              height: 300,
-              objectFit: "contain",
-              objectPosition: "top right",
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              position: "absolute",
-              top: 10,
-              right: 20,
-              fontSize: 140,
-              display: "flex",
-            }}
-          >
-            {emoji}
-          </div>
-        )}
-
-        {/* Colonne infos artisan — pleine largeur avec marge droite pour ne pas couvrir le logo */}
+      <div style={{ display: "flex", flex: 1, zIndex: 1 }}>
+        {/* Colonne gauche — infos artisan */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             flex: 1,
-            padding: "32px 480px 32px 44px",
-            gap: 18,
+            padding: "28px 36px",
+            gap: 16,
           }}
         >
           {/* Badges metier + pro */}
@@ -255,10 +223,10 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             )}
           </div>
 
-          {/* Nom artisan */}
+          {/* Nom artisan — seuils calibres pour 720px de large */}
           <div
             style={{
-              fontSize: nom.length > 30 ? 52 : nom.length > 22 ? 62 : 72,
+              fontSize: nom.length > 17 ? 52 : nom.length > 13 ? 62 : 72,
               fontWeight: 900,
               color: "#1a1a2e",
               lineHeight: 1.05,
@@ -345,6 +313,40 @@ export default async function Image({ params }: { params: Promise<{ id: string }
                   ({avisCount} avis)
                 </span>
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* Colonne droite — logo sans fond ni bordure, directement sur fond jaune */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 420,
+            flexShrink: 0,
+            padding: "20px 16px 20px 8px",
+          }}
+        >
+          {logoDataUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoDataUrl}
+              alt={nom}
+              width={388}
+              height={388}
+              style={{ objectFit: "contain", width: 388, height: 388 }}
+            />
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 130,
+              }}
+            >
+              {emoji}
             </div>
           )}
         </div>

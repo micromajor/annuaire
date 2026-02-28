@@ -8,6 +8,7 @@ import AutoSignOut from "@/components/ui/AutoSignOut";
 import Link from "next/link";
 import MonEspaceEditForm from "@/components/features/MonEspaceEditForm";
 import ShareButton from "@/components/features/ShareButton";
+import SocialPreviewButton from "@/components/features/SocialPreviewButton";
 import PortfolioUploader from "@/components/features/PortfolioUploader";
 import DangerZone from "@/components/features/DangerZone";
 import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapper";
@@ -541,6 +542,7 @@ export default async function MonEspacePage({
                     title={`${nomAffiche} — ${metierLabels.join(", ")} à ${communeNoms[0] ?? "Loire-Atlantique"}`}
                     text={`Découvrez la fiche de ${nomAffiche} sur Oyez Artisans !`}
                   />
+                  <SocialPreviewButton artisanId={artisan.id} />
                 </div>
               )}
             </div>
