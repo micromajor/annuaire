@@ -3,6 +3,7 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "fs/promises";
 import path from "path";
+import sharp from "sharp";
 import { prisma } from "@/lib/db/client";
 
 export const alt = "Fiche artisan — Oyez Artisans !";
@@ -93,8 +94,15 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           where: { id: fileId },
           select: { data: true, mimeType: true },
         });
-        if (file && ["image/png", "image/jpeg", "image/jpg"].includes(file.mimeType)) {
-          logoDataUrl = `data:${file.mimeType};base64,${Buffer.from(file.data).toString("base64")}`;
+        if (file) {
+          let imageBuffer = Buffer.from(file.data);
+          let mimeType = file.mimeType;
+          // Satori ne supporte que PNG et JPEG — convertir WebP/GIF/etc. en PNG
+          if (!["image/png", "image/jpeg", "image/jpg"].includes(mimeType)) {
+            imageBuffer = await sharp(imageBuffer).png().toBuffer();
+            mimeType = "image/png";
+          }
+          logoDataUrl = `data:${mimeType};base64,${imageBuffer.toString("base64")}`;
         }
       } else if (artisan.logoUrl.startsWith("http")) {
         logoDataUrl = artisan.logoUrl;
