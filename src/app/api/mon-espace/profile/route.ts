@@ -22,6 +22,12 @@ const UpdateProfileSchema = z
     siteWeb: z.string().url("URL invalide").max(300).optional().or(z.literal("")),
     description: z.string().max(2000).optional().or(z.literal("")),
     accroche: z.string().max(200).optional().or(z.literal("")),
+    instagram: z.string().url("URL invalide").max(300).optional().or(z.literal("")),
+    facebook: z.string().url("URL invalide").max(300).optional().or(z.literal("")),
+    youtube: z.string().url("URL invalide").max(300).optional().or(z.literal("")),
+    linkedin: z.string().url("URL invalide").max(300).optional().or(z.literal("")),
+    twitterX: z.string().url("URL invalide").max(300).optional().or(z.literal("")),
+    whatsapp: z.string().url("URL invalide").max(300).optional().or(z.literal("")),
     logoUrl: z
       .string()
       .max(500)
@@ -70,6 +76,12 @@ export async function PUT(req: NextRequest) {
     siteWeb,
     description,
     accroche,
+    instagram,
+    facebook,
+    youtube,
+    linkedin,
+    twitterX,
+    whatsapp,
     logoUrl,
     metierSlugs,
     metierLibre,
@@ -133,6 +145,12 @@ export async function PUT(req: NextRequest) {
         siteWeb: siteWeb || null,
         description: description || null,
         accroche: accroche || null,
+        instagram: instagram || null,
+        facebook: facebook || null,
+        youtube: youtube || null,
+        linkedin: linkedin || null,
+        twitterX: twitterX || null,
+        whatsapp: whatsapp || null,
         logoUrl: logoUrl || null,
         metierLibre: metierLibre || null,
         // Re-soumission après rejet → auto-VALIDE (plus de validation manuelle)

@@ -40,6 +40,12 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       telephone: true,
       logoUrl: true,
       description: true,
+      instagram: true,
+      facebook: true,
+      youtube: true,
+      linkedin: true,
+      twitterX: true,
+      whatsapp: true,
       metiers: { include: { metier: true } },
       avis: { where: { status: "VALIDE" }, select: { note: true } },
     },
@@ -82,6 +88,15 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const stars = moyenne !== null ? Math.round(moyenne) : 0;
   const isPro = !!artisan.siret;
   const tel = artisan.telephone;
+  // Réseaux sociaux actifs
+  const socials = [
+    artisan.instagram ? { label: "IG", bg: "#E1306C" } : null,
+    artisan.facebook ? { label: "FB", bg: "#1877F2" } : null,
+    artisan.youtube ? { label: "YT", bg: "#FF0000" } : null,
+    artisan.twitterX ? { label: "X", bg: "#000000" } : null,
+    artisan.linkedin ? { label: "LI", bg: "#0A66C2" } : null,
+    artisan.whatsapp ? { label: "WA", bg: "#25D366" } : null,
+  ].filter(Boolean) as { label: string; bg: string }[];
   // Police Bangers depuis /public/fonts
   const bangersFont = await readFile(path.join(process.cwd(), "public/fonts/Bangers-Regular.ttf"));
   // Logo : data URI depuis DB — Satori n'accepte pas les chemins relatifs
@@ -183,89 +198,124 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           style={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
+            justifyContent: "space-between",
             flex: 1,
-            padding: "28px 36px",
-            gap: 16,
+            padding: "24px 32px",
           }}
         >
-          {/* Nom artisan — en premier, bien visible */}
-          <div
-            style={{
-              fontFamily: "Bangers",
-              fontSize: nom.length > 20 ? 58 : nom.length > 15 ? 70 : 82,
-              fontWeight: 400,
-              color: "#1a1a2e",
-              lineHeight: 1.0,
-              letterSpacing: 2,
-              display: "flex",
-            }}
-          >
-            {nom}
-          </div>
-
-          {/* Phrase d'accroche */}
-          {accroche ? (
-            <div
-              style={{
-                fontSize: 22,
-                fontWeight: 700,
-                color: "#444",
-                fontStyle: "italic",
-                display: "flex",
-                lineHeight: 1.2,
-              }}
-            >
-              &ldquo;{accroche}&rdquo;
-            </div>
-          ) : null}
-
-          {/* Badges metier + pro */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                background: "#ffd93d",
-                color: "#1a1a2e",
-                fontSize: 20,
-                fontWeight: 900,
-                padding: "7px 22px",
-                border: "4px solid #1a1a2e",
-                borderRadius: 50,
-                textTransform: "uppercase",
-                letterSpacing: 2,
-                boxShadow: "4px 4px 0 #1a1a2e",
-              }}
-            >
-              <span style={{ fontSize: 24 }}>{emoji}</span>
-              {metiersLabels.slice(0, 2).join("  /  ")}
-            </div>
-            {isPro && (
-              <div
+          {/* --- Section haute : identité --- */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {/* Nom + PRO VÉRIFIÉ sur la même ligne */}
+            <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+              <span
                 style={{
-                  display: "flex",
-                  background: "#6bcb77",
+                  fontFamily: "Bangers",
+                  fontSize: nom.length > 20 ? 58 : nom.length > 15 ? 70 : 82,
+                  fontWeight: 400,
                   color: "#1a1a2e",
-                  fontSize: 16,
-                  fontWeight: 900,
-                  padding: "7px 18px",
-                  border: "4px solid #1a1a2e",
-                  borderRadius: 50,
-                  letterSpacing: 1,
-                  textTransform: "uppercase",
-                  boxShadow: "3px 3px 0 #1a1a2e",
+                  lineHeight: 1.0,
+                  letterSpacing: 2,
+                  display: "flex",
                 }}
               >
-                &#10003; PRO VERIFIE
+                {nom}
+              </span>
+              {isPro ? (
+                <div
+                  style={{
+                    display: "flex",
+                    background: "#6bcb77",
+                    color: "#1a1a2e",
+                    fontSize: 15,
+                    fontWeight: 900,
+                    padding: "6px 14px",
+                    border: "4px solid #1a1a2e",
+                    borderRadius: 50,
+                    letterSpacing: 1,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  PRO V&#201;RIFI&#201;
+                </div>
+              ) : null}
+            </div>
+
+            {/* Métiers — sans emoji */}
+            {metiersLabels.length > 0 ? (
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    background: "#ffd93d",
+                    color: "#1a1a2e",
+                    fontSize: 20,
+                    fontWeight: 900,
+                    padding: "6px 22px",
+                    border: "4px solid #1a1a2e",
+                    borderRadius: 50,
+                    textTransform: "uppercase",
+                    letterSpacing: 2,
+                  }}
+                >
+                  {metiersLabels.slice(0, 2).join("  /  ")}
+                </div>
               </div>
-            )}
+            ) : null}
+
+            {/* Phrase d'accroche */}
+            {accroche ? (
+              <div
+                style={{
+                  fontSize: 22,
+                  fontWeight: 700,
+                  color: "#444",
+                  fontStyle: "italic",
+                  display: "flex",
+                  lineHeight: 1.2,
+                }}
+              >
+                &ldquo;{accroche}&rdquo;
+              </div>
+            ) : null}
+
+            {/* Note étoiles */}
+            {moyenne !== null ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    background: "#fff",
+                    border: "3px solid #1a1a2e",
+                    borderRadius: 12,
+                    padding: "6px 16px",
+                  }}
+                >
+                  <div style={{ display: "flex", gap: 2 }}>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <span
+                        key={i}
+                        style={{ fontSize: 20, color: i <= stars ? "#ff9500" : "#ddd" }}
+                      >
+                        &#9733;
+                      </span>
+                    ))}
+                  </div>
+                  <span style={{ fontSize: 20, fontWeight: 900, color: "#1a1a2e" }}>
+                    {moyenne.toFixed(1)}/5
+                  </span>
+                  <span style={{ fontSize: 14, color: "#666", fontWeight: 700 }}>
+                    ({avisCount} avis)
+                  </span>
+                </div>
+              </div>
+            ) : null}
           </div>
 
-          {/* Telephone — info cle pour le particulier */}
-          {tel && (
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {/* --- Section basse : coordonnées --- */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {tel ? (
               <div
                 style={{
                   display: "flex",
@@ -275,7 +325,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
                   border: "3px solid #1a1a2e",
                   borderRadius: 12,
                   padding: "6px 20px",
-                  boxShadow: "3px 3px 0 #1a1a2e",
+                  alignSelf: "flex-start",
                 }}
               >
                 <span style={{ fontSize: 22 }}>{"\u{1F4DE}"}</span>
@@ -283,40 +333,30 @@ export default async function Image({ params }: { params: Promise<{ id: string }
                   {tel}
                 </span>
               </div>
-            </div>
-          )}
-
-          {/* Note etoiles — integree dans la colonne gauche */}
-          {moyenne !== null && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  background: "#fff",
-                  border: "3px solid #1a1a2e",
-                  borderRadius: 12,
-                  padding: "6px 16px",
-                  boxShadow: "3px 3px 0 #1a1a2e",
-                }}
-              >
-                <div style={{ display: "flex", gap: 2 }}>
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <span key={i} style={{ fontSize: 20, color: i <= stars ? "#ff9500" : "#ddd" }}>
-                      &#9733;
-                    </span>
-                  ))}
-                </div>
-                <span style={{ fontSize: 20, fontWeight: 900, color: "#1a1a2e" }}>
-                  {moyenne.toFixed(1)}/5
-                </span>
-                <span style={{ fontSize: 14, color: "#666", fontWeight: 700 }}>
-                  ({avisCount} avis)
-                </span>
+            ) : null}
+            {socials.length > 0 ? (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {socials.map(({ label, bg }) => (
+                  <div
+                    key={label}
+                    style={{
+                      display: "flex",
+                      background: bg,
+                      color: "#ffffff",
+                      fontSize: 15,
+                      fontWeight: 900,
+                      padding: "5px 14px",
+                      border: "3px solid #1a1a2e",
+                      borderRadius: 8,
+                      letterSpacing: 1,
+                    }}
+                  >
+                    {label}
+                  </div>
+                ))}
               </div>
-            </div>
-          )}
+            ) : null}
+          </div>
         </div>
 
         {/* Colonne droite — logo sans fond ni bordure, directement sur fond jaune */}

@@ -31,6 +31,12 @@ type Props = {
     siteWeb: string | null;
     description: string | null;
     accroche?: string | null;
+    instagram?: string | null;
+    facebook?: string | null;
+    youtube?: string | null;
+    linkedin?: string | null;
+    twitterX?: string | null;
+    whatsapp?: string | null;
     logoUrl: string | null;
     metierSlugs: string[];
     communePairs: CommunePair[];
@@ -52,6 +58,12 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
     siteWeb: artisan.siteWeb ?? "",
     description: artisan.description ?? "",
     accroche: artisan.accroche ?? "",
+    instagram: artisan.instagram ?? "",
+    facebook: artisan.facebook ?? "",
+    youtube: artisan.youtube ?? "",
+    linkedin: artisan.linkedin ?? "",
+    twitterX: artisan.twitterX ?? "",
+    whatsapp: artisan.whatsapp ?? "",
     logoUrl: artisan.logoUrl ?? "",
     metierSlugs: artisan.metierSlugs,
     communePairs: artisan.communePairs,
