@@ -342,16 +342,19 @@ export default function TutorialGuide({ role, prenom }: Props) {
               // Overlay standard + box-shadow spotlight (non interactif)
               return (
                 <>
-                  <div
-                    aria-hidden="true"
-                    style={{
-                      position: "fixed",
-                      inset: 0,
-                      background: "rgba(0,0,0,0.72)",
-                      zIndex: 10000,
-                      transition: "opacity 0.3s",
-                    }}
-                  />
+                  {/* Fond plein UNIQUEMENT pour les modals sans spotlight (step centré) */}
+                  {!spotRect && (
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        position: "fixed",
+                        inset: 0,
+                        background: "rgba(0,0,0,0.72)",
+                        zIndex: 10000,
+                        transition: "opacity 0.3s",
+                      }}
+                    />
+                  )}
                   {spotRect && (
                     <div
                       aria-hidden="true"

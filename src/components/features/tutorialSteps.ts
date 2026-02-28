@@ -29,55 +29,114 @@ export const TUTORIAL_STEPS: Record<"artisan" | "particulier", TutorialStep[]> =
       target: "edit-form",
       title: "Votre fiche artisan",
       content:
-        "C'est ici que vous renseignez <strong>toutes vos informations</strong> : nom, métiers, zones d'intervention, téléphone, SIRET…",
+        "C'est ici que vous renseignez <strong>toutes vos informations</strong>. Commencez par ouvrir le formulaire.",
       actionHint:
         "👆 Cliquez sur le bouton <strong>Modifier</strong> pour ouvrir votre formulaire.",
       action: { type: "click", selector: "[data-tuto='btn-modifier']" },
       placement: "bottom",
       spotlightPadding: 10,
     },
-    // ── Étape 2 — Phrase d'accroche (interactive : saisie libre)
+    // ── Étape 2 — Identité (prénom, nom, raison sociale)
+    {
+      target: "identity-section",
+      title: "Identité",
+      content:
+        "Renseignez votre <strong>prénom</strong>, <strong>nom</strong> et si vous avez une société, votre <strong>raison sociale</strong> (ex : Maçonnerie Dupont SARL).",
+      actionHint:
+        "✏️ Remplissez vos informations d'identité, puis cliquez <strong>C'est fait</strong>.",
+      interactive: true,
+      placement: "bottom",
+      spotlightPadding: 8,
+    },
+    // ── Étape 3 — Contact (téléphone, site web, SIRET)
+    {
+      target: "contact-section",
+      title: "Contact & SIRET",
+      content:
+        "Votre <strong>téléphone</strong> est affiché sur votre fiche publique. Le <strong>SIRET</strong> vous donne le badge ✓ Pro vérifié rassurant pour les clients.",
+      actionHint:
+        "📞 Ajoutez votre téléphone et votre SIRET (14 chiffres), puis cliquez <strong>C'est fait</strong>.",
+      interactive: true,
+      placement: "bottom",
+      spotlightPadding: 8,
+    },
+    // ── Étape 4 — Présentation
+    {
+      target: "description-section",
+      title: "Votre présentation",
+      content:
+        "Ce texte apparaît sur votre fiche publique. Parlez de votre <strong>expérience</strong>, vos <strong>spécialités</strong> et ce qui vous différencie.",
+      actionHint:
+        "📝 Rédigez votre présentation (quelques lignes suffisent), puis cliquez <strong>C'est fait</strong>.",
+      interactive: true,
+      placement: "top",
+      spotlightPadding: 8,
+    },
+    // ── Étape 5 — Métiers
+    {
+      target: "metiers-section",
+      title: "Votre ou vos métiers",
+      content:
+        "Choisissez les <strong>métiers</strong> qui vous décrivent le mieux. Vous pouvez en ajouter plusieurs — c'est ce qui détermine dans quelles recherches vous apparaissez.",
+      actionHint:
+        "🔨 Sélectionnez vos métiers dans la liste, puis cliquez <strong>C'est fait</strong>.",
+      interactive: true,
+      placement: "top",
+      spotlightPadding: 8,
+    },
+    // ── Étape 6 — Zones d'intervention
+    {
+      target: "zones-section",
+      title: "Zones d'intervention",
+      content:
+        "Indiquez les <strong>communes</strong> où vous intervenez. Plus vous en ajoutez, plus vous êtes visible auprès des particuliers de la zone.",
+      actionHint:
+        "📍 Sélectionnez vos communes sur la carte, puis cliquez <strong>C'est fait</strong>.",
+      interactive: true,
+      placement: "top",
+      spotlightPadding: 8,
+    },
+    // ── Étape 7 — Phrase d'accroche (interactive : saisie libre)
     {
       target: "accroche-field",
       title: "Phrase d'accroche",
       content:
-        'Une <strong>phrase courte et percutante</strong> affichée en évidence sur votre fiche et votre carte de partage.<br/>Ex : <em>"Maçon depuis 20 ans, devis gratuit sous 48h."</em>',
-      actionHint:
-        "✏️ Tapez votre phrase d'accroche dans le champ, puis cliquez <strong>C'est fait</strong>.",
+        "Une <strong>phrase courte et percutante</strong> affichée en évidence sur votre fiche.<br/>Ex : <em>« Maçon depuis 20 ans, devis gratuit sous 48h. »</em>",
+      actionHint: "✏️ Tapez votre phrase d'accroche, puis cliquez <strong>C'est fait</strong>.",
       interactive: true,
       placement: "bottom",
     },
-    // ── Étape 3 — Réseaux sociaux (interactive : saisie optionnelle)
+    // ── Étape 8 — Réseaux sociaux (interactive : saisie optionnelle)
     {
       target: "social-section",
-      title: "Vos réseaux sociaux",
+      title: "Réseaux sociaux",
       content:
-        "Ajoutez vos profils <strong>Instagram, Facebook, YouTube</strong>… Ils apparaissent sur votre image de partage et rassurent les clients avant de vous contacter.",
+        "Ajoutez vos profils <strong>Instagram, Facebook, YouTube</strong>… Ils apparaissent sur votre image de partage et rassurent les clients.",
       actionHint: "🌐 Collez vos liens si vous en avez, puis cliquez <strong>C'est fait</strong>.",
       interactive: true,
       placement: "bottom",
     },
-    // ── Étape 4 — Enregistrer (action : clic sur le bouton submit)
+    // ── Étape 9 — Enregistrer (action : clic sur le bouton submit)
     {
       target: "btn-enregistrer",
       title: "Enregistrez vos modifications",
       content:
-        "Une fois vos informations remplies, <strong>cliquez sur Enregistrer</strong> pour les sauvegarder. Vos données sont mises à jour instantanément.",
+        "Tout est rempli ? <strong>Cliquez sur Enregistrer</strong> pour sauvegarder. Vos informations sont mises à jour instantanément.",
       actionHint: "💾 Cliquez sur <strong>Enregistrer ma fiche</strong> pour valider.",
       action: { type: "click", selector: "[data-tuto='btn-enregistrer']" },
       placement: "top",
       spotlightPadding: 12,
     },
-    // ── Étape 5 — Ma fiche (aperçu public)
+    // ── Étape 10 — Aperçu public
     {
       target: "fiche-card",
       title: "Votre aperçu public",
       content:
-        "Ce bloc montre ce que <strong>les particuliers voient</strong> en cherchant votre métier. Vérifiez que tout est bien renseigné avant de partager.",
+        "Ce bloc montre ce que <strong>les particuliers voient</strong> en cherchant votre métier. Vérifiez que tout est bien renseigné.",
       placement: "top",
       spotlightPadding: 10,
     },
-    // ── Étape 6 — Partage
+    // ── Étape 11 — Partage
     {
       target: "share-zone",
       title: "Partagez votre fiche",
@@ -85,7 +144,7 @@ export const TUTORIAL_STEPS: Record<"artisan" | "particulier", TutorialStep[]> =
         "<strong>Partagez votre lien</strong> sur WhatsApp, par email ou sur les réseaux — plus vous la diffusez, plus vous recevez de demandes !",
       placement: "top",
     },
-    // ── Étape 7 — Messages
+    // ── Étape 12 — Messages
     {
       target: "messages-link",
       title: "Vos messages clients",
@@ -93,7 +152,7 @@ export const TUTORIAL_STEPS: Record<"artisan" | "particulier", TutorialStep[]> =
         "Quand un particulier vous contacte, son message apparaît ici. <strong>Répondez vite</strong> : les artisans réactifs décrochent plus de chantiers !",
       placement: "top",
     },
-    // ── Étape 8 — Portfolio
+    // ── Étape 13 — Portfolio
     {
       target: "portfolio-card",
       title: "Photos de vos chantiers",
@@ -101,7 +160,7 @@ export const TUTORIAL_STEPS: Record<"artisan" | "particulier", TutorialStep[]> =
         "Ajoutez des <strong>photos de vos réalisations</strong>. Les clients choisissent plus facilement un artisan dont ils ont vu les chantiers.",
       placement: "top",
     },
-    // ── Étape 9 — Fin (modal centré)
+    // ── Étape 14 — Fin (modal centré)
     {
       title: "Vous êtes prêt ! 🚀",
       content:

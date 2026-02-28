@@ -260,7 +260,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Identité */}
-          <fieldset>
+          <fieldset data-tuto="identity-section">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Identité
             </legend>
@@ -310,7 +310,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Contact */}
-          <fieldset>
+          <fieldset data-tuto="contact-section">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Contact
             </legend>
@@ -473,7 +473,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Description */}
-          <fieldset>
+          <fieldset data-tuto="description-section">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Présentation
             </legend>
@@ -490,7 +490,11 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Métiers */}
-          <fieldset id="field-metierSlugs" className="relative z-[1050]">
+          <fieldset
+            id="field-metierSlugs"
+            data-tuto="metiers-section"
+            className="relative z-[1050]"
+          >
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Métiers <span className="text-[#ff6b6b]">*</span>
             </legend>
@@ -510,7 +514,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Communes */}
-          <fieldset id="field-communePairs">
+          <fieldset id="field-communePairs" data-tuto="zones-section">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Zones d&apos;intervention <span className="text-[#ff6b6b]">*</span>
             </legend>
