@@ -1,6 +1,6 @@
 # Roadmap — OyezArtisans · Réseau local d'artisans
 
-> Dernière mise à jour : 2026 — Phase de qualification (QA_PLAN.md créé, copilot-instructions enrichi)
+> Dernière mise à jour : 28/02/2026 — OG image flex stable + modal aperçu partage réseaux sociaux (commit b5043bd)
 > Statuts : `[ ]` à faire · `[~]` en cours · `[x]` terminé
 
 ---
@@ -155,6 +155,8 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] SEO : sitemap.xml, meta dynamiques, pages par commune (commit 9ca7208)
 - [x] RGPD : mentions légales, politique confidentialité, suppression de compte (commit eec52d5)
 - [x] **Phase de qualification** : création `docs/QA_PLAN.md` (113 cas de test FO+BO, P0/P1/P2), enrichissement copilot-instructions avec procédure QA, retrait artisans fictifs prod, nettoyage repo
+- [x] **Auth artisan Google OAuth** (27/02/2026) : fix artisans Google bloqués en `EN_ATTENTE` — auto-validation `VALIDE` + envoi email `sendBienvenueArtisanGoogle`. Email de vérification email/password via token + route `/api/auth/verify-email`. Endpoint `/api/mon-espace/welcome` pour mail de bienvenue différé (fire-and-forget, évite timeout OAuth callback).
+- [x] **OG image flex layout + modal prévisualisation** (28/02/2026) : abandon de `position: absolute` (bugs Satori : hauteur texte multi-ligne mal calculée → chevauchement badges). Retour au flex column stable. Colonne droite 420px sans fond ni bordure (logo `388×388 contain`, emoji 130px fallback). Seuils taille nom recalibrés (`>17→52px`, `>13→62px`, sinon `72px`). Nouveau composant `SocialPreviewButton` : modal aperçu carte de partage dans `/mon-espace`. Règle copilot-instructions : screenshot MCP obligatoire avant tout push de composant visuel.
 
 ---
 
