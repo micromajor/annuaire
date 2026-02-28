@@ -99,7 +99,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           let mimeType = file.mimeType;
           // Satori ne supporte que PNG et JPEG — convertir WebP/GIF/etc. en PNG
           if (!["image/png", "image/jpeg", "image/jpg"].includes(mimeType)) {
-            imageBuffer = await sharp(imageBuffer).png().toBuffer();
+            imageBuffer = Buffer.from(await sharp(imageBuffer).png().toBuffer());
             mimeType = "image/png";
           }
           logoDataUrl = `data:${mimeType};base64,${imageBuffer.toString("base64")}`;
