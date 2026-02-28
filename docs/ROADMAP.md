@@ -1,6 +1,6 @@
 # Roadmap — OyezArtisans · Réseau local d'artisans
 
-> Dernière mise à jour : 28/02/2026 — Tutoriel guidé style jeu mobile artisan + particulier (commit e9b781d)
+> Dernière mise à jour : 28/02/2026 — Tutoriel interactif pas-à-pas : auto-avance au clic + overlay interactif (commit a3d659b)
 > Statuts : `[ ]` à faire · `[~]` en cours · `[x]` terminé
 
 ---
@@ -159,7 +159,8 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] **OG image flex layout + modal prévisualisation** (28/02/2026) : abandon de `position: absolute` (bugs Satori : hauteur texte multi-ligne mal calculée → chevauchement badges). Retour au flex column stable. Colonne droite 420px sans fond ni bordure (logo `388×388 contain`, emoji 130px fallback). Seuils taille nom recalibrés (`>17→52px`, `>13→62px`, sinon `72px`). Nouveau composant `SocialPreviewButton` : modal aperçu carte de partage dans `/mon-espace`. Règle copilot-instructions : screenshot MCP obligatoire avant tout push de composant visuel.
 
 - [x] **OG image — réseaux sociaux + tag PRO VÉRIFIÉ inline** (28/02/2026) : 6 nouvelles colonnes sur `Artisan` (`instagram`, `facebook`, `youtube`, `linkedin`, `twitterX`, `whatsapp`), migration `20260228121507_add_social_links`. OG image : tag PRO VÉRIFIÉ sur la même ligne que le nom (Bangers), métiers sans emoji, section basse téléphone + pills colorées réseaux sociaux. Section "Réseaux sociaux" dans `MonEspaceEditForm` avec 6 inputs URL colorés.
-- [x] **Tutoriel guidé style jeu mobile** (28/02/2026) : composant `TutorialGuide` (createPortal, spotlight box-shadow, tooltip auto-positionné top/bottom, navigation clavier ← → Entrée Échap) et `tutorialSteps.ts` (9 étapes artisan, 4 étapes particulier, extensibles). Attributs `data-tuto` sur les éléments clés (`edit-form`, `accroche-field`, `social-section`, `fiche-card`, `share-zone`, `messages-link`, `portfolio-card`, `messages-particulier`, `besoins-list`). Persistance localStorage, bouton `?` flottant pour relancer. Commit `e9b781d`.
+- [x] **Tutoriel guidé style jeu mobile** (28/02/2026) : composant `TutorialGuide` (createPortal, spotlight box-shadow, tooltip auto-positionné top/bottom, navigation clavier ← → Entrée Échap) et `tutorialSteps.ts` (9 étapes artisan, 4 étapes particulier, extensibles). Attributs `data-tuto` sur les éléments clés. Persistance localStorage, bouton `?` flottant. Commit `e9b781d`.
+- [x] **Tutoriel interactif pas-à-pas** (28/02/2026) : enrichissement du tutoriel avec interactions guidées — `action` (auto-avance au clic sur un sélecteur DOM), `interactive` (overlay 4-cadres libérant le spotlight pour saisie), `actionHint` (boîte amber d'instruction contextuelle). Steps artisan refondus en 10 étapes : step 1 auto-avance au clic sur Modifier, steps 2-3 overlay interactif (accroche + réseaux sociaux), step 4 auto-avance au clic sur Enregistrer. Bouton Suivant adaptatif (Passer→ / C'est fait→ / Suivant→ / Terminer). Fix spotlight : `scrollIntoView` instant avant `getBoundingClientRect`. Commit `a3d659b`.
 
 ---
 
