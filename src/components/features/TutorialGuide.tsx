@@ -73,9 +73,13 @@ export default function TutorialGuide({ role, prenom }: Props) {
       setSpotRect(null);
       return;
     }
-    // Scroll vers l'élément d'abord (instant) pour que getBoundingClientRect
-    // retourne des coordonnées viewport correctes
-    el.scrollIntoView({ behavior: "instant" as ScrollBehavior, block: "center" });
+    // Sur mobile, on scroll l'élément vers le haut du viewport pour laisser
+    // la place au tooltip bottom-drawer. Sur desktop → centré.
+    const isMobileScroll = window.innerWidth < 640;
+    el.scrollIntoView({
+      behavior: "instant" as ScrollBehavior,
+      block: isMobileScroll ? "start" : "center",
+    });
     // Calculer la rect après le prochain frame (layout flush garanti)
     requestAnimationFrame(() => {
       const rect = el.getBoundingClientRect();
@@ -182,8 +186,22 @@ export default function TutorialGuide({ role, prenom }: Props) {
 
   // ── Calcul positionnement du tooltip ──────────────────────────────────
   function getTooltipStyle(): React.CSSProperties {
+    const vw = typeof window !== "undefined" ? window.innerWidth : 1200;
+    const vh = typeof window !== "undefined" ? window.innerHeight : 800;
+    const isMobile = vw < 640;
+
     if (!spotRect || !step?.target) {
-      // Pas de cible → centré sur l'écran
+      // Pas de cible → centré sur desktop, bottom drawer sur mobile
+      if (isMobile) {
+        return {
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          width: "100%",
+          zIndex: 10003,
+        };
+      }
       return {
         position: "fixed",
         top: "50%",
@@ -194,10 +212,24 @@ export default function TutorialGuide({ role, prenom }: Props) {
       };
     }
 
-    const vw = typeof window !== "undefined" ? window.innerWidth : 1200;
-    const vh = typeof window !== "undefined" ? window.innerHeight : 800;
-    const tooltipW = Math.min(400, vw - 24);
+    // ── Mobile : bottom drawer fixé en bas du viewport ─────────────────
+    // L'élément ciblé est scrollé en haut (block:"start"), le drawer est
+    // toujours visible en bas — les deux sont sur écran simultanément.
+    if (isMobile) {
+      return {
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        width: "100%",
+        maxHeight: "55vh",
+        overflowY: "auto" as const,
+        zIndex: 10003,
+      };
+    }
 
+    // ── Desktop : positionné à côté du spotlight ─────────────────────
+    const tooltipW = Math.min(400, vw - 24);
     const spotBottom = spotRect.top + spotRect.height;
     const spaceBelow = vh - spotBottom;
     const spaceAbove = spotRect.top;
@@ -392,176 +424,186 @@ export default function TutorialGuide({ role, prenom }: Props) {
             })()}
 
             {/* Tooltip ───────────────────────────────────────────────── */}
-            <div
-              style={getTooltipStyle()}
-              role="dialog"
-              aria-modal="true"
-              aria-label={`Tutoriel — étape ${stepIndex + 1} sur ${steps.length}`}
-            >
-              <div
-                style={{
-                  background: "#fef9e7",
-                  border: "4px solid #1a1a2e",
-                  borderRadius: 18,
-                  padding: "22px 24px 20px",
-                  boxShadow: "6px 6px 0 #1a1a2e",
-                }}
-              >
-                {/* Indicateur de progression */}
+            {(() => {
+              const isMobileTooltip = typeof window !== "undefined" && window.innerWidth < 640;
+              return (
                 <div
-                  style={{
-                    display: "flex",
-                    gap: 6,
-                    marginBottom: 14,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
+                  style={getTooltipStyle()}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label={`Tutoriel — étape ${stepIndex + 1} sur ${steps.length}`}
                 >
-                  {steps.map((_, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        height: 7,
-                        width: i === stepIndex ? 22 : 7,
-                        borderRadius: 4,
-                        background:
-                          i === stepIndex ? "#1a1a2e" : i < stepIndex ? "#6bcb77" : "#ddd",
-                        transition: "width 0.35s, background 0.35s",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => setStepIndex(i)}
-                      title={`Étape ${i + 1}`}
-                    />
-                  ))}
-                </div>
-
-                {/* Titre */}
-                <h3
-                  style={{
-                    fontFamily: "var(--font-bangers, Bangers, Impact, sans-serif)",
-                    fontSize: 24,
-                    letterSpacing: 2,
-                    color: "#1a1a2e",
-                    lineHeight: 1.1,
-                    marginBottom: 10,
-                  }}
-                >
-                  {interpolate(step.title)}
-                </h3>
-
-                {/* Contenu */}
-                <p
-                  style={{
-                    fontSize: 14,
-                    color: "#333",
-                    lineHeight: 1.6,
-                    marginBottom: step.actionHint ? 10 : 18,
-                  }}
-                  dangerouslySetInnerHTML={{ __html: interpolate(step.content) }}
-                />
-
-                {/* Indice d'action */}
-                {step.actionHint && (
                   <div
                     style={{
-                      background: "#fff8e1",
-                      border: "2px solid #ffd93d",
-                      borderRadius: 8,
-                      padding: "9px 12px",
-                      marginBottom: 18,
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: "#1a1a2e",
-                      lineHeight: 1.5,
+                      background: "#fef9e7",
+                      border: "4px solid #1a1a2e",
+                      borderRadius: isMobileTooltip ? "18px 18px 0 0" : 18,
+                      padding: isMobileTooltip
+                        ? "16px 18px calc(16px + env(safe-area-inset-bottom, 0px))"
+                        : "22px 24px 20px",
+                      boxShadow: isMobileTooltip ? "-3px -4px 0 #1a1a2e" : "6px 6px 0 #1a1a2e",
+                      borderBottom: isMobileTooltip ? "none" : undefined,
                     }}
-                    dangerouslySetInnerHTML={{ __html: step.actionHint }}
-                  />
-                )}
-
-                {/* Boutons d'action */}
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 8,
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {stepIndex > 0 && (
-                    <button
-                      onClick={prev}
+                  >
+                    {/* Indicateur de progression */}
+                    <div
                       style={{
-                        background: "white",
-                        border: "3px solid #1a1a2e",
-                        borderRadius: 10,
-                        padding: "7px 14px",
-                        fontWeight: 900,
-                        fontSize: 13,
-                        cursor: "pointer",
-                        color: "#1a1a2e",
+                        display: "flex",
+                        gap: 6,
+                        marginBottom: 14,
+                        justifyContent: "center",
+                        alignItems: "center",
                       }}
                     >
-                      ← Retour
-                    </button>
-                  )}
+                      {steps.map((_, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            height: 7,
+                            width: i === stepIndex ? 22 : 7,
+                            borderRadius: 4,
+                            background:
+                              i === stepIndex ? "#1a1a2e" : i < stepIndex ? "#6bcb77" : "#ddd",
+                            transition: "width 0.35s, background 0.35s",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => setStepIndex(i)}
+                          title={`Étape ${i + 1}`}
+                        />
+                      ))}
+                    </div>
 
-                  <button
-                    onClick={next}
-                    style={{
-                      background: "#ffd93d",
-                      border: "3px solid #1a1a2e",
-                      borderRadius: 10,
-                      padding: "8px 20px",
-                      fontWeight: 900,
-                      fontSize: 14,
-                      cursor: "pointer",
-                      color: "#1a1a2e",
-                      boxShadow: "3px 3px 0 #1a1a2e",
-                      flex: 1,
-                      minWidth: 110,
-                      textAlign: "center",
-                    }}
-                    autoFocus
-                  >
-                    {stepIndex === steps.length - 1
-                      ? "🎉 Terminer"
-                      : step?.action
-                        ? "Passer →"
-                        : step?.interactive
-                          ? "C'est fait →"
-                          : "Suivant →"}
-                  </button>
+                    {/* Titre */}
+                    <h3
+                      style={{
+                        fontFamily: "var(--font-bangers, Bangers, Impact, sans-serif)",
+                        fontSize: 24,
+                        letterSpacing: 2,
+                        color: "#1a1a2e",
+                        lineHeight: 1.1,
+                        marginBottom: 10,
+                      }}
+                    >
+                      {interpolate(step.title)}
+                    </h3>
 
-                  <button
-                    onClick={skip}
-                    style={{
-                      background: "transparent",
-                      border: "none",
-                      fontSize: 12,
-                      color: "#888",
-                      cursor: "pointer",
-                      fontWeight: 700,
-                      padding: "4px 6px",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Ignorer
-                  </button>
+                    {/* Contenu */}
+                    <p
+                      style={{
+                        fontSize: 14,
+                        color: "#333",
+                        lineHeight: 1.6,
+                        marginBottom: step.actionHint ? 10 : 18,
+                      }}
+                      dangerouslySetInnerHTML={{ __html: interpolate(step.content) }}
+                    />
+
+                    {/* Indice d'action */}
+                    {step.actionHint && (
+                      <div
+                        style={{
+                          background: "#fff8e1",
+                          border: "2px solid #ffd93d",
+                          borderRadius: 8,
+                          padding: "9px 12px",
+                          marginBottom: 18,
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: "#1a1a2e",
+                          lineHeight: 1.5,
+                        }}
+                        dangerouslySetInnerHTML={{ __html: step.actionHint }}
+                      />
+                    )}
+
+                    {/* Boutons d'action */}
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 8,
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {stepIndex > 0 && (
+                        <button
+                          onClick={prev}
+                          style={{
+                            background: "white",
+                            border: "3px solid #1a1a2e",
+                            borderRadius: 10,
+                            padding: "7px 14px",
+                            fontWeight: 900,
+                            fontSize: 13,
+                            cursor: "pointer",
+                            color: "#1a1a2e",
+                          }}
+                        >
+                          ← Retour
+                        </button>
+                      )}
+
+                      <button
+                        onClick={next}
+                        style={{
+                          background: "#ffd93d",
+                          border: "3px solid #1a1a2e",
+                          borderRadius: 10,
+                          padding: "8px 20px",
+                          fontWeight: 900,
+                          fontSize: 14,
+                          cursor: "pointer",
+                          color: "#1a1a2e",
+                          boxShadow: "3px 3px 0 #1a1a2e",
+                          flex: 1,
+                          minWidth: 110,
+                          textAlign: "center",
+                        }}
+                        autoFocus
+                      >
+                        {stepIndex === steps.length - 1
+                          ? "🎉 Terminer"
+                          : step?.action
+                            ? "Passer →"
+                            : step?.interactive
+                              ? "C'est fait →"
+                              : "Suivant →"}
+                      </button>
+
+                      <button
+                        onClick={skip}
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          fontSize: 12,
+                          color: "#888",
+                          cursor: "pointer",
+                          fontWeight: 700,
+                          padding: "4px 6px",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        Ignorer
+                      </button>
+                    </div>
+
+                    {/* Raccourcis clavier — masqué sur mobile */}
+                    {!isMobileTooltip && (
+                      <p
+                        style={{
+                          marginTop: 10,
+                          fontSize: 11,
+                          color: "#aaa",
+                          textAlign: "right",
+                        }}
+                      >
+                        ← → Entrée · Échap pour quitter
+                      </p>
+                    )}
+                  </div>
                 </div>
-
-                {/* Raccourcis clavier */}
-                <p
-                  style={{
-                    marginTop: 10,
-                    fontSize: 11,
-                    color: "#aaa",
-                    textAlign: "right",
-                  }}
-                >
-                  ← → Entrée · Échap pour quitter
-                </p>
-              </div>
-            </div>
+              );
+            })()}
 
             {/* Zone cliquable pour ignorer — désactivée sur les steps interactifs */}
             {!(step?.interactive || step?.action) && (
