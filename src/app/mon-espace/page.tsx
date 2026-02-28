@@ -441,12 +441,12 @@ export default async function MonEspacePage({
                   <img
                     src={artisan.logoUrl}
                     alt="Logo"
-                    className="h-16 w-16 shrink-0 rounded-xl object-contain"
+                    className="h-24 w-36 shrink-0 rounded-xl object-contain"
                     style={{ border: "3px solid #1a1a1a" }}
                   />
                 ) : (
                   <div
-                    className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#fff8f0] text-2xl"
+                    className="flex h-24 w-36 shrink-0 items-center justify-center rounded-xl bg-[#fff8f0] text-2xl"
                     style={{ border: "3px solid #1a1a1a" }}
                   >
                     🔨
