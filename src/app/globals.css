@@ -13,8 +13,6 @@
   --color-bd-creme-dark: #f5ede0;
   --color-bd-noir: #1a1a1a;
   --color-bd-vert: #6bcb77;
-  /* Écrans ultra-larges (≥1920px) */
-  --breakpoint-3xl: 1920px;
 }
 
 *,
