@@ -37,13 +37,13 @@ function extractHandle(network: string, raw: string): string {
   }
 }
 
-const SOCIAL_CONFIG: Record<string, { color: string; label: string }> = {
-  instagram: { color: "#E1306C", label: "Ig" },
-  facebook: { color: "#1877F2", label: "f" },
-  youtube: { color: "#FF0000", label: "▶" },
-  linkedin: { color: "#0A66C2", label: "in" },
-  twitterX: { color: "#000000", label: "𝕏" },
-  whatsapp: { color: "#25D366", label: "W" },
+const SOCIAL_CONFIG: Record<string, { color: string; label: string; file: string }> = {
+  instagram: { color: "#E1306C", label: "Ig", file: "instagram.svg" },
+  facebook: { color: "#1877F2", label: "f", file: "facebook.svg" },
+  youtube: { color: "#FF0000", label: "▶", file: "youtube.svg" },
+  linkedin: { color: "#0A66C2", label: "in", file: "linkedin.svg" },
+  twitterX: { color: "#000000", label: "𝕏", file: "x.svg" },
+  whatsapp: { color: "#25D366", label: "W", file: "whatsapp.svg" },
 };
 
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
@@ -68,11 +68,31 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const accroche = artisan?.accroche ?? "";
   const telephone = artisan?.telephone ?? "";
 
-  const socials: { handle: string; cfg: { color: string; label: string } }[] = [];
+  // Charge les icônes officielles des réseaux sociaux (SVG → PNG transparent via sharp)
+  const socialIconSrcs: Record<string, string> = {};
+  for (const [network, cfg] of Object.entries(SOCIAL_CONFIG)) {
+    try {
+      const svgBuf = readFileSync(join(process.cwd(), "public/icons/social", cfg.file));
+      const pngBuf = await sharp(svgBuf).resize(36, 36).png().toBuffer();
+      socialIconSrcs[network] = `data:image/png;base64,${pngBuf.toString("base64")}`;
+    } catch {
+      /* fallback badge texte */
+    }
+  }
+
+  const socials: {
+    handle: string;
+    cfg: { color: string; label: string };
+    iconSrc: string | null;
+  }[] = [];
   for (const network of ["instagram", "facebook", "youtube", "linkedin", "twitterX", "whatsapp"]) {
     const raw = artisan?.[network as keyof typeof artisan] as string | null | undefined;
     if (raw) {
-      socials.push({ handle: extractHandle(network, raw), cfg: SOCIAL_CONFIG[network] });
+      socials.push({
+        handle: extractHandle(network, raw),
+        cfg: SOCIAL_CONFIG[network],
+        iconSrc: socialIconSrcs[network] ?? null,
+      });
     }
   }
 
@@ -267,7 +287,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         {/* Colonne logo */}
         <div
           style={{
-            width: 300,
+            width: 440,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -276,7 +296,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           }}
         >
           {logoSrc ? (
-            <img src={logoSrc} width={260} height={200} style={{ objectFit: "contain" }} />
+            <img src={logoSrc} width={420} height={320} style={{ objectFit: "contain" }} />
           ) : (
             <div
               style={{
@@ -336,22 +356,26 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         >
           {socials.map((s, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 9 }}>
-              <div
-                style={{
-                  background: s.cfg.color,
-                  borderRadius: 8,
-                  width: 34,
-                  height: 34,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#fff",
-                  fontSize: 15,
-                  fontWeight: 900,
-                }}
-              >
-                {s.cfg.label}
-              </div>
+              {s.iconSrc ? (
+                <img src={s.iconSrc} width={34} height={34} />
+              ) : (
+                <div
+                  style={{
+                    background: s.cfg.color,
+                    borderRadius: 8,
+                    width: 34,
+                    height: 34,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#fff",
+                    fontSize: 15,
+                    fontWeight: 900,
+                  }}
+                >
+                  {s.cfg.label}
+                </div>
+              )}
               <div
                 style={{
                   fontSize: 17,
