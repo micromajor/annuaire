@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
 import { redirect } from "next/navigation";
 import AdminAvisRow from "@/components/features/AdminAvisRow";
+import AdminBesoinActions from "@/components/features/AdminBesoinActions";
+import AdminFeedbackActions from "@/components/features/AdminFeedbackActions";
 import AdminLogoutButton from "@/components/features/AdminLogoutButton";
 import AdminMetiersPanel from "@/components/features/AdminMetiersPanel";
 import AdminUserRow from "@/components/features/AdminUserRow";
@@ -35,7 +37,6 @@ export default async function AdminPage() {
       orderBy: { createdAt: "desc" },
     }),
     prisma.besoin.findMany({
-      where: { status: "NOUVEAU" },
       orderBy: { createdAt: "desc" },
     }),
     prisma.artisan.findMany({
@@ -62,7 +63,6 @@ export default async function AdminPage() {
       },
     }),
     prisma.feedback.findMany({
-      where: { status: "NOUVEAU" },
       orderBy: { createdAt: "desc" },
     }),
     prisma.signalement.findMany({
@@ -76,8 +76,13 @@ export default async function AdminPage() {
     }),
   ]);
 
+  const besoinsNouveaux = besoinsNouveau.filter((b) => b.status === "NOUVEAU");
+  const besoinsTraites = besoinsNouveau.filter((b) => b.status !== "NOUVEAU");
+  const feedbacksNouveaux = feedbacksNouveau.filter((f) => f.status === "NOUVEAU");
+  const feedbacksTraites = feedbacksNouveau.filter((f) => f.status !== "NOUVEAU");
+
   const totalPending =
-    signalements.length + avisEnAttente.length + besoinsNouveau.length + feedbacksNouveau.length;
+    signalements.length + avisEnAttente.length + besoinsNouveaux.length + feedbacksNouveaux.length;
 
   const navItems = [
     {
@@ -92,14 +97,14 @@ export default async function AdminPage() {
       id: "besoins",
       emoji: "📋",
       label: "Besoins",
-      count: besoinsNouveau.length,
+      count: besoinsNouveaux.length,
       color: "#fb923c",
     },
     {
       id: "feedbacks",
       emoji: "📨",
       label: "Retours beta",
-      count: feedbacksNouveau.length,
+      count: feedbacksNouveaux.length,
       color: "#f9a8d4",
     },
     {
@@ -202,13 +207,13 @@ export default async function AdminPage() {
               { label: "Avis", count: avisEnAttente.length, color: "bg-[#38bdf8]", emoji: "⭐" },
               {
                 label: "Besoins",
-                count: besoinsNouveau.length,
+                count: besoinsNouveaux.length,
                 color: "bg-[#fb923c]",
                 emoji: "📋",
               },
               {
                 label: "Retours",
-                count: feedbacksNouveau.length,
+                count: feedbacksNouveaux.length,
                 color: "bg-[#f9a8d4]",
                 emoji: "📨",
               },
@@ -305,34 +310,89 @@ export default async function AdminPage() {
               <div className="h-8 w-1.5 rounded-full bg-[#fb923c]" />
               <h2 className="bd-titre text-2xl text-[#1a1a2e]">Besoins à traiter</h2>
               <span className="rounded-full border-2 border-[#1a1a1a] bg-[#fb923c] px-3 py-0.5 text-sm font-bold">
-                {besoinsNouveau.length}
+                {besoinsNouveaux.length}
               </span>
+              {besoinsTraites.length > 0 && (
+                <span className="rounded-full border-2 border-gray-300 bg-gray-100 px-2.5 py-0.5 text-xs font-bold text-gray-500">
+                  {besoinsTraites.length} traité{besoinsTraites.length > 1 ? "s" : ""}
+                </span>
+              )}
             </div>
-            {besoinsNouveau.length === 0 ? (
-              <EmptyState emoji="📋" message="Aucun besoin en attente." />
+            {besoinsNouveaux.length === 0 && besoinsTraites.length === 0 ? (
+              <EmptyState emoji="📋" message="Aucun besoin enregistré." />
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {besoinsNouveau.map((b) => (
-                  <div
-                    key={b.id}
-                    className="rounded-2xl border-2 border-[#1a1a1a] bg-white p-4"
-                    style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
-                  >
-                    <div className="mb-3 flex flex-wrap items-center gap-2">
-                      <span className="rounded-full border-2 border-[#1a1a1a] bg-[#fb923c] px-3 py-0.5 text-xs font-bold">
-                        {b.metierSlug}
-                      </span>
-                      <span className="text-sm font-bold text-[#1a1a2e]">📍 {b.commune}</span>
-                      <span className="ml-auto text-xs text-gray-400">
-                        {new Date(b.createdAt).toLocaleDateString("fr-FR")}
-                      </span>
-                    </div>
-                    <p className="mb-3 text-sm text-gray-700">{b.description}</p>
-                    <p className="border-t border-gray-100 pt-2 text-sm font-bold text-[#1a1a2e]">
-                      {b.prenom} <span className="font-normal text-gray-500">— {b.contact}</span>
-                    </p>
+              <div className="space-y-4">
+                {/* Nouveaux */}
+                {besoinsNouveaux.length === 0 ? (
+                  <EmptyState emoji="✔️" message="Tous les besoins ont été traités." />
+                ) : (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {besoinsNouveaux.map((b) => (
+                      <div
+                        key={b.id}
+                        className="rounded-2xl border-2 border-[#1a1a1a] bg-white p-4"
+                        style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+                      >
+                        <div className="mb-3 flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border-2 border-[#1a1a1a] bg-[#fb923c] px-3 py-0.5 text-xs font-bold">
+                            {b.metierSlug}
+                          </span>
+                          <span className="text-sm font-bold text-[#1a1a2e]">📍 {b.commune}</span>
+                          <span className="ml-auto text-xs text-gray-400">
+                            {new Date(b.createdAt).toLocaleDateString("fr-FR")}
+                          </span>
+                        </div>
+                        <p className="mb-3 text-sm text-gray-700">{b.description}</p>
+                        <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
+                          <p className="text-sm font-bold text-[#1a1a2e]">
+                            {b.prenom}
+                            {b.contact && (
+                              <span className="font-normal text-gray-500"> — {b.contact}</span>
+                            )}
+                          </p>
+                          <AdminBesoinActions id={b.id} />
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {/* Traités — section repliable */}
+                {besoinsTraites.length > 0 && (
+                  <details className="group">
+                    <summary className="cursor-pointer list-none rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-500 select-none hover:bg-gray-100">
+                      <span className="group-open:hidden">▶ </span>
+                      <span className="hidden group-open:inline">▼ </span>
+                      {besoinsTraites.length} besoin{besoinsTraites.length > 1 ? "s" : ""} traité
+                      {besoinsTraites.length > 1 ? "s" : ""}
+                    </summary>
+                    <div className="mt-2 grid gap-3 opacity-60 sm:grid-cols-2">
+                      {besoinsTraites.map((b) => (
+                        <div
+                          key={b.id}
+                          className="rounded-2xl border-2 border-gray-200 bg-gray-50 p-4"
+                        >
+                          <div className="mb-2 flex flex-wrap items-center gap-2">
+                            <span className="rounded-full border border-gray-300 bg-gray-100 px-3 py-0.5 text-xs font-bold text-gray-500">
+                              {b.metierSlug}
+                            </span>
+                            <span className="text-sm font-medium text-gray-500">
+                              📍 {b.commune}
+                            </span>
+                            <span className="ml-auto text-xs text-gray-400">
+                              {new Date(b.createdAt).toLocaleDateString("fr-FR")}
+                            </span>
+                          </div>
+                          <p className="mb-2 line-clamp-2 text-sm text-gray-500">{b.description}</p>
+                          <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
+                            <p className="text-xs text-gray-400">{b.prenom}</p>
+                            <AdminBesoinActions id={b.id} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                )}
               </div>
             )}
           </section>
@@ -343,61 +403,120 @@ export default async function AdminPage() {
               <div className="h-8 w-1.5 rounded-full bg-[#f9a8d4]" />
               <h2 className="bd-titre text-2xl text-[#1a1a2e]">Retours beta</h2>
               <span className="rounded-full border-2 border-[#1a1a1a] bg-[#f9a8d4] px-3 py-0.5 text-sm font-bold">
-                {feedbacksNouveau.length}
+                {feedbacksNouveaux.length}
               </span>
+              {feedbacksTraites.length > 0 && (
+                <span className="rounded-full border-2 border-gray-300 bg-gray-100 px-2.5 py-0.5 text-xs font-bold text-gray-500">
+                  {feedbacksTraites.length} lu{feedbacksTraites.length > 1 ? "s" : ""}
+                </span>
+              )}
             </div>
-            {feedbacksNouveau.length === 0 ? (
+            {feedbacksNouveaux.length === 0 && feedbacksTraites.length === 0 ? (
               <EmptyState emoji="📨" message="Aucun retour utilisateur pour l'instant." />
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {feedbacksNouveau.map((f) => (
-                  <div
-                    key={f.id}
-                    className="rounded-2xl border-2 border-[#1a1a1a] bg-white p-4"
-                    style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
-                  >
-                    <div className="mb-3 flex flex-wrap items-center gap-2">
-                      <span
-                        className={`rounded-full border-2 border-[#1a1a1a] px-3 py-0.5 text-xs font-bold ${
-                          f.type === "BUG"
-                            ? "bg-[#ff6b6b]"
-                            : f.type === "SUGGESTION"
-                              ? "bg-[#ffd93d]"
-                              : "bg-[#f9a8d4]"
-                        }`}
+              <div className="space-y-4">
+                {/* Nouveaux */}
+                {feedbacksNouveaux.length === 0 ? (
+                  <EmptyState emoji="✔️" message="Tous les retours ont été lus." />
+                ) : (
+                  <div className="space-y-2">
+                    {feedbacksNouveaux.map((f) => (
+                      <div
+                        key={f.id}
+                        className="rounded-2xl border-2 border-[#1a1a1a] bg-white p-4"
+                        style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
                       >
-                        {f.type === "BUG"
-                          ? "🐛 Bug"
-                          : f.type === "SUGGESTION"
-                            ? "💡 Suggestion"
-                            : "💬 Autre"}
-                      </span>
-                      {f.pageUrl && (
-                        <span
-                          className="max-w-[160px] truncate text-xs text-gray-500"
-                          title={f.pageUrl}
-                        >
-                          📍 {f.pageUrl}
-                        </span>
-                      )}
-                      <span className="ml-auto text-xs text-gray-400">
-                        {new Date(f.createdAt).toLocaleDateString("fr-FR", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
-                    <p className="mb-2 text-sm text-gray-700">{f.message}</p>
-                    {f.email && (
-                      <p className="border-t border-gray-100 pt-2 text-xs font-bold text-[#1a1a2e]">
-                        ✉️ <span className="font-normal text-gray-500">{f.email}</span>
-                      </p>
-                    )}
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div className="flex flex-1 flex-wrap items-center gap-2">
+                            <span
+                              className={`rounded-full border-2 border-[#1a1a1a] px-3 py-0.5 text-xs font-bold ${
+                                f.type === "BUG"
+                                  ? "bg-[#ff6b6b]"
+                                  : f.type === "SUGGESTION"
+                                    ? "bg-[#ffd93d]"
+                                    : "bg-[#f9a8d4]"
+                              }`}
+                            >
+                              {f.type === "BUG"
+                                ? "🐛 Bug"
+                                : f.type === "SUGGESTION"
+                                  ? "💡 Suggestion"
+                                  : "💬 Autre"}
+                            </span>
+                            {f.pageUrl && (
+                              <span
+                                className="max-w-[180px] truncate text-xs text-gray-500"
+                                title={f.pageUrl}
+                              >
+                                📍 {f.pageUrl}
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-400">
+                              {new Date(f.createdAt).toLocaleDateString("fr-FR", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
+                          <AdminFeedbackActions id={f.id} />
+                        </div>
+                        <p className="mt-2 text-sm text-gray-700">{f.message}</p>
+                        {f.email && (
+                          <p className="mt-2 border-t border-gray-100 pt-2 text-xs font-bold text-[#1a1a2e]">
+                            ✉️ <span className="font-normal text-gray-500">{f.email}</span>
+                          </p>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {/* Lus — section repliable */}
+                {feedbacksTraites.length > 0 && (
+                  <details className="group">
+                    <summary className="cursor-pointer list-none rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-500 select-none hover:bg-gray-100">
+                      <span className="group-open:hidden">▶ </span>
+                      <span className="hidden group-open:inline">▼ </span>
+                      {feedbacksTraites.length} retour{feedbacksTraites.length > 1 ? "s" : ""} lu
+                      {feedbacksTraites.length > 1 ? "s" : ""}
+                    </summary>
+                    <div className="mt-2 space-y-2 opacity-60">
+                      {feedbacksTraites.map((f) => (
+                        <div
+                          key={f.id}
+                          className="rounded-2xl border-2 border-gray-200 bg-gray-50 p-3"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span
+                                className={`rounded-full border border-gray-300 bg-gray-100 px-2.5 py-0.5 text-xs font-bold text-gray-500`}
+                              >
+                                {f.type === "BUG"
+                                  ? "🐛 Bug"
+                                  : f.type === "SUGGESTION"
+                                    ? "💡 Suggestion"
+                                    : "💬 Autre"}
+                              </span>
+                              <span className="text-xs text-gray-400">
+                                {new Date(f.createdAt).toLocaleDateString("fr-FR", {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                })}
+                              </span>
+                            </div>
+                            <AdminFeedbackActions id={f.id} />
+                          </div>
+                          <p className="mt-1.5 line-clamp-2 text-sm text-gray-500">{f.message}</p>
+                          {f.email && <p className="mt-1 text-xs text-gray-400">✉️ {f.email}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                )}
               </div>
             )}
           </section>
