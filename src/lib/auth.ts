@@ -147,9 +147,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           (user as { role?: string }).role = "particulier";
         } else {
           (user as { role?: string }).role = "artisan";
-          // needsSetup si nouveau compte OU si le profil est encore vide (session expirée sans choix)
-          const profilIncomplet = artisan.metiers.length === 0;
-          if (isNew || profilIncomplet) (user as { needsSetup?: boolean }).needsSetup = true;
+          // needsSetup uniquement pour les vrais nouveaux comptes Google.
+          // Les artisans existants avec profil incomplet accèdent à mon-espace directement.
+          if (isNew) (user as { needsSetup?: boolean }).needsSetup = true;
         }
       }
       return true;

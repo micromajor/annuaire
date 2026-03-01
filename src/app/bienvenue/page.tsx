@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db/client";
 import BienvenueChoix from "@/components/features/BienvenueChoix";
 import Link from "next/link";
 
@@ -16,21 +15,12 @@ export default async function BienvenuePage() {
   // Non connecté → connexion
   if (!session) redirect("/connexion");
 
-  const artisanId = (session.user as { id?: string })?.id;
-  const needsSetup = (session.user as { needsSetup?: boolean }).needsSetup;
+  const role = (session.user as { role?: string })?.role;
 
-  // Artisan avec flag JWT (Google OAuth) : OK
-  // Artisan sans flag (email/password) : on accepte s'il n'a pas encore de métier
-  if (!needsSetup && artisanId) {
-    const artisan = await prisma.artisan.findUnique({
-      where: { id: artisanId },
-      select: { metiers: { take: 1 } },
-    });
-    // A déjà configuré son profil — redirection accueil
-    if (artisan && artisan.metiers.length > 0) redirect("/");
-    // Pas connecté comme artisan — redirection accueil
-    if (!artisan) redirect("/");
-  }
+  // Un utilisateur avec un rôle déjà défini n'a pas besoin de passer par bienvenue.
+  // /bienvenue est réservé aux nouveaux comptes Google sans rôle encore assigné.
+  if (role === "artisan") redirect("/mon-espace");
+  if (role === "particulier") redirect("/mon-espace");
 
   const prenom = (session.user as { name?: string })?.name?.split(" ")[0] ?? null;
 

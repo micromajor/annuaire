@@ -31,10 +31,9 @@ export default async function MonEspacePage({
     redirect("/connexion");
   }
 
-  // Nouveau compte Google — doit choisir son profil
-  if ((session.user as { needsSetup?: boolean }).needsSetup) {
-    redirect("/bienvenue");
-  }
+  // Note : le flag needsSetup n'est plus bloquant ici.
+  // Un artisan sans métiers accède directement à mon-espace pour remplir son profil.
+  // /bienvenue est réservé aux comptes sans rôle encore défini.
 
   const userId = (session.user as { id?: string }).id!;
 
