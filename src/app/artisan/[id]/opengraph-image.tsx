@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { readFileSync } from "fs";
 import { join } from "path";
+import sharp from "sharp";
 import { prisma } from "@/lib/db/client";
 
 export const runtime = "nodejs";
@@ -75,7 +76,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
     }
   }
 
-  // Charge le logo artisan si disponible (PNG/JPEG uniquement)
+  // Charge le logo artisan si disponible — sharp convertit tout format en PNG (WebP inclus)
   let logoSrc: string | null = null;
   if (artisan?.logoUrl) {
     try {
@@ -85,12 +86,9 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         : `${base}${artisan.logoUrl}`;
       const res = await fetch(logoUrl);
       if (res.ok) {
-        const buf = await res.arrayBuffer();
-        const mime = res.headers.get("content-type") ?? "image/jpeg";
-        // Satori ne supporte que PNG/JPEG — on exclut WebP/SVG
-        if (mime.includes("png") || mime.includes("jpeg") || mime.includes("jpg")) {
-          logoSrc = `data:${mime};base64,${Buffer.from(buf).toString("base64")}`;
-        }
+        const buf = Buffer.from(await res.arrayBuffer());
+        const pngBuf = await sharp(buf).png().toBuffer();
+        logoSrc = `data:image/png;base64,${pngBuf.toString("base64")}`;
       }
     } catch {
       /* fallback silencieux */
@@ -243,7 +241,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             </div>
           ) : null}
 
-          {/* Téléphone */}
+          {/* Téléphone — poussé en bas de la colonne */}
           {telephone ? (
             <div
               style={{
@@ -258,6 +256,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
                 fontWeight: 700,
                 color: "#1a1a2e",
                 background: "#fff",
+                marginTop: "auto",
               }}
             >
               ☎ {telephone}
