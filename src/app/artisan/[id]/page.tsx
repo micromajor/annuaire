@@ -85,7 +85,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     rawDescription.length > 155 ? rawDescription.slice(0, 152) + "…" : rawDescription;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://oyezartisans.fr";
   const url = `${appUrl}/artisan/${id}`;
-  const carteUrl = `${appUrl}/api/artisan/${id}/carte`;
+  // Utilise l'opengraph-image.tsx (nouveau design BD avec icônes officielles)
+  const carteUrl = `${appUrl}/artisan/${id}/opengraph-image`;
 
   return {
     title,
