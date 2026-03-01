@@ -124,7 +124,7 @@ export default async function AdminPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f0f0f0]">
+    <div className="3xl:max-w-[2560px] 3xl:mx-auto min-h-screen bg-[#f0f0f0]">
       {/* Top header */}
       <header className="sticky top-0 z-50 border-b-4 border-[#1a1a1a] bg-[#1a1a2e] px-6 py-3 shadow-lg">
         <div className="flex items-center justify-between">
@@ -145,7 +145,7 @@ export default async function AdminPage() {
 
       <div className="flex min-h-[calc(100vh-57px)]">
         {/* ── Sidebar ── */}
-        <aside className="sticky top-[57px] hidden h-[calc(100vh-57px)] w-64 shrink-0 flex-col gap-4 overflow-y-auto border-r-4 border-[#1a1a1a] bg-[#1a1a2e] p-4 lg:flex">
+        <aside className="3xl:w-80 sticky top-[57px] hidden h-[calc(100vh-57px)] w-64 shrink-0 flex-col gap-4 overflow-y-auto border-r-4 border-[#1a1a1a] bg-[#1a1a2e] p-4 lg:flex">
           {/* KPIs */}
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-xl border-2 border-[#ffd93d]/40 bg-[#ffd93d]/10 p-3 text-center">
@@ -232,294 +232,316 @@ export default async function AdminPage() {
             ))}
           </div>
 
-          {/* ── Section : Signalements ── */}
-          <section id="signalements" className="mb-10 scroll-mt-20">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="h-8 w-1.5 rounded-full bg-[#ff6b6b]" />
-              <h2 className="bd-titre text-2xl text-[#1a1a2e]">⚠️ Signalements</h2>
-              <span className="rounded-full border-2 border-[#1a1a1a] bg-[#ff6b6b] px-3 py-0.5 text-sm font-bold text-white">
-                {signalements.length}
-              </span>
-            </div>
-            {signalements.length === 0 ? (
-              <EmptyState emoji="✔️" message="Aucun signalement non lu." />
-            ) : (
-              <div className="space-y-2">
-                {signalements.map((s) => {
-                  const nom = s.artisan.raisonSociale ?? `${s.artisan.prenom} ${s.artisan.nom}`;
-                  return (
-                    <div
-                      key={s.id}
-                      className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border-2 border-[#1a1a1a] bg-white p-4"
-                      style={{ boxShadow: "3px 3px 0 #1a1a1a" }}
-                    >
-                      <div className="flex-1">
-                        <div className="mb-1 flex flex-wrap items-center gap-2">
-                          <a
-                            href={`/artisan/${s.artisan.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-bold text-[#1a1a2e] underline hover:text-[#ff6b6b]"
-                          >
-                            {nom}
-                          </a>
-                          <span className="text-xs text-gray-400">
-                            {new Date(s.createdAt).toLocaleDateString("fr-FR", {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-700">{s.motif}</p>
-                        {s.email && <p className="mt-1 text-xs text-gray-500">✉️ {s.email}</p>}
-                      </div>
-                      <MarkSignalementLu id={s.id} />
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-
-          {/* ── Section : Avis ── */}
-          <section id="avis" className="mb-10 scroll-mt-20">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="h-8 w-1.5 rounded-full bg-[#38bdf8]" />
-              <h2 className="bd-titre text-2xl text-[#1a1a2e]">Avis à modérer</h2>
-              <span className="rounded-full border-2 border-[#1a1a1a] bg-[#38bdf8] px-3 py-0.5 text-sm font-bold">
-                {avisEnAttente.length}
-              </span>
-            </div>
-            {avisEnAttente.length === 0 ? (
-              <EmptyState emoji="⭐" message="Aucun avis en attente de modération." />
-            ) : (
-              <div className="space-y-3">
-                {avisEnAttente.map((avis) => (
-                  <AdminAvisRow key={avis.id} avis={avis} />
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* ── Section : Besoins ── */}
-          <section id="besoins" className="mb-10 scroll-mt-20">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="h-8 w-1.5 rounded-full bg-[#fb923c]" />
-              <h2 className="bd-titre text-2xl text-[#1a1a2e]">Besoins à traiter</h2>
-              <span className="rounded-full border-2 border-[#1a1a1a] bg-[#fb923c] px-3 py-0.5 text-sm font-bold">
-                {besoinsNouveaux.length}
-              </span>
-              {besoinsTraites.length > 0 && (
-                <span className="rounded-full border-2 border-gray-300 bg-gray-100 px-2.5 py-0.5 text-xs font-bold text-gray-500">
-                  {besoinsTraites.length} traité{besoinsTraites.length > 1 ? "s" : ""}
-                </span>
-              )}
-            </div>
-            {besoinsNouveaux.length === 0 && besoinsTraites.length === 0 ? (
-              <EmptyState emoji="📋" message="Aucun besoin enregistré." />
-            ) : (
-              <div className="space-y-4">
-                {/* Nouveaux */}
-                {besoinsNouveaux.length === 0 ? (
-                  <EmptyState emoji="✔️" message="Tous les besoins ont été traités." />
-                ) : (
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {besoinsNouveaux.map((b) => (
-                      <div
-                        key={b.id}
-                        className="rounded-2xl border-2 border-[#1a1a1a] bg-white p-4"
-                        style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
-                      >
-                        <div className="mb-3 flex flex-wrap items-center gap-2">
-                          <span className="rounded-full border-2 border-[#1a1a1a] bg-[#fb923c] px-3 py-0.5 text-xs font-bold">
-                            {b.metierSlug}
-                          </span>
-                          <span className="text-sm font-bold text-[#1a1a2e]">📍 {b.commune}</span>
-                          <span className="ml-auto text-xs text-gray-400">
-                            {new Date(b.createdAt).toLocaleDateString("fr-FR")}
-                          </span>
-                        </div>
-                        <p className="mb-3 text-sm text-gray-700">{b.description}</p>
-                        <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
-                          <p className="text-sm font-bold text-[#1a1a2e]">
-                            {b.prenom}
-                            {b.contact && (
-                              <span className="font-normal text-gray-500"> — {b.contact}</span>
-                            )}
-                          </p>
-                          <AdminBesoinActions id={b.id} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Traités — section repliable */}
-                {besoinsTraites.length > 0 && (
-                  <details className="group">
-                    <summary className="cursor-pointer list-none rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-500 select-none hover:bg-gray-100">
-                      <span className="group-open:hidden">▶ </span>
-                      <span className="hidden group-open:inline">▼ </span>
-                      {besoinsTraites.length} besoin{besoinsTraites.length > 1 ? "s" : ""} traité
-                      {besoinsTraites.length > 1 ? "s" : ""}
-                    </summary>
-                    <div className="mt-2 grid gap-3 opacity-60 sm:grid-cols-2">
-                      {besoinsTraites.map((b) => (
-                        <div
-                          key={b.id}
-                          className="rounded-2xl border-2 border-gray-200 bg-gray-50 p-4"
-                        >
-                          <div className="mb-2 flex flex-wrap items-center gap-2">
-                            <span className="rounded-full border border-gray-300 bg-gray-100 px-3 py-0.5 text-xs font-bold text-gray-500">
-                              {b.metierSlug}
-                            </span>
-                            <span className="text-sm font-medium text-gray-500">
-                              📍 {b.commune}
-                            </span>
-                            <span className="ml-auto text-xs text-gray-400">
-                              {new Date(b.createdAt).toLocaleDateString("fr-FR")}
-                            </span>
-                          </div>
-                          <p className="mb-2 line-clamp-2 text-sm text-gray-500">{b.description}</p>
-                          <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
-                            <p className="text-xs text-gray-400">{b.prenom}</p>
-                            <AdminBesoinActions id={b.id} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </details>
-                )}
-              </div>
-            )}
-          </section>
-
-          {/* ── Section : Retours beta ── */}
-          <section id="feedbacks" className="mb-10 scroll-mt-20">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="h-8 w-1.5 rounded-full bg-[#f9a8d4]" />
-              <h2 className="bd-titre text-2xl text-[#1a1a2e]">Retours beta</h2>
-              <span className="rounded-full border-2 border-[#1a1a1a] bg-[#f9a8d4] px-3 py-0.5 text-sm font-bold">
-                {feedbacksNouveaux.length}
-              </span>
-              {feedbacksTraites.length > 0 && (
-                <span className="rounded-full border-2 border-gray-300 bg-gray-100 px-2.5 py-0.5 text-xs font-bold text-gray-500">
-                  {feedbacksTraites.length} lu{feedbacksTraites.length > 1 ? "s" : ""}
-                </span>
-              )}
-            </div>
-            {feedbacksNouveaux.length === 0 && feedbacksTraites.length === 0 ? (
-              <EmptyState emoji="📨" message="Aucun retour utilisateur pour l'instant." />
-            ) : (
-              <div className="space-y-4">
-                {/* Nouveaux */}
-                {feedbacksNouveaux.length === 0 ? (
-                  <EmptyState emoji="✔️" message="Tous les retours ont été lus." />
+          {/* ── Colonnes 3xl : Signalements+Avis / Besoins+Feedbacks ── */}
+          <div className="3xl:grid 3xl:grid-cols-2 3xl:gap-8 3xl:items-start">
+            {/* Colonne gauche 3xl */}
+            <div>
+              {/* ── Section : Signalements ── */}
+              <section id="signalements" className="mb-10 scroll-mt-20">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="h-8 w-1.5 rounded-full bg-[#ff6b6b]" />
+                  <h2 className="bd-titre text-2xl text-[#1a1a2e]">⚠️ Signalements</h2>
+                  <span className="rounded-full border-2 border-[#1a1a1a] bg-[#ff6b6b] px-3 py-0.5 text-sm font-bold text-white">
+                    {signalements.length}
+                  </span>
+                </div>
+                {signalements.length === 0 ? (
+                  <EmptyState emoji="✔️" message="Aucun signalement non lu." />
                 ) : (
                   <div className="space-y-2">
-                    {feedbacksNouveaux.map((f) => (
-                      <div
-                        key={f.id}
-                        className="rounded-2xl border-2 border-[#1a1a1a] bg-white p-4"
-                        style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
-                      >
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div className="flex flex-1 flex-wrap items-center gap-2">
-                            <span
-                              className={`rounded-full border-2 border-[#1a1a1a] px-3 py-0.5 text-xs font-bold ${
-                                f.type === "BUG"
-                                  ? "bg-[#ff6b6b]"
-                                  : f.type === "SUGGESTION"
-                                    ? "bg-[#ffd93d]"
-                                    : "bg-[#f9a8d4]"
-                              }`}
-                            >
-                              {f.type === "BUG"
-                                ? "🐛 Bug"
-                                : f.type === "SUGGESTION"
-                                  ? "💡 Suggestion"
-                                  : "💬 Autre"}
-                            </span>
-                            {f.pageUrl && (
-                              <span
-                                className="max-w-[180px] truncate text-xs text-gray-500"
-                                title={f.pageUrl}
-                              >
-                                📍 {f.pageUrl}
-                              </span>
-                            )}
-                            <span className="text-xs text-gray-400">
-                              {new Date(f.createdAt).toLocaleDateString("fr-FR", {
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </span>
-                          </div>
-                          <AdminFeedbackActions id={f.id} />
-                        </div>
-                        <p className="mt-2 text-sm text-gray-700">{f.message}</p>
-                        {f.email && (
-                          <p className="mt-2 border-t border-gray-100 pt-2 text-xs font-bold text-[#1a1a2e]">
-                            ✉️ <span className="font-normal text-gray-500">{f.email}</span>
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Lus — section repliable */}
-                {feedbacksTraites.length > 0 && (
-                  <details className="group">
-                    <summary className="cursor-pointer list-none rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-500 select-none hover:bg-gray-100">
-                      <span className="group-open:hidden">▶ </span>
-                      <span className="hidden group-open:inline">▼ </span>
-                      {feedbacksTraites.length} retour{feedbacksTraites.length > 1 ? "s" : ""} lu
-                      {feedbacksTraites.length > 1 ? "s" : ""}
-                    </summary>
-                    <div className="mt-2 space-y-2 opacity-60">
-                      {feedbacksTraites.map((f) => (
+                    {signalements.map((s) => {
+                      const nom = s.artisan.raisonSociale ?? `${s.artisan.prenom} ${s.artisan.nom}`;
+                      return (
                         <div
-                          key={f.id}
-                          className="rounded-2xl border-2 border-gray-200 bg-gray-50 p-3"
+                          key={s.id}
+                          className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border-2 border-[#1a1a1a] bg-white p-4"
+                          style={{ boxShadow: "3px 3px 0 #1a1a1a" }}
                         >
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span
-                                className={`rounded-full border border-gray-300 bg-gray-100 px-2.5 py-0.5 text-xs font-bold text-gray-500`}
+                          <div className="flex-1">
+                            <div className="mb-1 flex flex-wrap items-center gap-2">
+                              <a
+                                href={`/artisan/${s.artisan.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-bold text-[#1a1a2e] underline hover:text-[#ff6b6b]"
                               >
-                                {f.type === "BUG"
-                                  ? "🐛 Bug"
-                                  : f.type === "SUGGESTION"
-                                    ? "💡 Suggestion"
-                                    : "💬 Autre"}
-                              </span>
+                                {nom}
+                              </a>
                               <span className="text-xs text-gray-400">
-                                {new Date(f.createdAt).toLocaleDateString("fr-FR", {
+                                {new Date(s.createdAt).toLocaleDateString("fr-FR", {
                                   day: "2-digit",
                                   month: "2-digit",
                                   year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
                                 })}
                               </span>
                             </div>
-                            <AdminFeedbackActions id={f.id} />
+                            <p className="text-sm text-gray-700">{s.motif}</p>
+                            {s.email && <p className="mt-1 text-xs text-gray-500">✉️ {s.email}</p>}
                           </div>
-                          <p className="mt-1.5 line-clamp-2 text-sm text-gray-500">{f.message}</p>
-                          {f.email && <p className="mt-1 text-xs text-gray-400">✉️ {f.email}</p>}
+                          <MarkSignalementLu id={s.id} />
                         </div>
-                      ))}
-                    </div>
-                  </details>
+                      );
+                    })}
+                  </div>
                 )}
-              </div>
-            )}
-          </section>
+              </section>
+
+              {/* ── Section : Avis ── */}
+              <section id="avis" className="mb-10 scroll-mt-20">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="h-8 w-1.5 rounded-full bg-[#38bdf8]" />
+                  <h2 className="bd-titre text-2xl text-[#1a1a2e]">Avis à modérer</h2>
+                  <span className="rounded-full border-2 border-[#1a1a1a] bg-[#38bdf8] px-3 py-0.5 text-sm font-bold">
+                    {avisEnAttente.length}
+                  </span>
+                </div>
+                {avisEnAttente.length === 0 ? (
+                  <EmptyState emoji="⭐" message="Aucun avis en attente de modération." />
+                ) : (
+                  <div className="space-y-3">
+                    {avisEnAttente.map((avis) => (
+                      <AdminAvisRow key={avis.id} avis={avis} />
+                    ))}
+                  </div>
+                )}
+              </section>
+            </div>
+            {/* fin colonne gauche 3xl */}
+
+            {/* Colonne droite 3xl */}
+            <div>
+              {/* ── Section : Besoins ── */}
+              <section id="besoins" className="mb-10 scroll-mt-20">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="h-8 w-1.5 rounded-full bg-[#fb923c]" />
+                  <h2 className="bd-titre text-2xl text-[#1a1a2e]">Besoins à traiter</h2>
+                  <span className="rounded-full border-2 border-[#1a1a1a] bg-[#fb923c] px-3 py-0.5 text-sm font-bold">
+                    {besoinsNouveaux.length}
+                  </span>
+                  {besoinsTraites.length > 0 && (
+                    <span className="rounded-full border-2 border-gray-300 bg-gray-100 px-2.5 py-0.5 text-xs font-bold text-gray-500">
+                      {besoinsTraites.length} traité{besoinsTraites.length > 1 ? "s" : ""}
+                    </span>
+                  )}
+                </div>
+                {besoinsNouveaux.length === 0 && besoinsTraites.length === 0 ? (
+                  <EmptyState emoji="📋" message="Aucun besoin enregistré." />
+                ) : (
+                  <div className="space-y-4">
+                    {/* Nouveaux */}
+                    {besoinsNouveaux.length === 0 ? (
+                      <EmptyState emoji="✔️" message="Tous les besoins ont été traités." />
+                    ) : (
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {besoinsNouveaux.map((b) => (
+                          <div
+                            key={b.id}
+                            className="rounded-2xl border-2 border-[#1a1a1a] bg-white p-4"
+                            style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+                          >
+                            <div className="mb-3 flex flex-wrap items-center gap-2">
+                              <span className="rounded-full border-2 border-[#1a1a1a] bg-[#fb923c] px-3 py-0.5 text-xs font-bold">
+                                {b.metierSlug}
+                              </span>
+                              <span className="text-sm font-bold text-[#1a1a2e]">
+                                📍 {b.commune}
+                              </span>
+                              <span className="ml-auto text-xs text-gray-400">
+                                {new Date(b.createdAt).toLocaleDateString("fr-FR")}
+                              </span>
+                            </div>
+                            <p className="mb-3 text-sm text-gray-700">{b.description}</p>
+                            <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
+                              <p className="text-sm font-bold text-[#1a1a2e]">
+                                {b.prenom}
+                                {b.contact && (
+                                  <span className="font-normal text-gray-500"> — {b.contact}</span>
+                                )}
+                              </p>
+                              <AdminBesoinActions id={b.id} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Traités — section repliable */}
+                    {besoinsTraites.length > 0 && (
+                      <details className="group">
+                        <summary className="cursor-pointer list-none rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-500 select-none hover:bg-gray-100">
+                          <span className="group-open:hidden">▶ </span>
+                          <span className="hidden group-open:inline">▼ </span>
+                          {besoinsTraites.length} besoin{besoinsTraites.length > 1 ? "s" : ""}{" "}
+                          traité
+                          {besoinsTraites.length > 1 ? "s" : ""}
+                        </summary>
+                        <div className="mt-2 grid gap-3 opacity-60 sm:grid-cols-2">
+                          {besoinsTraites.map((b) => (
+                            <div
+                              key={b.id}
+                              className="rounded-2xl border-2 border-gray-200 bg-gray-50 p-4"
+                            >
+                              <div className="mb-2 flex flex-wrap items-center gap-2">
+                                <span className="rounded-full border border-gray-300 bg-gray-100 px-3 py-0.5 text-xs font-bold text-gray-500">
+                                  {b.metierSlug}
+                                </span>
+                                <span className="text-sm font-medium text-gray-500">
+                                  📍 {b.commune}
+                                </span>
+                                <span className="ml-auto text-xs text-gray-400">
+                                  {new Date(b.createdAt).toLocaleDateString("fr-FR")}
+                                </span>
+                              </div>
+                              <p className="mb-2 line-clamp-2 text-sm text-gray-500">
+                                {b.description}
+                              </p>
+                              <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
+                                <p className="text-xs text-gray-400">{b.prenom}</p>
+                                <AdminBesoinActions id={b.id} />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    )}
+                  </div>
+                )}
+              </section>
+
+              {/* ── Section : Retours beta ── */}
+              <section id="feedbacks" className="mb-10 scroll-mt-20">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="h-8 w-1.5 rounded-full bg-[#f9a8d4]" />
+                  <h2 className="bd-titre text-2xl text-[#1a1a2e]">Retours beta</h2>
+                  <span className="rounded-full border-2 border-[#1a1a1a] bg-[#f9a8d4] px-3 py-0.5 text-sm font-bold">
+                    {feedbacksNouveaux.length}
+                  </span>
+                  {feedbacksTraites.length > 0 && (
+                    <span className="rounded-full border-2 border-gray-300 bg-gray-100 px-2.5 py-0.5 text-xs font-bold text-gray-500">
+                      {feedbacksTraites.length} lu{feedbacksTraites.length > 1 ? "s" : ""}
+                    </span>
+                  )}
+                </div>
+                {feedbacksNouveaux.length === 0 && feedbacksTraites.length === 0 ? (
+                  <EmptyState emoji="📨" message="Aucun retour utilisateur pour l'instant." />
+                ) : (
+                  <div className="space-y-4">
+                    {/* Nouveaux */}
+                    {feedbacksNouveaux.length === 0 ? (
+                      <EmptyState emoji="✔️" message="Tous les retours ont été lus." />
+                    ) : (
+                      <div className="space-y-2">
+                        {feedbacksNouveaux.map((f) => (
+                          <div
+                            key={f.id}
+                            className="rounded-2xl border-2 border-[#1a1a1a] bg-white p-4"
+                            style={{ boxShadow: "4px 4px 0 #1a1a1a" }}
+                          >
+                            <div className="flex flex-wrap items-start justify-between gap-3">
+                              <div className="flex flex-1 flex-wrap items-center gap-2">
+                                <span
+                                  className={`rounded-full border-2 border-[#1a1a1a] px-3 py-0.5 text-xs font-bold ${
+                                    f.type === "BUG"
+                                      ? "bg-[#ff6b6b]"
+                                      : f.type === "SUGGESTION"
+                                        ? "bg-[#ffd93d]"
+                                        : "bg-[#f9a8d4]"
+                                  }`}
+                                >
+                                  {f.type === "BUG"
+                                    ? "🐛 Bug"
+                                    : f.type === "SUGGESTION"
+                                      ? "💡 Suggestion"
+                                      : "💬 Autre"}
+                                </span>
+                                {f.pageUrl && (
+                                  <span
+                                    className="max-w-[180px] truncate text-xs text-gray-500"
+                                    title={f.pageUrl}
+                                  >
+                                    📍 {f.pageUrl}
+                                  </span>
+                                )}
+                                <span className="text-xs text-gray-400">
+                                  {new Date(f.createdAt).toLocaleDateString("fr-FR", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
+                              </div>
+                              <AdminFeedbackActions id={f.id} />
+                            </div>
+                            <p className="mt-2 text-sm text-gray-700">{f.message}</p>
+                            {f.email && (
+                              <p className="mt-2 border-t border-gray-100 pt-2 text-xs font-bold text-[#1a1a2e]">
+                                ✉️ <span className="font-normal text-gray-500">{f.email}</span>
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Lus — section repliable */}
+                    {feedbacksTraites.length > 0 && (
+                      <details className="group">
+                        <summary className="cursor-pointer list-none rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-500 select-none hover:bg-gray-100">
+                          <span className="group-open:hidden">▶ </span>
+                          <span className="hidden group-open:inline">▼ </span>
+                          {feedbacksTraites.length} retour{feedbacksTraites.length > 1 ? "s" : ""}{" "}
+                          lu
+                          {feedbacksTraites.length > 1 ? "s" : ""}
+                        </summary>
+                        <div className="mt-2 space-y-2 opacity-60">
+                          {feedbacksTraites.map((f) => (
+                            <div
+                              key={f.id}
+                              className="rounded-2xl border-2 border-gray-200 bg-gray-50 p-3"
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span
+                                    className={`rounded-full border border-gray-300 bg-gray-100 px-2.5 py-0.5 text-xs font-bold text-gray-500`}
+                                  >
+                                    {f.type === "BUG"
+                                      ? "🐛 Bug"
+                                      : f.type === "SUGGESTION"
+                                        ? "💡 Suggestion"
+                                        : "💬 Autre"}
+                                  </span>
+                                  <span className="text-xs text-gray-400">
+                                    {new Date(f.createdAt).toLocaleDateString("fr-FR", {
+                                      day: "2-digit",
+                                      month: "2-digit",
+                                      year: "numeric",
+                                    })}
+                                  </span>
+                                </div>
+                                <AdminFeedbackActions id={f.id} />
+                              </div>
+                              <p className="mt-1.5 line-clamp-2 text-sm text-gray-500">
+                                {f.message}
+                              </p>
+                              {f.email && (
+                                <p className="mt-1 text-xs text-gray-400">✉️ {f.email}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    )}
+                  </div>
+                )}
+              </section>
+            </div>
+            {/* fin colonne droite 3xl */}
+          </div>
+          {/* fin grille 3xl */}
 
           {/* ── Section : Métiers ── */}
           <section id="metiers" className="mb-10 scroll-mt-20">
