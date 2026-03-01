@@ -62,7 +62,48 @@ export default function TutorialGuide({ role, prenom }: Props) {
     }
   }, [mounted, lsKey]);
 
-  // ── Calcul position du spotlight ──────────────────────────────────────
+  // ── Calcul rect du spotlight (+ dropdowns ouverts pour steps interactifs) ──
+  const computeSpotRect = useCallback(() => {
+    if (!step?.target) {
+      setSpotRect(null);
+      return;
+    }
+    const el = document.querySelector(`[data-tuto="${step.target}"]`) as HTMLElement | null;
+    if (!el) {
+      setSpotRect(null);
+      return;
+    }
+    const rect = el.getBoundingClientRect();
+    const pad = step.spotlightPadding ?? 8;
+
+    let top = rect.top - pad;
+    let left = rect.left - pad;
+    let right = rect.right + pad;
+    let bottom = rect.bottom + pad;
+
+    // Pour les steps interactifs, étendre le spotlight aux dropdowns ouverts
+    // (ex: MetierCombobox listbox qui s'ouvre en dessous du champ)
+    if (step.interactive || step.action) {
+      const dropdowns = document.querySelectorAll('[role="listbox"], [role="menu"]');
+      for (const dd of dropdowns) {
+        const ddRect = dd.getBoundingClientRect();
+        if (ddRect.width > 0 && ddRect.height > 0) {
+          // Inclure si le dropdown chevauche horizontalement la zone ciblée
+          const overlapH = ddRect.left < right + 60 && ddRect.right > left - 60;
+          if (overlapH) {
+            top = Math.min(top, ddRect.top - pad);
+            left = Math.min(left, ddRect.left - pad);
+            right = Math.max(right, ddRect.right + pad);
+            bottom = Math.max(bottom, ddRect.bottom + pad);
+          }
+        }
+      }
+    }
+
+    setSpotRect({ top, left, width: right - left, height: bottom - top });
+  }, [step]);
+
+  // ── Scroll + calcul initial du spotlight ──────────────────────────────
   const updateSpotlight = useCallback(() => {
     if (!step?.target) {
       setSpotRect(null);
@@ -73,25 +114,17 @@ export default function TutorialGuide({ role, prenom }: Props) {
       setSpotRect(null);
       return;
     }
-    // Sur mobile, on scroll l'élément vers le haut du viewport pour laisser
-    // la place au tooltip bottom-drawer. Sur desktop → centré.
+    // Sur mobile, scroll en haut pour laisser la place au bottom-drawer.
     const isMobileScroll = window.innerWidth < 640;
     el.scrollIntoView({
       behavior: "instant" as ScrollBehavior,
       block: isMobileScroll ? "start" : "center",
     });
-    // Calculer la rect après le prochain frame (layout flush garanti)
+    // Calculer après le prochain frame (layout flush garanti)
     requestAnimationFrame(() => {
-      const rect = el.getBoundingClientRect();
-      const pad = step.spotlightPadding ?? 8;
-      setSpotRect({
-        top: rect.top - pad,
-        left: rect.left - pad,
-        width: rect.width + pad * 2,
-        height: rect.height + pad * 2,
-      });
+      computeSpotRect();
     });
-  }, [step]);
+  }, [step, computeSpotRect]);
 
   // Recalcule quand l'étape change (avec délai pour laisser le scroll se stabiliser)
   useEffect(() => {
@@ -113,6 +146,20 @@ export default function TutorialGuide({ role, prenom }: Props) {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [active, updateSpotlight]);
+
+  // MutationObserver : étend le spotlight quand un dropdown s'ouvre
+  // (ex: MetierCombobox dont le listbox déborde en dehors du spotRect)
+  useEffect(() => {
+    if (!active || !(step?.interactive || step?.action) || !step?.target) return;
+    const observer = new MutationObserver(() => {
+      requestAnimationFrame(computeSpotRect);
+    });
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+    return () => observer.disconnect();
+  }, [active, stepIndex, computeSpotRect, step]);
 
   // ── Actions (déclarées avant les useEffect qui les référencent) ─────
   const markDone = useCallback(() => {
