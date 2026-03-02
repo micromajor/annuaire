@@ -40,7 +40,7 @@ export default function MessagerieButton({ artisanId, artisanNom }: Props) {
     return (
       <a
         href={`/connexion?callbackUrl=/artisan/${artisanId}`}
-        className="bd-btn bd-btn-outline mt-3 w-full text-sm"
+        className="bd-btn bd-btn-primary w-full"
       >
         💬 Écrire un message
       </a>
@@ -76,7 +76,7 @@ export default function MessagerieButton({ artisanId, artisanNom }: Props) {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="bd-btn bd-btn-primary mt-3 w-full">
+      <button onClick={() => setOpen(true)} className="bd-btn bd-btn-primary w-full">
         💬 Écrire un message
       </button>
 

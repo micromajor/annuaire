@@ -398,7 +398,24 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                       ))}
                   </div>
                 </div>
+
+                {/* SIRET — info légale discrète */}
+                {artisan.siret && (
+                  <p className="mt-4 border-t border-dashed border-gray-200 pt-3 text-xs text-gray-400">
+                    SIRET&nbsp;: {artisan.siret}
+                  </p>
+                )}
               </div>
+
+              {/* Réalisations — mis en valeur avant le formulaire */}
+              {portfolioPhotos.length > 0 && (
+                <div className="bd-card p-6">
+                  <h2 className="bd-titre mb-4 text-xl text-[#1a1a2e] sm:text-2xl">
+                    &#128247; R&eacute;alisations
+                  </h2>
+                  <PortfolioPhotos photos={portfolioPhotos} artisanNom={nomAffiche} />
+                </div>
+              )}
 
               {/* Formulaire de contact */}
               <div id="contact" className="bd-card p-6">
@@ -434,33 +451,37 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
               <div className="bd-card p-5 lg:sticky lg:top-6">
                 <h2 className="bd-titre mb-4 text-2xl text-[#1a1a2e]">Coordonn&eacute;es</h2>
 
-                {artisan.telephone && (
-                  <a
-                    href={`tel:${artisan.telephone.replace(/\s/g, "")}`}
-                    className="bd-btn bd-btn-primary mb-3 w-full"
-                  >
-                    &#128222; {artisan.telephone}
-                  </a>
-                )}
+                {/* 1. Chat plateforme — CTA principal */}
+                <MessagerieButton artisanId={artisan.id} artisanNom={nomAffiche} />
 
-                {artisan.siteWeb && (
-                  <a
-                    href={artisan.siteWeb}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bd-btn bd-btn-outline mb-3 w-full text-sm"
-                  >
-                    &#127760; Visiter le site
-                  </a>
-                )}
+                {/* 2. Formulaire de demande — CTA secondaire */}
+                <a href="#contact" className="bd-btn bd-btn-outline mt-2 w-full text-sm">
+                  &#128203; Envoyer une demande
+                </a>
 
-                {artisan.siret && (
-                  <p className="mt-3 text-xs text-gray-400">SIRET : {artisan.siret}</p>
+                {/* 3. Contacts directs */}
+                {(artisan.telephone || artisan.siteWeb) && (
+                  <div className="mt-4 flex flex-col gap-2 border-t-2 border-dashed border-gray-200 pt-4">
+                    {artisan.telephone && (
+                      <a
+                        href={`tel:${artisan.telephone.replace(/\s/g, "")}`}
+                        className="bd-btn bd-btn-primary w-full"
+                      >
+                        &#128222; {artisan.telephone}
+                      </a>
+                    )}
+                    {artisan.siteWeb && (
+                      <a
+                        href={artisan.siteWeb}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bd-btn bd-btn-outline w-full text-sm"
+                      >
+                        &#127760; Visiter le site
+                      </a>
+                    )}
+                  </div>
                 )}
-
-                <div className="mt-4 border-t-2 border-dashed border-gray-200 pt-4">
-                  <MessagerieButton artisanId={artisan.id} artisanNom={nomAffiche} />
-                </div>
 
                 {/* Réseaux sociaux */}
                 {(artisan.instagram ||
@@ -584,16 +605,6 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
               </div>
             </div>
           </div>
-
-          {/* Portfolio photos — pleine largeur, sous la grille */}
-          {portfolioPhotos.length > 0 && (
-            <div className="bd-card mt-6 p-6">
-              <h2 className="bd-titre mb-4 text-xl text-[#1a1a2e] sm:text-2xl">
-                &#128247; R&eacute;alisations
-              </h2>
-              <PortfolioPhotos photos={portfolioPhotos} artisanNom={nomAffiche} />
-            </div>
-          )}
         </main>
 
         {/* Footer minimaliste */}
