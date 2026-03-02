@@ -63,7 +63,8 @@ export default function MessagerieButton({ artisanId, artisanNom }: Props) {
         }),
       });
       if (!res.ok) {
-        const data = await res.json();
+        const text = await res.text();
+        const data = text ? (JSON.parse(text) as { error?: string }) : {};
         setError(data.error ?? "Une erreur est survenue");
         return;
       }

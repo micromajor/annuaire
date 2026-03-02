@@ -58,7 +58,8 @@ function BesoinPanel({ besoin, onClose }: { besoin: BesoinItem; onClose: () => v
         }),
       });
       if (!res.ok) {
-        const data = await res.json();
+        const text = await res.text();
+        const data = text ? (JSON.parse(text) as { error?: string }) : {};
         setSendError(data.error ?? "Une erreur est survenue");
         return;
       }

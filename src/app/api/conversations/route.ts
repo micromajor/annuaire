@@ -43,6 +43,18 @@ export async function POST(req: NextRequest) {
     sujet = parsed.data.sujet ?? `Contact depuis OyezArtisans`;
     expediteur = "particulier";
 
+    // Vérifier que le compte particulier existe bien en DB
+    const particulierExiste = await prisma.artisan.findFirst({
+      where: { id: particulierId, deletedAt: null },
+      select: { id: true },
+    });
+    if (!particulierExiste) {
+      return NextResponse.json(
+        { error: "Votre compte est introuvable. Déconnectez-vous et reconnectez-vous." },
+        { status: 422 }
+      );
+    }
+
     // Vérifier que l'artisan existe et est validé
     const artisan = await prisma.artisan.findFirst({
       where: { id: artisanId, status: "VALIDE", deletedAt: null },
@@ -74,9 +86,22 @@ export async function POST(req: NextRequest) {
   });
 
   if (!conversation) {
-    conversation = await prisma.conversation.create({
-      data: { artisanId, particulierId, sujet },
-    });
+    try {
+      conversation = await prisma.conversation.create({
+        data: { artisanId, particulierId, sujet },
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[conversations] create error:", msg);
+      // FK violation = l'un des IDs n'existe pas en DB
+      if (msg.includes("Foreign key")) {
+        return NextResponse.json(
+          { error: "Compte introuvable. Déconnectez-vous et reconnectez-vous." },
+          { status: 422 }
+        );
+      }
+      return NextResponse.json({ error: "Erreur serveur — réessayez." }, { status: 500 });
+    }
   }
 
   // Ajouter le message
