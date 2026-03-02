@@ -389,11 +389,13 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                     </div>
                   )}
                   <div className="flex flex-wrap gap-2">
-                    {artisan.communes.map(({ commune }) => (
-                      <span key={commune.id} className="bd-badge bd-badge-bleu">
-                        &#128205; {commune.nom} ({commune.codePostal})
-                      </span>
-                    ))}
+                    {[...artisan.communes]
+                      .sort((a, b) => a.commune.nom.localeCompare(b.commune.nom, "fr"))
+                      .map(({ commune }) => (
+                        <span key={commune.id} className="bd-badge bd-badge-bleu">
+                          &#128205; {commune.nom} ({commune.codePostal})
+                        </span>
+                      ))}
                   </div>
                 </div>
               </div>
