@@ -56,7 +56,8 @@ export async function POST(request: NextRequest) {
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
-  // Prenom/nom temporaires — l'artisan complétera sa fiche depuis /mon-espace
+  // Prenom/nom temporaires — l'utilisateur choisira son profil sur /bienvenue
+  // needsSetup: true → déclenche le choix artisan/particulier après connexion
   await prisma.artisan.create({
     data: {
       email,
@@ -64,6 +65,7 @@ export async function POST(request: NextRequest) {
       nom: "",
       passwordHash,
       status: "EN_ATTENTE",
+      draftData: { needsSetup: true },
     },
   });
 

@@ -53,12 +53,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const draft = artisan.draftData as Record<string, unknown> | null;
         const isParticulier = draft?.isParticulier === true;
+        const needsSetup = draft?.needsSetup === true;
 
         return {
           id: artisan.id,
           name: artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`,
           email: artisan.email,
           role: isParticulier ? "particulier" : "artisan",
+          ...(needsSetup && { needsSetup: true }),
         };
       },
     }),

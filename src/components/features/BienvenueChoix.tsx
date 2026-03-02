@@ -11,8 +11,14 @@ export default function BienvenueChoix() {
 
   async function choisirArtisan() {
     setLoading("artisan");
-    // Envoie un email de bienvenue aux nouveaux comptes Google (fire-and-forget)
+    // Envoie un email de bienvenue (fire-and-forget)
     fetch("/api/mon-espace/welcome", { method: "POST" }).catch(() => null);
+    // Efface le flag needsSetup en DB (pour que les reconnexions ne reviennent plus sur /bienvenue)
+    fetch("/api/mon-espace/account", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clearSetup: true }),
+    }).catch(() => null);
     // Efface le flag needsSetup dans le JWT
     await update({ clearSetup: true });
     router.push("/mon-espace");

@@ -16,10 +16,11 @@ export default async function BienvenuePage() {
   if (!session) redirect("/connexion");
 
   const role = (session.user as { role?: string })?.role;
+  const needsSetup = (session.user as { needsSetup?: boolean })?.needsSetup;
 
-  // Un utilisateur avec un rôle déjà défini n'a pas besoin de passer par bienvenue.
-  // /bienvenue est réservé aux nouveaux comptes Google sans rôle encore assigné.
-  if (role === "artisan") redirect("/mon-espace");
+  // Laisser passer les nouveaux comptes (Google ou email/password) qui doivent choisir leur profil.
+  // Rediriger les comptes déjà configurés.
+  if (role === "artisan" && !needsSetup) redirect("/mon-espace");
   if (role === "particulier") redirect("/mon-espace");
 
   const prenom = (session.user as { name?: string })?.name?.split(" ")[0] ?? null;

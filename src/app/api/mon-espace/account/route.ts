@@ -38,5 +38,14 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
+  // Effacer le flag needsSetup après choix du profil artisan
+  if (body.clearSetup === true) {
+    await prisma.artisan.update({
+      where: { id: artisanId },
+      data: { draftData: null },
+    });
+    return NextResponse.json({ ok: true });
+  }
+
   return NextResponse.json({ error: "Action inconnue." }, { status: 400 });
 }
