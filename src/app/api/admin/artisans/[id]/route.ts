@@ -41,6 +41,26 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   const { action } = result.data;
 
+  // Bloquer la validation si le profil est incomplet
+  if (action === "valider") {
+    const hasDescription = !!artisan.description?.trim();
+    const hasMetier = artisan.metiers.length > 0;
+    const hasContact = !!(artisan.telephone?.trim() || artisan.instagram || artisan.facebook);
+    if (!hasDescription || !hasMetier) {
+      const missing = [
+        !hasDescription && "une description",
+        !hasMetier && "au moins un métier",
+        !hasContact && "un moyen de contact (tel, réseau)",
+      ]
+        .filter(Boolean)
+        .join(", ");
+      return NextResponse.json(
+        { error: `Profil incomplet — il manque : ${missing}. Complétez avant de valider.` },
+        { status: 422 }
+      );
+    }
+  }
+
   // Valider/rejeter une inscription EN_ATTENTE
   const newStatus = action === "valider" ? "VALIDE" : "REJETE";
   const updated = await prisma.artisan.update({

@@ -90,6 +90,7 @@ export default async function ArtisansPage({
   const where = {
     status: "VALIDE" as const,
     deletedAt: null,
+    description: { not: null }, // fiche vide masquée du listing
     ...(metierSlugs.length > 0
       ? { metiers: { some: { metier: { slug: { in: metierSlugs } } } } }
       : {}),

@@ -60,6 +60,7 @@ export default async function LandingMetierCommune({ params }: PageProps) {
     where: {
       status: "VALIDE",
       deletedAt: null,
+      description: { not: null }, // fiche vide masquée du listing
       metiers: { some: { metier: { slug: metier } } },
       communes: { some: { commune: { nom } } },
     },
