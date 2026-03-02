@@ -26,8 +26,6 @@ interface ArtisanCardProps {
 
 export default function ArtisanCard({ artisan, avis = [] }: ArtisanCardProps) {
   const nomAffiche = artisan.raisonSociale ?? `${artisan.prenom} ${artisan.nom}`;
-  const communesPrincipales = artisan.communes.slice(0, 2);
-  const plusDeCommunes = artisan.communes.length - 2;
   const firstMetierSlug = artisan.metiers[0]?.metier.slug;
 
   const nbAvis = avis.length;
@@ -46,7 +44,7 @@ export default function ArtisanCard({ artisan, avis = [] }: ArtisanCardProps) {
         {/* Ligne 2 : logo + prénom nom */}
         <div className="flex items-center gap-2">
           {artisan.logoUrl ? (
-            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white p-0.5 shadow-sm">
+            <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={artisan.logoUrl}
@@ -96,19 +94,6 @@ export default function ArtisanCard({ artisan, avis = [] }: ArtisanCardProps) {
       {artisan.accroche && (
         <p className="mb-3 text-sm font-semibold text-gray-600 italic">{artisan.accroche}</p>
       )}
-
-      {/* Communes */}
-      <div className="mb-4 flex flex-wrap items-center gap-1 text-sm text-gray-500">
-        <span>📍</span>
-        {communesPrincipales.map(({ commune }) => (
-          <span key={commune.id}>{commune.nom}</span>
-        ))}
-        {plusDeCommunes > 0 && (
-          <span className="text-xs text-gray-400">
-            +{plusDeCommunes} commune{plusDeCommunes > 1 ? "s" : ""}
-          </span>
-        )}
-      </div>
 
       {/* CTA */}
       <div className="mt-auto flex gap-2">

@@ -479,12 +479,12 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                           rel="noopener noreferrer"
                           className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-gray-100"
                         >
-                          <span
-                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-black text-white"
-                            style={{ background: "#E1306C" }}
-                          >
-                            IG
-                          </span>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src="/icons/social/instagram.svg"
+                            alt="Instagram"
+                            className="h-6 w-6 shrink-0"
+                          />
                           <span className="truncate">
                             {extractSocialHandle("instagram", artisan.instagram)}
                           </span>
@@ -497,12 +497,12 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                           rel="noopener noreferrer"
                           className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-gray-100"
                         >
-                          <span
-                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-black text-white"
-                            style={{ background: "#1877F2" }}
-                          >
-                            FB
-                          </span>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src="/icons/social/facebook.svg"
+                            alt="Facebook"
+                            className="h-6 w-6 shrink-0"
+                          />
                           <span className="truncate">
                             {extractSocialHandle("facebook", artisan.facebook)}
                           </span>
@@ -515,12 +515,12 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                           rel="noopener noreferrer"
                           className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-gray-100"
                         >
-                          <span
-                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-black text-white"
-                            style={{ background: "#FF0000" }}
-                          >
-                            YT
-                          </span>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src="/icons/social/youtube.svg"
+                            alt="YouTube"
+                            className="h-6 w-6 shrink-0"
+                          />
                           <span className="truncate">
                             {extractSocialHandle("youtube", artisan.youtube)}
                           </span>
@@ -533,12 +533,12 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                           rel="noopener noreferrer"
                           className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-gray-100"
                         >
-                          <span
-                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-black text-white"
-                            style={{ background: "#0A66C2" }}
-                          >
-                            LI
-                          </span>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src="/icons/social/linkedin.svg"
+                            alt="LinkedIn"
+                            className="h-6 w-6 shrink-0"
+                          />
                           <span className="truncate">
                             {extractSocialHandle("linkedin", artisan.linkedin)}
                           </span>
@@ -551,12 +551,8 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                           rel="noopener noreferrer"
                           className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-gray-100"
                         >
-                          <span
-                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-black text-white"
-                            style={{ background: "#000000" }}
-                          >
-                            𝕏
-                          </span>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src="/icons/social/x.svg" alt="X" className="h-6 w-6 shrink-0" />
                           <span className="truncate">
                             {extractSocialHandle("twitterX", artisan.twitterX)}
                           </span>
@@ -569,12 +565,12 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                           rel="noopener noreferrer"
                           className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-gray-100"
                         >
-                          <span
-                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-black text-white"
-                            style={{ background: "#25D366" }}
-                          >
-                            WA
-                          </span>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src="/icons/social/whatsapp.svg"
+                            alt="WhatsApp"
+                            className="h-6 w-6 shrink-0"
+                          />
                           <span className="truncate">
                             {extractSocialHandle("whatsapp", artisan.whatsapp)}
                           </span>
