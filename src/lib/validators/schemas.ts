@@ -20,7 +20,16 @@ export const contactFormSchema = z.object({
     .min(20, "Message trop court (20 caractères min)")
     .max(1000, "Message trop long (1000 caractères max)"),
   typeTraux: z.string().min(1, "Type de travaux requis"),
-  photos: z.array(z.string().url()).max(6).optional(),
+  photos: z
+    .array(
+      z
+        .string()
+        .refine((val) => val.startsWith("/api/files/") || z.string().url().safeParse(val).success, {
+          message: "URL de photo invalide",
+        })
+    )
+    .max(6)
+    .optional(),
   consent: z.literal(true, {
     error: () => ({ message: "Vous devez accepter les conditions" }),
   }),
