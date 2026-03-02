@@ -42,7 +42,7 @@ export async function PATCH(req: NextRequest) {
   if (body.clearSetup === true) {
     await prisma.artisan.update({
       where: { id: artisanId },
-      data: { draftData: null },
+      data: { draftData: {} },
     });
     return NextResponse.json({ ok: true });
   }
