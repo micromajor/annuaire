@@ -422,80 +422,68 @@ export default async function MonEspacePage({
                 <p className="text-sm text-gray-400">Aucune demande pour l&apos;instant.</p>
               ) : (
                 <ul className="space-y-3">
-                  {artisan.contacts.map(
-                    (c: {
-                      id: string;
-                      clientPrenom: string;
-                      clientNom: string;
-                      typeTraux: string;
-                      message: string;
-                      clientEmail: string;
-                      clientTel?: string | null;
-                      photos?: string[] | null;
-                      createdAt: Date;
-                    }) => (
-                      <li
-                        key={c.id}
-                        className="rounded-xl border-2 border-gray-200 bg-gray-50 p-4 text-sm"
-                      >
-                        {/* En-tête : nom + date */}
-                        <div className="mb-2 flex items-start justify-between gap-2">
-                          <p className="font-black text-[#1a1a2e]">
-                            {c.clientPrenom} {c.clientNom}
-                          </p>
-                          <span className="shrink-0 text-xs text-gray-400">
-                            {new Date(c.createdAt).toLocaleDateString("fr-FR", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })}
-                          </span>
-                        </div>
-
-                        {/* Type de travaux */}
-                        <span className="mb-2 inline-block rounded-full border-2 border-[#1a1a2e] bg-[#ffd93d] px-2 py-0.5 text-xs font-bold text-[#1a1a2e]">
-                          {c.typeTraux}
+                  {artisan.contacts.map((c) => (
+                    <li
+                      key={c.id}
+                      className="rounded-xl border-2 border-gray-200 bg-gray-50 p-4 text-sm"
+                    >
+                      {/* En-tête : nom + date */}
+                      <div className="mb-2 flex items-start justify-between gap-2">
+                        <p className="font-black text-[#1a1a2e]">
+                          {c.clientPrenom} {c.clientNom}
+                        </p>
+                        <span className="shrink-0 text-xs text-gray-400">
+                          {new Date(c.createdAt).toLocaleDateString("fr-FR", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
                         </span>
+                      </div>
 
-                        {/* Message */}
-                        <p className="mb-3 text-gray-700">{c.message}</p>
+                      {/* Type de travaux */}
+                      <span className="mb-2 inline-block rounded-full border-2 border-[#1a1a2e] bg-[#ffd93d] px-2 py-0.5 text-xs font-bold text-[#1a1a2e]">
+                        {c.typeTraux}
+                      </span>
 
-                        {/* Photos jointes */}
-                        {Array.isArray(c.photos) && c.photos.length > 0 && (
-                          <div className="mb-3 flex flex-wrap gap-2">
-                            {(c.photos as string[]).map((url, i) => (
-                              <a key={i} href={url} target="_blank" rel="noopener noreferrer">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={url}
-                                  alt={`Photo ${i + 1}`}
-                                  className="h-16 w-16 rounded-lg border-2 border-gray-200 object-cover"
-                                />
-                              </a>
-                            ))}
-                          </div>
-                        )}
+                      {/* Message */}
+                      <p className="mb-3 text-gray-700">{c.message}</p>
 
-                        {/* Coordonnées + actions */}
-                        <div className="flex flex-wrap items-center gap-2 border-t-2 border-dashed border-gray-200 pt-3">
-                          <a
-                            href={`mailto:${c.clientEmail}?subject=Suite à votre demande — ${c.typeTraux}&body=Bonjour ${c.clientPrenom},%0A%0A`}
-                            className="bd-btn bd-btn-primary flex items-center gap-1.5 text-xs"
-                          >
-                            ✉ Répondre par email
-                          </a>
-                          {c.clientTel && (
-                            <a
-                              href={`tel:${c.clientTel.replace(/\s/g, "")}`}
-                              className="bd-btn bd-btn-outline flex items-center gap-1.5 text-xs"
-                            >
-                              📞 {c.clientTel}
+                      {/* Photos jointes */}
+                      {Array.isArray(c.photos) && c.photos.length > 0 && (
+                        <div className="mb-3 flex flex-wrap gap-2">
+                          {(c.photos as string[]).map((url, i) => (
+                            <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={url}
+                                alt={`Photo ${i + 1}`}
+                                className="h-16 w-16 rounded-lg border-2 border-gray-200 object-cover"
+                              />
                             </a>
-                          )}
+                          ))}
                         </div>
-                      </li>
-                    )
-                  )}
+                      )}
+
+                      {/* Coordonnées + actions */}
+                      <div className="flex flex-wrap items-center gap-2 border-t-2 border-dashed border-gray-200 pt-3">
+                        <a
+                          href={`mailto:${c.clientEmail}?subject=Suite à votre demande — ${c.typeTraux}&body=Bonjour ${c.clientPrenom},%0A%0A`}
+                          className="bd-btn bd-btn-primary flex items-center gap-1.5 text-xs"
+                        >
+                          ✉ Répondre par email
+                        </a>
+                        {c.clientTel && (
+                          <a
+                            href={`tel:${c.clientTel.replace(/\s/g, "")}`}
+                            className="bd-btn bd-btn-outline flex items-center gap-1.5 text-xs"
+                          >
+                            📞 {c.clientTel}
+                          </a>
+                        )}
+                      </div>
+                    </li>
+                  ))}
                 </ul>
               )}
             </div>
