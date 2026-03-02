@@ -417,15 +417,46 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                 </div>
               )}
 
-              {/* Formulaire de contact */}
+              {/* Formulaire de contact — réservé aux particuliers connectés */}
               <div id="contact" className="bd-card p-6">
-                <h2 className="bd-titre mb-1 text-xl text-[#1a1a2e] sm:text-3xl">
-                  Envoyer une demande &agrave; {nomAffiche}
-                </h2>
-                <p className="mb-6 text-sm text-gray-500">
-                  Votre message sera transmis directement. R&eacute;ponse sous 48h.
-                </p>
-                <ContactForm artisanId={artisan.id} artisanNom={nomAffiche} />
+                {isConnected && viewerRole === "particulier" ? (
+                  <>
+                    <h2 className="bd-titre mb-1 text-xl text-[#1a1a2e] sm:text-3xl">
+                      Envoyer une demande &agrave; {nomAffiche}
+                    </h2>
+                    <p className="mb-4 text-sm text-gray-500">
+                      D&eacute;crivez votre projet, joignez des photos et suivez la r&eacute;ponse
+                      directement ici.
+                    </p>
+                    <ContactForm artisanId={artisan.id} artisanNom={nomAffiche} />
+                  </>
+                ) : (
+                  <>
+                    <h2 className="bd-titre mb-3 text-xl text-[#1a1a2e] sm:text-2xl">
+                      Contacter {nomAffiche}
+                    </h2>
+                    <p className="mb-5 text-sm text-gray-600">
+                      Cr&eacute;ez votre compte gratuit pour envoyer votre demande, joindre des
+                      photos et suivre vos &eacute;changes directement sur la plateforme — sans
+                      passer par email.
+                    </p>
+                    <a
+                      href={`/connexion?callbackUrl=/artisan/${artisan.id}&context=contact`}
+                      className="bd-btn bd-btn-primary mb-3 w-full"
+                    >
+                      &#128172; Cr&eacute;er mon compte et contacter {nomAffiche}
+                    </a>
+                    <p className="text-center text-xs text-gray-400">
+                      D&eacute;j&agrave; un compte&nbsp;?{" "}
+                      <a
+                        href={`/connexion?callbackUrl=/artisan/${artisan.id}&context=contact`}
+                        className="font-bold text-[#1a1a2e] hover:underline"
+                      >
+                        Se connecter
+                      </a>
+                    </p>
+                  </>
+                )}
               </div>
 
               {/* Avis */}

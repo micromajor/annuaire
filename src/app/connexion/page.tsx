@@ -9,6 +9,8 @@ function ConnexionForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/mon-espace";
+  const context = searchParams.get("context");
+  const isContactContext = context === "contact" && callbackUrl.includes("/artisan/");
 
   const [step, setStep] = useState<"email" | "confirm" | "password" | "forgot-sent">("email");
   const [email, setEmail] = useState("");
@@ -94,13 +96,22 @@ function ConnexionForm() {
       className="w-full max-w-sm rounded-2xl border-4 border-[#1a1a1a] bg-white p-8"
       style={{ boxShadow: "6px 6px 0 #1a1a1a" }}
     >
+      {isContactContext && (
+        <div className="mb-5 rounded-xl border-2 border-[#1a1a2e] bg-[#ffd93d] px-4 py-3 text-sm font-bold text-[#1a1a2e]">
+          &#128172; Pour contacter cet artisan, connectez-vous ou cr&eacute;ez votre compte gratuit
+          en 30 secondes.
+        </div>
+      )}
+
       <div className="mb-6 text-center">
         <Link href="/" className="bd-titre text-2xl text-[#1a1a2e]">
           Oyez Artisans !
         </Link>
         <p className="mt-1 text-sm text-gray-500">
           {step === "email"
-            ? "Connexion à votre espace"
+            ? isContactContext
+              ? "Créez votre compte ou connectez-vous"
+              : "Connexion à votre espace"
             : step === "confirm"
               ? `Aucun compte pour ${email}`
               : step === "forgot-sent"
