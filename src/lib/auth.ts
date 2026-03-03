@@ -74,6 +74,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async signIn({ user, account }) {
       // OAuth Google — créer ou retrouver l'artisan
       if (account?.provider === "google" && user.email) {
+        // Bloquer le compte admin — il s'authentifie uniquement via les credentials admin
+        if (user.email === process.env.ADMIN_EMAIL) {
+          return false;
+        }
+
         let artisan = await prisma.artisan.findFirst({
           where: { email: user.email, deletedAt: null },
           select: {
