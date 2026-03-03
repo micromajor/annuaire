@@ -214,8 +214,8 @@ export default function Combobox({
           {allLabel && (
             <li
               role="option"
-              aria-selected={value === ""}
-              className={`flex cursor-pointer items-center gap-2 px-4 py-2.5 text-sm font-bold transition-colors ${
+              aria-selected={value === "" && (!multi || values.length === 0)}
+              className={`flex cursor-pointer items-center justify-between px-4 py-2.5 text-sm font-bold transition-colors ${
                 highlighted === 0
                   ? "bg-[#ffd93d] text-[#1a1a2e]"
                   : "text-gray-500 hover:bg-[#fff8f0]"
@@ -226,8 +226,10 @@ export default function Combobox({
                 selectOption("");
               }}
             >
-              {value === "" && <span className="text-[#6bcb77]">✓</span>}
-              {allLabel}
+              <span className="font-bold">{allLabel}</span>
+              {(value === "" || (multi && values.length === 0)) && (
+                <span className="text-[#6bcb77]">✓</span>
+              )}
             </li>
           )}
 
