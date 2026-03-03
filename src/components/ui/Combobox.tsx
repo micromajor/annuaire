@@ -97,13 +97,15 @@ export default function Combobox({
   function selectOption(val: string) {
     if (multi && onToggle) {
       if (val === "") {
-        // "tout" → vide la sélection
+        // "tout" → vide la sélection + ferme le dropdown
         values.forEach((v) => onToggle(v));
+        setQuery("");
+        setOpen(false);
       } else {
         onToggle(val);
+        setQuery("");
+        // reste ouvert pour permettre multi-sélection
       }
-      setQuery("");
-      // reste ouvert en multi
     } else {
       onChange(val);
       setQuery("");
