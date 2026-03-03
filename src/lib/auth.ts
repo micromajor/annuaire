@@ -76,33 +76,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (account?.provider === "google" && user.email) {
         // Bloquer le compte admin — il s'authentifie uniquement via les credentials admin
         if (user.email === process.env.ADMIN_EMAIL) {
-          return false;
+          return "/connexion?error=AdminGoogleBlocked";
         }
 
-        let artisan = await prisma.artisan.findFirst({
-          where: { email: user.email, deletedAt: null },
-          select: {
-            id: true,
-            prenom: true,
-            nom: true,
-            status: true,
-            draftData: true,
-            metiers: { take: 1 },
-          },
-        });
-
-        let isNew = false;
-        if (!artisan) {
-          const [prenom = "", ...rest] = (user.name ?? "").split(" ");
-          const nom = rest.join(" ") || "—";
-          artisan = await prisma.artisan.create({
-            data: {
-              email: user.email,
-              prenom,
-              nom,
-              // Google a déjà vérifié l'email → fiche directement publiable
-              status: "VALIDE",
-            },
+        try {
+          let artisan = await prisma.artisan.findFirst({
+            where: { email: user.email, deletedAt: null },
             select: {
               id: true,
               prenom: true,
@@ -112,51 +91,79 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               metiers: { take: 1 },
             },
           });
-          isNew = true;
-        }
 
-        // Artisan Google existant encore EN_ATTENTE (cas de migration) → auto-valider
-        if (!isNew && artisan.status === "EN_ATTENTE") {
-          await prisma.artisan.update({
-            where: { id: artisan.id },
-            data: { status: "VALIDE" },
-          });
-          artisan = { ...artisan, status: "VALIDE" };
-        }
+          let isNew = false;
+          if (!artisan) {
+            const [prenom = "", ...rest] = (user.name ?? "").split(" ");
+            const nom = rest.join(" ") || "—";
+            artisan = await prisma.artisan.create({
+              data: {
+                email: user.email,
+                prenom,
+                nom,
+                // Google a déjà vérifié l'email → fiche directement publiable
+                status: "VALIDE",
+              },
+              select: {
+                id: true,
+                prenom: true,
+                nom: true,
+                status: true,
+                draftData: true,
+                metiers: { take: 1 },
+              },
+            });
+            isNew = true;
+          }
 
-        // Lier le compte OAuth s'il ne l'est pas encore
-        const existing = await prisma.oAuthAccount.findUnique({
-          where: {
-            provider_providerAccountId: {
-              provider: "google",
-              providerAccountId: account.providerAccountId,
+          // Artisan Google existant encore EN_ATTENTE (cas de migration) → auto-valider
+          if (!isNew && artisan.status === "EN_ATTENTE") {
+            await prisma.artisan.update({
+              where: { id: artisan.id },
+              data: { status: "VALIDE" },
+            });
+            artisan = { ...artisan, status: "VALIDE" };
+          }
+
+          // Lier le compte OAuth s'il ne l'est pas encore
+          const existing = await prisma.oAuthAccount.findUnique({
+            where: {
+              provider_providerAccountId: {
+                provider: "google",
+                providerAccountId: account.providerAccountId,
+              },
             },
-          },
-        });
-        if (!existing) {
-          await prisma.oAuthAccount.create({
-            data: {
-              artisanId: artisan.id,
-              provider: "google",
-              providerAccountId: account.providerAccountId,
-              access_token: account.access_token ?? null,
-              refresh_token: account.refresh_token ?? null,
-              expires_at: account.expires_at ?? null,
-            },
           });
-        }
+          if (!existing) {
+            await prisma.oAuthAccount.create({
+              data: {
+                artisanId: artisan.id,
+                provider: "google",
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token ?? null,
+                refresh_token: account.refresh_token ?? null,
+                expires_at: account.expires_at ?? null,
+              },
+            });
+          }
 
-        // Injecter id + role dans le user pour le JWT
-        user.id = artisan.id;
-        // Si ce compte a déjà été marqué comme particulier, on conserve ce rôle
-        const draft = artisan.draftData as Record<string, unknown> | null;
-        if (draft?.isParticulier === true) {
-          (user as { role?: string }).role = "particulier";
-        } else {
-          (user as { role?: string }).role = "artisan";
-          // needsSetup uniquement pour les vrais nouveaux comptes Google.
-          // Les artisans existants avec profil incomplet accèdent à mon-espace directement.
-          if (isNew) (user as { needsSetup?: boolean }).needsSetup = true;
+          // Injecter id + role dans le user pour le JWT
+          user.id = artisan.id;
+          // Si ce compte a déjà été marqué comme particulier, on conserve ce rôle
+          const draft = artisan.draftData as Record<string, unknown> | null;
+          if (draft?.isParticulier === true) {
+            (user as { role?: string }).role = "particulier";
+          } else {
+            (user as { role?: string }).role = "artisan";
+            // needsSetup uniquement pour les vrais nouveaux comptes Google.
+            // Les artisans existants avec profil incomplet accèdent à mon-espace directement.
+            if (isNew) (user as { needsSetup?: boolean }).needsSetup = true;
+          }
+        } catch (err) {
+          console.error("[signIn/google] Erreur inattendue dans le callback:", err);
+          // Erreur DB ou inattendue → on laisse passer pour éviter un AccessDenied fantôme
+          // L'utilisateur arrivera en session sans id/role injecté et sera redirigé par la page
+          return true;
         }
       }
       return true;
