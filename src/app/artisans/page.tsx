@@ -62,7 +62,7 @@ export async function generateMetadata({
     openGraph: {
       title: "Annuaire artisans — Nantes & Loire-Atlantique",
       description:
-        "Maçon, plombier, électricien… Artisans du bâtiment vérifiés à Nantes et Est Loire-Atlantique.",
+        "Maçon, plombier, électricien… Artisans du bâtiment vérifiés à Nantes et en Loire-Atlantique.",
       url: "https://oyezartisans.fr/artisans",
       type: "website",
     },
@@ -197,7 +197,7 @@ export default async function ArtisansPage({
           {/* Badge + H1 */}
           <div className="mb-10 text-center">
             <span className="bd-badge bd-badge-bleu bd-anim-pop mb-8 inline-flex">
-              📍 Nantes &amp; Est Loire-Atlantique
+              📍 Nantes &amp; Loire-Atlantique
             </span>
             <h1 className="bd-titre bd-anim-build mb-4 text-5xl leading-tight text-[#1a1a2e] sm:text-7xl">
               Trouvez votre artisan

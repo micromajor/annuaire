@@ -248,8 +248,8 @@ export default async function LandingMetierCommune({ params }: PageProps) {
             </h2>
             <p className="mb-4 text-sm leading-relaxed text-gray-700">
               Oyez Artisans ! est l&apos;annuaire hyperlocal des artisans du bâtiment autour de
-              Nantes et de l&apos;Est Loire-Atlantique. Chaque fiche est validée manuellement avant
-              mise en ligne. Vous trouverez ici des {labelLow}s à {nom} ({cp}) et dans les communes
+              Nantes et de la Loire-Atlantique. Chaque fiche est validée manuellement avant mise en
+              ligne. Vous trouverez ici des {labelLow}s à {nom} ({cp}) et dans les communes
               voisines&nbsp;: Nantes, Saint-Herblain, Rezé, Carquefou, Vertou,
               Saint-Sébastien-sur-Loire, etc.
             </p>

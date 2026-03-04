@@ -92,7 +92,7 @@ export async function sendBienvenueArtisanGoogle({
           <td style="padding:28px;">
             <p style="margin:0 0 8px;font-size:16px;color:#1a1a2e;">Bonjour <strong>${prenomArtisan}</strong>,</p>
             <p style="margin:0 0 16px;font-size:15px;color:#444;">
-              Bienvenue sur le réseau local des artisans de Nantes Est ! Votre compte est créé.
+              Bienvenue sur le réseau local des artisans de Loire-Atlantique ! Votre compte est créé.
             </p>
             <div style="background:#fff8f0;border-left:4px solid #6bcb77;border-radius:4px;padding:14px 16px;margin-bottom:24px;">
               <p style="margin:0;font-size:14px;color:#333;">

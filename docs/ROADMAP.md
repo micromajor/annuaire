@@ -1,13 +1,13 @@
 # Roadmap — OyezArtisans · Réseau local d'artisans
 
-> Dernière mise à jour : 28/02/2026 — Badges réseaux sociaux colorés sur fiche publique + portfolio pleine largeur + layout 1500px + fix tooltip tutoriel (commit 15543a2)
+> Dernière mise à jour : 02/03/2026 — Réorganisation fiche artisan : sidebar chat-first, réalisations remontées, SIRET repositionné (commit abf953f)
 > Statuts : `[ ]` à faire · `[~]` en cours · `[x]` terminé
 
 ---
 
 ## Vision produit
 
-OyezArtisans n'est pas un simple annuaire : c'est un **réseau hyperlocal de confiance** ancré sur le territoire de Nantes Est.
+OyezArtisans n'est pas un simple annuaire : c'est un **réseau hyperlocal de confiance** ancré sur le territoire de la Loire-Atlantique.
 
 ### Ce qui nous différencie des acteurs existants
 
@@ -41,7 +41,7 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] Schéma Prisma modélisé + migration initiale appliquée
 - [x] Variables d'environnement configurées (.env + .env.example)
 - [x] Validators Zod (contact + inscription artisan)
-- [x] Constantes métier (métiers, communes Nantes Est, types de travaux)
+- [x] Constantes métier (métiers, communes Loire-Atlantique, types de travaux)
 - [x] Client Prisma singleton (src/lib/db/client.ts)
 - [x] Vitest + Testing Library configurés
 - [x] Prettier + Husky + lint-staged mis en place
@@ -56,7 +56,7 @@ V4 — Communauté locale (clients, assos, territorio)
 
 - [x] Modélisation DB : Artisan, Métier, Commune, Contact
 - [x] Mise en place Prisma + migrations initiales
-- [x] Seed de données : 6 artisans zone Nantes Est + 13 métiers + 20 communes (ajout terrassier + paysagiste + ramoneur 24/02/2026)
+- [x] Seed de données : 6 artisans zone Loire-Atlantique + 13 métiers + 20 communes (ajout terrassier + paysagiste + ramoneur 24/02/2026)
 - [x] **Métiers entièrement DB-driven** (24/02/2026) : constante `METIERS` supprimée — tous les formulaires, filtres, sitemap et pages ISR récupèrent les métiers via `prisma.metier.findMany()`
 
 ### Front — Consultation
@@ -161,6 +161,7 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] **OG image — réseaux sociaux + tag PRO VÉRIFIÉ inline** (28/02/2026) : 6 nouvelles colonnes sur `Artisan` (`instagram`, `facebook`, `youtube`, `linkedin`, `twitterX`, `whatsapp`), migration `20260228121507_add_social_links`. OG image : tag PRO VÉRIFIÉ sur la même ligne que le nom (Bangers), métiers sans emoji, section basse téléphone + pills colorées réseaux sociaux. Section "Réseaux sociaux" dans `MonEspaceEditForm` avec 6 inputs URL colorés.
 - [x] **Tutoriel guidé style jeu mobile** (28/02/2026) : composant `TutorialGuide` (createPortal, spotlight box-shadow, tooltip auto-positionné top/bottom, navigation clavier ← → Entrée Échap) et `tutorialSteps.ts` (9 étapes artisan, 4 étapes particulier, extensibles). Attributs `data-tuto` sur les éléments clés. Persistance localStorage, bouton `?` flottant. Commit `e9b781d`.
 - [x] **Tutoriel interactif pas-à-pas** (28/02/2026) : enrichissement du tutoriel avec interactions guidées — `action` (auto-avance au clic sur un sélecteur DOM), `interactive` (overlay 4-cadres libérant le spotlight pour saisie), `actionHint` (boîte amber d'instruction contextuelle). Steps artisan refondus en 10 étapes : step 1 auto-avance au clic sur Modifier, steps 2-3 overlay interactif (accroche + réseaux sociaux), step 4 auto-avance au clic sur Enregistrer. Bouton Suivant adaptatif (Passer→ / C'est fait→ / Suivant→ / Terminer). Fix spotlight : `scrollIntoView` instant avant `getBoundingClientRect`. Commit `a3d659b`.
+- [x] **Fiche artisan — réorganisation UX** (02/03/2026) : Sidebar recentrée sur la plateforme — `💬 Écrire un message` (chat) devient le CTA n°1 (bd-btn-primary), `📋 Envoyer une demande` en n°2 (ancre #contact), puis téléphone + site web. Décision stratégique : aucun email public ni WhatsApp contact direct exposés, pour ne pas court-circuiter le chat natif. SIRET déplacé en bas du bloc identité (discret). Photos "Réalisations" remontées juste après l'identité, avant le formulaire, pour valoriser le travail artisan dès le scroll initial. Commit `abf953f`.
 - [x] **Fiche artisan publique enrichie** (28/02/2026) : badges réseaux sociaux colorés (IG rose, FB bleu, YT rouge, LI LinkedIn, X noir, WA vert) dans la sidebar — fonction `extractSocialHandle()` pour extraire le pseudo depuis l'URL. Portfolio "Réalisations" sorti de la grille 2 colonnes → section pleine largeur sous le contenu principal. Layout `max-w-[1500px]` appliqué sur fiche publique, mon-espace, artisans, header/footer. Commit `15543a2`.
 - [x] **Fix tooltip TutorialGuide** (28/02/2026) : les tooltips avec `placement: "top"` pouvaient sortir du viewport (`top: spaceAbove - 16` + `transform: translateY(-100%)` sans clamping). Fix : ajout `TOOLTIP_MAX_H = 360` + `safeTop = Math.max(12, tooltipBottom - TOOLTIP_MAX_H)` + `overflowY: auto` sur les deux placements. Suppression du `transform`. Tutoriel étendu à 15 étapes artisan avec `data-tuto` sur toutes les sections du formulaire. Texte étape réseaux sociaux mis à jour (LinkedIn, WhatsApp inclus). Commit `15543a2`.
 

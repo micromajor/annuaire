@@ -292,6 +292,7 @@ Avant chaque `git push`, je dois avoir effectué **au moins** les vérifications
 - **Fond de page role-aware** : toutes les pages SSR (publiques et privées) doivent adapter leur fond selon `viewerRole` — vert `#6bcb77` artisan, bleu `#60c5f1` particulier, jaune `#ffd93d` visiteur. Extraire `viewerRole` depuis `session.user` après `auth()`.
 - **Lightbox** : toujours verrouiller le scroll du body avec `useEffect` (`document.body.style.overflow = "hidden"`) à l'ouverture, restaurer à la fermeture.
 - **Upload logo** : la route `/api/upload/logo` retourne une URL relative `/api/files/{id}` (stockage DB PostgreSQL). Ne pas confondre avec des URLs externes.
+- **Prisma `Json?` field — ne jamais passer `null` directement** : `data: { draftData: null }` génère une erreur TypeScript au build Docker : `Type 'null' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'`. Pour vider un champ `Json?`, utiliser `data: { draftData: {} }` (objet vide) ou `Prisma.DbNull` explicitement. Note : le vérificateur TS local (VS Code) ne détecte pas toujours cette erreur, mais le build Next.js la lève en CI.
 - **`generateStaticParams` en ISR** : retourner `[]` pour éviter l'accès DB au build Docker. `dynamicParams = true` + `revalidate` suffisent pour l'ISR.
 - **`artisans/[metier]/[commune]`** : passer en `force-dynamic` dès qu'on a besoin de personnalisation par rôle (sinon la page est mise en cache sans session).
 - **Satori (next/og) — `<ImageResponse>`** : (1) Ne supporte pas `inset`, `boxSizing`, `overflow`, `zIndex`, `boxShadow`. (2) JSX : toujours `{cond ? (<...>) : null}` — jamais `{cond && (<...>)}` (valeur falsy crashe). (3) Images `<img>` : **PNG et JPEG uniquement** — WebP/SVG/GIF crashent avec `u2 is not iterable`. (4) `fonts: []` **crashe** ("No fonts are loaded") — toujours fournir au moins une police. (5) Utiliser `await image.arrayBuffer()` pour forcer le rendu synchrone et attraper les erreurs dans le `try/catch`.
@@ -306,7 +307,7 @@ Avant chaque `git push`, je dois avoir effectué **au moins** les vérifications
 
 ### Périmètre V1
 
-- Secteur géographique : **Nantes et Est de la Loire-Atlantique** (44)
+- Secteur géographique : **Nantes et la Loire-Atlantique** (44)
 - Corps de métier initial : **artisans du bâtiment** (maçon, plombier, électricien, menuisier, peintre, couvreur, etc.)
 - Fonctionnalités V1 :
   - Annuaire consultable avec fiches artisans

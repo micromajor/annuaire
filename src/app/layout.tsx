@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s | Oyez Artisans !",
   },
   description:
-    "Annuaire hyperlocal d’artisans du bâtiment à Nantes et Est Loire-Atlantique. Maçon, plombier, électricien, menuisier… Trouvez et contactez directement votre artisan près de chez vous.",
+    "Annuaire hyperlocal d'artisans du bâtiment à Nantes et en Loire-Atlantique. Maçon, plombier, électricien, menuisier… Trouvez et contactez directement votre artisan près de chez vous.",
   keywords: [
     "artisan",
     "annuaire artisan",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     siteName: "Oyez Artisans !",
     title: "Oyez Artisans ! — Artisans du bâtiment à Nantes et Loire-Atlantique",
     description:
-      "Annuaire hyperlocal d’artisans vérifiés. Contact direct, sans intermédiaire. Nantes et Est Loire-Atlantique.",
+      "Annuaire hyperlocal d'artisans vérifiés. Contact direct, sans intermédiaire. Nantes et Loire-Atlantique.",
     images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Oyez Artisans !" }],
   },
   twitter: {

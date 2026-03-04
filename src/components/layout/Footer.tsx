@@ -9,8 +9,8 @@ export default function Footer() {
           <div>
             <p className="bd-titre text-2xl text-[#ffd93d]">Oyez Artisans !</p>
             <p className="mt-2 text-sm text-gray-300">
-              L&apos;annuaire des artisans du bâtiment près de chez vous. Actuellement sur Nantes et
-              l&apos;Est de la Loire-Atlantique.
+              L&apos;annuaire des artisans du bâtiment près de chez vous. Nantes et toute la
+              Loire-Atlantique.
             </p>
           </div>
 
@@ -63,7 +63,7 @@ export default function Footer() {
           </span>
         </div>
         <p className="text-center text-xs text-gray-400">
-          © {new Date().getFullYear()} Oyez Artisans ! — Nantes & Est Loire-Atlantique
+          © {new Date().getFullYear()} Oyez Artisans ! — Nantes & Loire-Atlantique
         </p>
       </div>
     </footer>

@@ -6,11 +6,11 @@
 
 ## Vision produit
 
-OyezArtisans est un **réseau hyperlocal de confiance** entre artisans du bâtiment et particuliers, ancré sur le territoire de Nantes Est.
+OyezArtisans est un **réseau hyperlocal de confiance** entre artisans du bâtiment et particuliers, ancré sur le territoire de la Loire-Atlantique.
 
 Contrairement aux annuaires nationaux (froids, spammeurs) et aux groupes Facebook (informels, éphémères), OyezArtisans construit une relation durable entre le tissu artisanal local et ses habitants, avec une validation humaine et une identité visuelle chaleureuse.
 
-**Zone V1 :** Nantes et Est de la Loire-Atlantique (44)  
+**Zone V1 :** Nantes et la Loire-Atlantique (44)  
 **Métiers V1 :** Maçon, plombier, électricien, menuisier, peintre, couvreur, carreleur, chauffagiste, plaquiste, charpentier
 
 ---

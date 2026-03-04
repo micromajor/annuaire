@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Oyez Artisans !",
     short_name: "Oyez Artisans",
-    description: "Annuaire des artisans du bâtiment à Nantes et Est Loire-Atlantique",
+    description: "Annuaire des artisans du bâtiment à Nantes et en Loire-Atlantique",
     start_url: "/",
     display: "standalone",
     background_color: "#ffd93d",

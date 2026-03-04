@@ -22,7 +22,7 @@ export default function Header() {
           >
             Oyez Artisans !
           </span>
-          <span className="bd-badge bd-badge-rouge hidden sm:inline-flex">Nantes Est</span>
+          <span className="bd-badge bd-badge-rouge hidden sm:inline-flex">Loire-Atlantique</span>
         </Link>
 
         {/* Nav desktop */}

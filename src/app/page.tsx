@@ -104,7 +104,7 @@ export default async function HomePage() {
               url: "https://oyezartisans.fr",
               logo: "https://oyezartisans.fr/icon",
               description:
-                "Annuaire hyperlocal d'artisans du bâtiment à Nantes et Est Loire-Atlantique",
+                "Annuaire hyperlocal d'artisans du bâtiment à Nantes et en Loire-Atlantique",
               contactPoint: {
                 "@type": "ContactPoint",
                 contactType: "customer service",

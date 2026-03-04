@@ -119,7 +119,7 @@ export default function Image() {
           letterSpacing: 1,
         }}
       >
-        Annuaire d&apos;artisans · Nantes & Est Loire-Atlantique
+        Annuaire d&apos;artisans · Nantes & Loire-Atlantique
       </div>
     </div>,
     { ...size }
