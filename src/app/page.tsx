@@ -337,13 +337,13 @@ export default async function HomePage() {
                 Trouvez un artisan du bâtiment de confiance près de chez vous, à Nantes et en
                 Loire-Atlantique.
               </p>
-              <div className="bd-anim-build" style={{ animationDelay: "0.15s" }}>
+              <div className="bd-anim-build relative z-20" style={{ animationDelay: "0.15s" }}>
                 <HeroSearch metiers={allMetiers} />
               </div>
 
               {/* Carte interactive Loire-Atlantique */}
               <div
-                className="bd-anim-build mx-auto mt-12 w-full max-w-2xl"
+                className="bd-anim-build relative z-10 mx-auto mt-12 w-full max-w-2xl"
                 style={{ animationDelay: "0.2s" }}
               >
                 <h2 className="bd-titre mb-4 text-2xl text-[#1a1a2e]">

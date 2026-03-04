@@ -7,7 +7,6 @@ import { auth } from "@/lib/auth";
 import { signOutAction } from "@/app/actions";
 import ArtisanCard from "@/components/features/ArtisanCard";
 import FiltresArtisans from "@/components/features/FiltresArtisans";
-import SearchBar from "@/components/features/SearchBar";
 import FloatingTools from "@/components/ui/FloatingTools";
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import type { Metadata } from "next";
@@ -227,21 +226,14 @@ export default async function ArtisansPage({
             </p>
           </div>
 
-          {/* Recherche + Filtres */}
-          <div className="flex flex-col gap-3">
-            <SearchBar
-              currentSearch={params.q}
-              currentMetiers={metierSlugs}
-              currentCommune={params.commune}
-            />
-            <FiltresArtisans
-              metiers={allMetiers}
-              communes={COMMUNES_NANTES_EST}
-              currentMetiers={metierSlugs}
-              currentCommune={params.commune}
-              currentSearch={params.q}
-            />
-          </div>
+          {/* Filtres métier + commune */}
+          <FiltresArtisans
+            metiers={allMetiers}
+            communes={COMMUNES_NANTES_EST}
+            currentMetiers={metierSlugs}
+            currentCommune={params.commune}
+            currentSearch={params.q}
+          />
 
           <hr className="bd-separator my-8" />
 
