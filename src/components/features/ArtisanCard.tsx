@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Artisan, ArtisanMetier, Metier, ArtisanCommune, Commune } from "@prisma/client";
+import TrustBadge, { hasFullProfile } from "@/components/features/TrustBadge";
 
 type ArtisanWithRelations = Artisan & {
   metiers: (ArtisanMetier & { metier: Metier })[];
@@ -39,17 +40,22 @@ export default function ArtisanCard({ artisan, avis = [] }: ArtisanCardProps) {
         {/* Ligne 1 : nom + badge */}
         <div className="mb-1.5 flex items-start justify-between gap-2">
           <h2 className="text-lg leading-tight font-black text-[#1a1a2e]">{nomAffiche}</h2>
-          {artisan.siret && <span className="bd-badge bd-badge-vert shrink-0">✓ Pro vérifié</span>}
+          <TrustBadge
+            isVerified={artisan.status === "VALIDE"}
+            hasFullProfile={hasFullProfile(artisan)}
+            avisCount={nbAvis}
+            averageRating={moyenne ?? 0}
+          />
         </div>
         {/* Ligne 2 : logo + prénom nom */}
         <div className="flex items-center gap-2">
           {artisan.logoUrl ? (
-            <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg">
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={artisan.logoUrl}
                 alt={`Logo ${nomAffiche}`}
-                className="h-full w-full object-contain"
+                className="max-h-full max-w-full object-contain"
               />
             </div>
           ) : firstMetierSlug ? (

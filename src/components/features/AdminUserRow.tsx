@@ -2,7 +2,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Artisan } from "@prisma/client";
+import type { JsonValue } from "@prisma/client/runtime/library";
+
+/** Sous-ensemble des champs Artisan utilisés par ce composant */
+export interface AdminUserData {
+  id: string;
+  prenom: string;
+  nom: string;
+  email: string;
+  raisonSociale: string | null;
+  status: string;
+  draftData: JsonValue;
+  createdAt: Date;
+}
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   EN_ATTENTE: { label: "En attente", color: "bg-[#ffd93d]" },
@@ -10,7 +22,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   REJETE: { label: "Rejeté", color: "bg-[#ff6b6b] text-white" },
 };
 
-export default function AdminUserRow({ artisan }: { artisan: Artisan }) {
+export default function AdminUserRow({ artisan }: { artisan: AdminUserData }) {
   const router = useRouter();
   const [confirm, setConfirm] = useState(false);
   const [loading, setLoading] = useState(false);

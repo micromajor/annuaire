@@ -14,6 +14,7 @@ import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapp
 import PortfolioPhotos from "@/components/features/PortfolioPhotos";
 import ShareButton from "@/components/features/ShareButton";
 import SignalementModal from "@/components/features/SignalementModal";
+import TrustBadge, { hasFullProfile } from "@/components/features/TrustBadge";
 import type { Metadata } from "next";
 
 const METIER_EMOJIS: Record<string, string> = {
@@ -320,11 +321,13 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
                       <h1 className="bd-titre text-2xl text-[#1a1a2e] sm:text-3xl">{nomAffiche}</h1>
-                      {artisan.siret && (
-                        <span className="bd-badge bd-badge-vert shrink-0">
-                          &#10003; Pro vérifié
-                        </span>
-                      )}
+                      <TrustBadge
+                        isVerified={artisan.status === "VALIDE"}
+                        hasFullProfile={hasFullProfile(artisan)}
+                        avisCount={avisValides.length}
+                        averageRating={moyenne ?? 0}
+                        size="md"
+                      />
                     </div>
                     {artisan.raisonSociale && (
                       <p className="mt-0.5 text-sm text-gray-500">

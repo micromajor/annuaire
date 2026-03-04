@@ -29,6 +29,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     select: { slug: true },
     orderBy: { label: "asc" },
   });
+  // Landing pages par métier (sans commune)
+  const metierPages: MetadataRoute.Sitemap = allMetiers.map((m) => ({
+    url: `${BASE}/artisans/${m.slug}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: 0.9,
+  }));
+
+  // Landing pages métier × commune
   const landingPages: MetadataRoute.Sitemap = allMetiers.flatMap((m) =>
     COMMUNES_NANTES_EST.map((c) => ({
       url: `${BASE}/artisans/${m.slug}/${slugify(c.nom)}`,
@@ -54,6 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "yearly",
       priority: 0.1,
     },
+    ...metierPages,
     ...landingPages,
     ...artisanPages,
   ];

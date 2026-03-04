@@ -20,6 +20,7 @@ interface FiltresArtisansProps {
   communes: typeof COMMUNES_NANTES_EST;
   currentMetiers: string[];
   currentCommune?: string;
+  currentSearch?: string;
 }
 
 export default function FiltresArtisans({
@@ -27,13 +28,15 @@ export default function FiltresArtisans({
   communes,
   currentMetiers,
   currentCommune,
+  currentSearch,
 }: FiltresArtisansProps) {
   const router = useRouter();
 
-  function navigate(selectedMetiers: string[], commune: string) {
+  function navigate(selectedMetiers: string[], commune: string, search?: string): void {
     const params = new URLSearchParams();
     for (const m of selectedMetiers) params.append("metier", m);
     if (commune) params.set("commune", commune);
+    if (search) params.set("q", search);
     router.push(`/artisans${params.size ? `?${params}` : ""}`);
   }
 
@@ -56,7 +59,7 @@ export default function FiltresArtisans({
       <MultiCombobox
         options={metierOptions}
         values={currentMetiers}
-        onChange={(v) => navigate(v, currentCommune ?? "")}
+        onChange={(v) => navigate(v, currentCommune ?? "", currentSearch)}
         placeholder="Tous les métiers"
         allLabel="Tous les métiers"
         label="Corps de métier"
@@ -65,7 +68,7 @@ export default function FiltresArtisans({
       <Combobox
         options={communeOptions}
         value={currentCommune ?? ""}
-        onChange={(v) => navigate(currentMetiers, v)}
+        onChange={(v) => navigate(currentMetiers, v, currentSearch)}
         placeholder="Toutes les communes"
         allLabel="Toutes les communes"
         label="Commune du projet"

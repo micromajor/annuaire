@@ -6,7 +6,7 @@ import BienvenueChoix from "@/components/features/BienvenueChoix";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Bienvenue | Oyez Artisans !",
+  title: "Bienvenue",
 };
 
 export default async function BienvenuePage() {

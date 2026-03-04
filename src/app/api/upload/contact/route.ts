@@ -1,13 +1,43 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/client";
 import { compressImage } from "@/lib/utils/compressImage";
+import { auth } from "@/lib/auth";
 
 const MAX_FILES = 6;
 const MAX_SIZE_MB = 5;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-export async function POST(req: Request) {
+// Rate-limit : 10 uploads / 10 min / IP
+const uploadRateMap = new Map<string, { count: number; resetAt: number }>();
+function checkUploadRate(ip: string): boolean {
+  const now = Date.now();
+  const entry = uploadRateMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    uploadRateMap.set(ip, { count: 1, resetAt: now + 10 * 60 * 1000 });
+    return true;
+  }
+  if (entry.count >= 10) return false;
+  entry.count++;
+  return true;
+}
+
+export async function POST(req: NextRequest) {
   try {
+    // Auth obligatoire
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Authentification requise" }, { status: 401 });
+    }
+
+    // Rate-limit par IP
+    const ip = req.headers.get("x-forwarded-for") ?? "unknown";
+    if (!checkUploadRate(ip)) {
+      return NextResponse.json(
+        { error: "Trop d'uploads — réessayez dans quelques minutes." },
+        { status: 429 }
+      );
+    }
+
     const formData = await req.formData();
     const files = formData.getAll("files") as File[];
 

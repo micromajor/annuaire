@@ -548,8 +548,7 @@ export default async function AdminPage() {
             >
               <div className="space-y-0 divide-y-2 divide-[#1a1a1a]">
                 {tousLesUtilisateurs.map((u) => (
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  <AdminUserRow key={u.id} artisan={u as any} />
+                  <AdminUserRow key={u.id} artisan={u} />
                 ))}
               </div>
             </div>

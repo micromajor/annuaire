@@ -9,6 +9,7 @@ import ParticulierHome from "@/components/features/ParticulierHome";
 import { auth } from "@/lib/auth";
 import { signOutAction } from "@/app/actions";
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
+import CarteHomepageWrapper from "@/components/features/CarteHomepageWrapper";
 import { prisma } from "@/lib/db/client";
 import AutoSignOut from "@/components/ui/AutoSignOut";
 
@@ -89,6 +90,22 @@ export default async function HomePage() {
     });
     particulierPrenom = artisan?.prenom ?? null;
   }
+
+  // Communes avec compteur d'artisans (pour la carte homepage visiteur)
+  const communeCountsRaw = await prisma.commune.findMany({
+    select: {
+      nom: true,
+      _count: {
+        select: { artisans: { where: { artisan: { status: "VALIDE", deletedAt: null } } } },
+      },
+    },
+    orderBy: { nom: "asc" },
+  });
+  const communeCounts = communeCountsRaw.map((c) => ({
+    slug: c.nom,
+    nom: c.nom,
+    count: c._count.artisans,
+  }));
 
   return (
     <>
@@ -307,14 +324,53 @@ export default async function HomePage() {
           ) : (
             /* --- Vue visiteur --- */
             <div className="relative z-10 w-full max-w-5xl text-center">
-              <h1 className="bd-titre bd-anim-build mb-10 flex flex-wrap items-baseline justify-center gap-3 text-6xl leading-tight text-[#1a1a2e] sm:text-8xl">
+              <h1 className="bd-titre bd-anim-build mb-4 flex flex-wrap items-baseline justify-center gap-3 text-6xl leading-tight text-[#1a1a2e] sm:text-8xl">
                 Oyez Artisans&nbsp;!
                 <span className="rounded-xl border-2 border-[#1a1a2e] bg-[#1a1a2e] px-3 py-1 text-2xl font-black text-[#ffd93d] sm:text-3xl">
                   44
                 </span>
               </h1>
+              <p
+                className="bd-anim-build mx-auto mb-10 max-w-xl text-lg font-semibold text-[#1a1a2e]/70"
+                style={{ animationDelay: "0.1s" }}
+              >
+                Trouvez un artisan du bâtiment de confiance près de chez vous, à Nantes et en
+                Loire-Atlantique.
+              </p>
               <div className="bd-anim-build" style={{ animationDelay: "0.15s" }}>
                 <HeroSearch metiers={allMetiers} />
+              </div>
+
+              {/* Carte interactive Loire-Atlantique */}
+              <div
+                className="bd-anim-build mx-auto mt-12 w-full max-w-2xl"
+                style={{ animationDelay: "0.2s" }}
+              >
+                <h2 className="bd-titre mb-4 text-2xl text-[#1a1a2e]">
+                  📍 Nos artisans en Loire-Atlantique
+                </h2>
+                <p className="mb-4 text-sm font-semibold text-[#1a1a2e]/60">
+                  Cliquez sur une commune verte pour voir les artisans disponibles.
+                </p>
+                <CarteHomepageWrapper communeCounts={communeCounts} />
+              </div>
+
+              {/* CTA artisan */}
+              <div
+                className="bd-anim-build mt-16 rounded-2xl border-4 border-[#1a1a1a] bg-white/90 px-6 py-6 backdrop-blur"
+                style={{ boxShadow: "5px 5px 0 #1a1a1a", animationDelay: "0.3s" }}
+              >
+                <p className="mb-1 text-lg font-black text-[#1a1a2e]">🔨 Vous êtes artisan ?</p>
+                <p className="mb-4 text-sm text-gray-500">
+                  Inscrivez votre fiche gratuitement et recevez des demandes de clients près de chez
+                  vous.
+                </p>
+                <Link
+                  href="/connexion"
+                  className="bd-btn bd-btn-primary inline-flex items-center gap-2 px-6 py-3 text-base"
+                >
+                  Créer ma fiche artisan →
+                </Link>
               </div>
             </div>
           )}

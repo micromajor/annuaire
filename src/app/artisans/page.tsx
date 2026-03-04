@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { signOutAction } from "@/app/actions";
 import ArtisanCard from "@/components/features/ArtisanCard";
 import FiltresArtisans from "@/components/features/FiltresArtisans";
+import SearchBar from "@/components/features/SearchBar";
 import FloatingTools from "@/components/ui/FloatingTools";
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import type { Metadata } from "next";
@@ -15,6 +16,7 @@ interface SearchParams {
   metier?: string | string[];
   commune?: string;
   page?: string;
+  q?: string;
 }
 
 export async function generateMetadata({
@@ -95,6 +97,22 @@ export default async function ArtisansPage({
       ? { metiers: { some: { metier: { slug: { in: metierSlugs } } } } }
       : {}),
     ...(params.commune ? { communes: { some: { commune: { nom: params.commune } } } } : {}),
+    ...(params.q
+      ? {
+          OR: [
+            { raisonSociale: { contains: params.q, mode: "insensitive" as const } },
+            { prenom: { contains: params.q, mode: "insensitive" as const } },
+            { nom: { contains: params.q, mode: "insensitive" as const } },
+            { description: { contains: params.q, mode: "insensitive" as const } },
+            { accroche: { contains: params.q, mode: "insensitive" as const } },
+            {
+              metiers: {
+                some: { metier: { label: { contains: params.q, mode: "insensitive" as const } } },
+              },
+            },
+          ],
+        }
+      : {}),
   };
 
   const [artisans, total, allMetiers] = await Promise.all([
@@ -203,17 +221,27 @@ export default async function ArtisansPage({
               Trouvez votre artisan
             </h1>
             <p className="text-sm font-semibold text-[#1a1a2e]/60">
-              {total} artisan{total > 1 ? "s" : ""} dans notre annuaire
+              {metierSlugs.length > 0 || params.commune || params.q
+                ? `${total} artisan${total > 1 ? "s" : ""} trouvé${total > 1 ? "s" : ""}`
+                : `${total} artisan${total > 1 ? "s" : ""} dans notre annuaire`}
             </p>
           </div>
 
-          {/* Filtres */}
-          <FiltresArtisans
-            metiers={allMetiers}
-            communes={COMMUNES_NANTES_EST}
-            currentMetiers={metierSlugs}
-            currentCommune={params.commune}
-          />
+          {/* Recherche + Filtres */}
+          <div className="flex flex-col gap-3">
+            <SearchBar
+              currentSearch={params.q}
+              currentMetiers={metierSlugs}
+              currentCommune={params.commune}
+            />
+            <FiltresArtisans
+              metiers={allMetiers}
+              communes={COMMUNES_NANTES_EST}
+              currentMetiers={metierSlugs}
+              currentCommune={params.commune}
+              currentSearch={params.q}
+            />
+          </div>
 
           <hr className="bd-separator my-8" />
 
@@ -243,6 +271,7 @@ export default async function ArtisansPage({
                 const paginationParams = new URLSearchParams();
                 for (const m of metierSlugs) paginationParams.append("metier", m);
                 if (params.commune) paginationParams.set("commune", params.commune);
+                if (params.q) paginationParams.set("q", params.q);
                 paginationParams.set("page", String(p));
                 return (
                   <a

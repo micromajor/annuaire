@@ -26,15 +26,10 @@ export async function POST(request: NextRequest) {
 
   const artisan = await prisma.artisan.findFirst({
     where: { email, deletedAt: null },
-    select: { id: true, passwordHash: true },
+    select: { id: true },
   });
 
   if (!artisan) return NextResponse.json({ exists: false });
 
-  // Compte Google uniquement (pas de mot de passe)
-  if (!artisan.passwordHash) {
-    return NextResponse.json({ exists: true, googleOnly: true });
-  }
-
-  return NextResponse.json({ exists: true, googleOnly: false });
+  return NextResponse.json({ exists: true });
 }

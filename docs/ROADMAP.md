@@ -1,6 +1,6 @@
 # Roadmap — OyezArtisans · Réseau local d'artisans
 
-> Dernière mise à jour : 02/03/2026 — Réorganisation fiche artisan : sidebar chat-first, réalisations remontées, SIRET repositionné (commit abf953f)
+> Dernière mise à jour : 04/03/2026 — Audit complet + implémentation E1-E8 (recherche, SEO, gamification, trust badges, notifications, carte homepage)
 > Statuts : `[ ]` à faire · `[~]` en cours · `[x]` terminé
 
 ---
@@ -123,7 +123,70 @@ V4 — Communauté locale (clients, assos, territorio)
 
 - [x] Système d'avis clients (formulaire sur fiche, modération admin, affichage avec note/moyenne)
 - [x] Avis anti-fraude : token UUID unique généré au contact, lien dans email confirmation, validation token côté API, transaction atomique (créer avis + marquer token utilisé)
+- [x] **Trust badges graduels** (04/03/2026) : composant `TrustBadge` à 3 niveaux — L1 "✓ Vérifié" (fiche validée), L2 "✓✓ Profil complet" (logo+description+SIRET+téléphone), L3 "★ Recommandé" (≥5 avis, moyenne ≥4). Intégré dans `ArtisanCard` et fiche artisan.
 - [ ] Badge "Coup de cœur" artisan (sélection éditoriale)
+
+---
+
+## Phase 3bis — Audit & évolutions UX (04/03/2026)
+
+### Sécurité (P0/P1)
+
+- [x] Auth + rate-limit sur `/api/upload/contact` (upload sans authentification résolu)
+- [x] Suppression fuite info `/api/auth/check-email` (champ `googleOnly` retiré)
+- [x] Page `/deconnexion` française + config NextAuth `signOut`
+- [x] Connexion page adaptée (flux email/password + Google unifié)
+
+### Hygiène code (P2)
+
+- [x] Nettoyage `scripts/tmp/` (16 fichiers supprimés)
+- [x] Suppression `as any` dans admin (`AdminUserData` interface custom)
+
+### UX améliorée
+
+- [x] **Tagline + CTA homepage** : accroche visiteur "Trouvez un artisan…" + CTA "Vous êtes artisan ?"
+- [x] **ProfileCompleteness** : barre de progression 8 étapes en haut du dashboard artisan (métiers, communes, description, accroche, téléphone, logo, SIRET, portfolio)
+- [x] **Compteur contextuel** : "X artisans trouvés" vs "X artisans dans notre annuaire" selon les filtres actifs
+
+### E1 — Recherche textuelle
+
+- [x] Composant `SearchBar` autonome (barre de recherche fulltext)
+- [x] Filtre Prisma `OR` sur : raisonSociale, prenom, nom, description, accroche, metiers.label
+- [x] Intégré au-dessus des filtres dans `/artisans`, préserve les filtres métier/commune en parallèle
+
+### E2 — Gamification profil
+
+- [x] `ProfileCompleteness` 8 étapes avec messages motivationnels + félicitations à 100%
+
+### E3 — Pages SEO par métier
+
+- [x] `/artisans/[metier]/page.tsx` : landing SEO par métier (JSON-LD BreadcrumbList + ItemList, H1, grille artisans, cross-links communes, contenu SEO)
+- [x] Sitemap mis à jour avec pages `/artisans/${slug}` (priorité 0.9)
+
+### E4 — Notifications in-app
+
+- [x] Champ `lu` ajouté à `ContactRequest` (migration `20260304134158`)
+- [x] API `/api/messages/unread-count` étendue : retourne `{ count, contacts }`
+- [x] `NavMessagerieIcon` étendu : 2 icônes — messages (💬) + demandes de contact (✉) avec badges séparés
+- [x] Badges "NOUVEAU" sur les contacts non lus dans le dashboard artisan
+- [x] `MarkContactsRead` : marquage auto des contacts comme lus après 2s de consultation
+- [x] Server action `markContactsAsReadAction` dans `actions.ts`
+
+### E5 — Carte interactive homepage
+
+- [x] `CarteHomepage` : carte Leaflet Loire-Atlantique avec communes colorées selon présence d'artisans
+- [x] Légende claire (vert = artisans disponibles, beige = pas encore)
+- [x] Clic sur commune verte → navigation vers `/artisans?commune=X`
+- [x] Tooltip avec nom commune + nombre d'artisans
+- [x] Intégré dans la vue visiteur de la homepage
+
+### E7 — Trust badges
+
+- [x] (voir Phase 3 ci-dessus)
+
+### E8 — Partage social
+
+- [x] Confirmé existant (`ShareButton` + `SocialPreviewButton`)
 
 ---
 
@@ -163,6 +226,7 @@ V4 — Communauté locale (clients, assos, territorio)
 - [x] **Tutoriel interactif pas-à-pas** (28/02/2026) : enrichissement du tutoriel avec interactions guidées — `action` (auto-avance au clic sur un sélecteur DOM), `interactive` (overlay 4-cadres libérant le spotlight pour saisie), `actionHint` (boîte amber d'instruction contextuelle). Steps artisan refondus en 10 étapes : step 1 auto-avance au clic sur Modifier, steps 2-3 overlay interactif (accroche + réseaux sociaux), step 4 auto-avance au clic sur Enregistrer. Bouton Suivant adaptatif (Passer→ / C'est fait→ / Suivant→ / Terminer). Fix spotlight : `scrollIntoView` instant avant `getBoundingClientRect`. Commit `a3d659b`.
 - [x] **Fiche artisan — réorganisation UX** (02/03/2026) : Sidebar recentrée sur la plateforme — `💬 Écrire un message` (chat) devient le CTA n°1 (bd-btn-primary), `📋 Envoyer une demande` en n°2 (ancre #contact), puis téléphone + site web. Décision stratégique : aucun email public ni WhatsApp contact direct exposés, pour ne pas court-circuiter le chat natif. SIRET déplacé en bas du bloc identité (discret). Photos "Réalisations" remontées juste après l'identité, avant le formulaire, pour valoriser le travail artisan dès le scroll initial. Commit `abf953f`.
 - [x] **Fiche artisan publique enrichie** (28/02/2026) : badges réseaux sociaux colorés (IG rose, FB bleu, YT rouge, LI LinkedIn, X noir, WA vert) dans la sidebar — fonction `extractSocialHandle()` pour extraire le pseudo depuis l'URL. Portfolio "Réalisations" sorti de la grille 2 colonnes → section pleine largeur sous le contenu principal. Layout `max-w-[1500px]` appliqué sur fiche publique, mon-espace, artisans, header/footer. Commit `15543a2`.
+- [x] **Fix Cache-Control dev mode** (04/03/2026) : `next.config.ts` appliquait `Cache-Control: public, max-age=31536000, immutable` sur `_next/static/*` même en dev → bundles JS cachés provoquant des erreurs d'hydratation. Fix : headers conditionnés à `process.env.NODE_ENV === "production"`.
 - [x] **Fix tooltip TutorialGuide** (28/02/2026) : les tooltips avec `placement: "top"` pouvaient sortir du viewport (`top: spaceAbove - 16` + `transform: translateY(-100%)` sans clamping). Fix : ajout `TOOLTIP_MAX_H = 360` + `safeTop = Math.max(12, tooltipBottom - TOOLTIP_MAX_H)` + `overflowY: auto` sur les deux placements. Suppression du `transform`. Tutoriel étendu à 15 étapes artisan avec `data-tuto` sur toutes les sections du formulaire. Texte étape réseaux sociaux mis à jour (LinkedIn, WhatsApp inclus). Commit `15543a2`.
 
 ---
@@ -183,7 +247,7 @@ V4 — Communauté locale (clients, assos, territorio)
 
 - [ ] Feed local (actualités chantiers, projets du quartier)
 - [ ] Partenariats assos / mairies / syndics
-- [ ] Carte interactive des artisans (Leaflet)
+- [x] Carte interactive des artisans (Leaflet) — implémentée Phase 3bis (E5)
 - [ ] Extension géographique : 44 complet → Pays de la Loire
 
 ---

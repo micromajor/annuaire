@@ -89,8 +89,8 @@ export default function RootLayout({
         <SessionProvider>
           {children}
           <FeedbackWidget />
+          {process.env.NEXT_PUBLIC_GA_ID && <CookieConsent gaId={process.env.NEXT_PUBLIC_GA_ID} />}
         </SessionProvider>
-        {process.env.NEXT_PUBLIC_GA_ID && <CookieConsent gaId={process.env.NEXT_PUBLIC_GA_ID} />}
       </body>
     </html>
   );

@@ -15,6 +15,8 @@ import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapp
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import ResendConfirmationButton from "@/components/features/ResendConfirmationButton";
 import TutorialGuide from "@/components/features/TutorialGuide";
+import ProfileCompleteness from "@/components/features/ProfileCompleteness";
+import MarkContactsRead from "@/components/features/MarkContactsRead";
 
 export default async function MonEspacePage({
   searchParams,
@@ -256,7 +258,22 @@ export default async function MonEspacePage({
       metiers: { include: { metier: true } },
       communes: { include: { commune: true } },
       avis: { where: { status: "VALIDE" }, orderBy: { createdAt: "desc" }, take: 5 },
-      contacts: { orderBy: { createdAt: "desc" }, take: 5 },
+      contacts: {
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: {
+          id: true,
+          clientPrenom: true,
+          clientNom: true,
+          clientEmail: true,
+          clientTel: true,
+          message: true,
+          typeTraux: true,
+          photos: true,
+          lu: true,
+          createdAt: true,
+        },
+      },
     },
   });
 
@@ -277,6 +294,9 @@ export default async function MonEspacePage({
       lu: false,
     },
   });
+
+  // Contacts non lus
+  const contactsNonLus = artisan.contacts.filter((c) => !c.lu).length;
 
   const moyenneAvis =
     artisan.avis.length > 0
@@ -386,6 +406,21 @@ export default async function MonEspacePage({
         <div className="mon-espace-grid">
           {/* ── Colonne principale : formulaire + demandes ── */}
           <div className="flex min-w-0 flex-col gap-6">
+            {/* Barre de complétude */}
+            <ProfileCompleteness
+              hasLogo={!!artisan.logoUrl}
+              hasDescription={!!artisan.description}
+              hasAccroche={!!artisan.accroche}
+              hasSiret={!!artisan.siret}
+              hasMetiers={artisan.metiers.length > 0}
+              hasCommunes={artisan.communes.length > 0}
+              hasPortfolio={
+                Array.isArray(artisan.portfolioPhotos) &&
+                (artisan.portfolioPhotos as string[]).length > 0
+              }
+              hasTelephone={!!artisan.telephone}
+            />
+
             <MonEspaceEditForm
               metiers={allMetiers}
               artisan={{
@@ -417,7 +452,17 @@ export default async function MonEspacePage({
               className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-6"
               style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
             >
-              <h2 className="bd-titre mb-3 text-xl text-[#1a1a2e]">Dernières demandes reçues</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="bd-titre mb-3 text-xl text-[#1a1a2e]">Dernières demandes reçues</h2>
+                {contactsNonLus > 0 && (
+                  <span
+                    className="rounded-full bg-[#ff6b6b] px-2.5 py-0.5 text-xs font-black text-white"
+                    style={{ border: "2px solid #1a1a1a" }}
+                  >
+                    {contactsNonLus} nouvelle{contactsNonLus > 1 ? "s" : ""}
+                  </span>
+                )}
+              </div>
               {artisan.contacts.length === 0 ? (
                 <p className="text-sm text-gray-400">Aucune demande pour l&apos;instant.</p>
               ) : (
@@ -425,13 +470,20 @@ export default async function MonEspacePage({
                   {artisan.contacts.map((c) => (
                     <li
                       key={c.id}
-                      className="rounded-xl border-2 border-gray-200 bg-gray-50 p-4 text-sm"
+                      className={`rounded-xl border-2 p-4 text-sm ${!c.lu ? "border-[#ffd93d] bg-[#fffdf0]" : "border-gray-200 bg-gray-50"}`}
                     >
                       {/* En-tête : nom + date */}
                       <div className="mb-2 flex items-start justify-between gap-2">
-                        <p className="font-black text-[#1a1a2e]">
-                          {c.clientPrenom} {c.clientNom}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-black text-[#1a1a2e]">
+                            {c.clientPrenom} {c.clientNom}
+                          </p>
+                          {!c.lu && (
+                            <span className="rounded-full bg-[#ffd93d] px-2 py-0.5 text-[10px] font-black text-[#1a1a2e]">
+                              NOUVEAU
+                            </span>
+                          )}
+                        </div>
                         <span className="shrink-0 text-xs text-gray-400">
                           {new Date(c.createdAt).toLocaleDateString("fr-FR", {
                             day: "numeric",
@@ -670,6 +722,9 @@ export default async function MonEspacePage({
             <TutorialGuide role="artisan" prenom={artisan.prenom} />
           </div>
         </div>
+
+        {/* Marquage automatique des contacts comme lus (après 2s) */}
+        <MarkContactsRead hasUnread={contactsNonLus > 0} />
       </main>
     </div>
   );
