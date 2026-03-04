@@ -7,7 +7,7 @@ import { auth } from "@/lib/auth";
 import { signOutAction } from "@/app/actions";
 import ContactForm from "@/components/features/ContactForm";
 import AvisList from "@/components/features/AvisList";
-import AvisForm from "@/components/features/AvisForm";
+import AvisSection from "@/components/features/AvisSection";
 import MessagerieButton from "@/components/features/MessagerieButton";
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapper";
@@ -128,6 +128,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function FicheArtisanPage({ params, searchParams }: Props) {
   const [{ id }, sp, session] = await Promise.all([params, searchParams, auth()]);
   const avisToken = sp.avisToken;
+
   const isConnected = !!session?.user;
   const viewerRole = (session?.user as { role?: string })?.role;
   const viewerId = (session?.user as { id?: string })?.id;
@@ -475,7 +476,7 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                   <p className="mb-5 text-sm text-gray-500">
                     Vous avez travaill&eacute; avec {nomAffiche} ? Partagez votre exp&eacute;rience.
                   </p>
-                  <AvisForm artisanId={artisan.id} artisanNom={nomAffiche} token={avisToken} />
+                  <AvisSection artisanId={artisan.id} artisanNom={nomAffiche} token={avisToken} />
                 </div>
               </div>
             </div>

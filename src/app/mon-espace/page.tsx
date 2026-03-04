@@ -419,6 +419,17 @@ export default async function MonEspacePage({
                 (artisan.portfolioPhotos as string[]).length > 0
               }
               hasTelephone={!!artisan.telephone}
+              hasSocial={
+                !!(
+                  artisan.instagram ||
+                  artisan.facebook ||
+                  artisan.youtube ||
+                  artisan.linkedin ||
+                  artisan.twitterX ||
+                  artisan.whatsapp
+                )
+              }
+              artisanId={artisan.id}
             />
 
             <MonEspaceEditForm
@@ -707,7 +718,7 @@ export default async function MonEspacePage({
             </div>
 
             {/* Photos de chantier */}
-            <div data-tuto="portfolio-card">
+            <div id="section-portfolio" data-tuto="portfolio-card">
               <PortfolioUploader
                 initialPhotos={
                   Array.isArray(artisan.portfolioPhotos)

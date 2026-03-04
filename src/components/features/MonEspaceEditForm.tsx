@@ -204,7 +204,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
       {!collapsed && (
         <form onSubmit={handleSubmit} className="space-y-6 p-6">
           {/* Logo */}
-          <fieldset>
+          <fieldset id="section-logo">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Logo / Photo
             </legend>
@@ -315,7 +315,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Contact */}
-          <fieldset data-tuto="contact-section">
+          <fieldset id="section-contact" data-tuto="contact-section">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Contact
             </legend>
@@ -370,7 +370,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Accroche */}
-          <fieldset data-tuto="accroche-field">
+          <fieldset id="section-accroche" data-tuto="accroche-field">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Phrase d&apos;accroche
             </legend>
@@ -388,7 +388,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Réseaux sociaux */}
-          <fieldset data-tuto="social-section">
+          <fieldset id="section-social" data-tuto="social-section">
             <legend className="mb-1 text-sm font-black tracking-wide text-gray-400 uppercase">
               Réseaux sociaux
             </legend>
@@ -478,7 +478,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Description */}
-          <fieldset data-tuto="description-section">
+          <fieldset id="section-description" data-tuto="description-section">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Présentation
             </legend>
@@ -495,11 +495,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Métiers */}
-          <fieldset
-            id="field-metierSlugs"
-            data-tuto="metiers-section"
-            className="relative z-[1050]"
-          >
+          <fieldset id="section-metiers" data-tuto="metiers-section" className="relative z-[1050]">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Métiers <span className="text-[#ff6b6b]">*</span>
             </legend>
@@ -519,7 +515,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
           </fieldset>
 
           {/* Communes */}
-          <fieldset id="field-communePairs" data-tuto="zones-section">
+          <fieldset id="section-communes" data-tuto="zones-section">
             <legend className="mb-3 text-sm font-black tracking-wide text-gray-400 uppercase">
               Zones d&apos;intervention <span className="text-[#ff6b6b]">*</span>
             </legend>
