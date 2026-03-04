@@ -45,24 +45,6 @@ export default async function MentionsLegalesPage() {
                 <strong>Dénomination&nbsp;:</strong> Oyez Artisans&nbsp;!
               </li>
               <li>
-                <strong>Forme juridique&nbsp;:</strong>{" "}
-                <span className="rounded bg-orange-100 px-1 text-xs font-semibold text-orange-600">
-                  À compléter — EI / SASU / SARL…
-                </span>
-              </li>
-              <li>
-                <strong>Directeur de publication&nbsp;:</strong>{" "}
-                <span className="rounded bg-orange-100 px-1 text-xs font-semibold text-orange-600">
-                  À compléter — NOM Prénom
-                </span>
-              </li>
-              <li>
-                <strong>SIRET&nbsp;:</strong>{" "}
-                <span className="rounded bg-orange-100 px-1 text-xs font-semibold text-orange-600">
-                  À compléter
-                </span>
-              </li>
-              <li>
                 <strong>Contact&nbsp;:</strong>{" "}
                 <a
                   href="mailto:contact@oyezartisans.fr"
