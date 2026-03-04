@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { JsonValue } from "@prisma/client/runtime/library";
+
+/** Type JSON générique (compatible Prisma Json?) */
+type JsonValue = string | number | boolean | null | { [key: string]: JsonValue } | JsonValue[];
 
 /** Sous-ensemble des champs Artisan utilisés par ce composant */
 export interface AdminUserData {
