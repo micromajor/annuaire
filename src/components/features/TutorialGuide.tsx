@@ -13,6 +13,11 @@ const LS_KEY: Record<string, string> = {
   artisan: "tuto_artisan_v1",
   particulier: "tuto_particulier_v1",
 };
+// Clé pour persister le step courant (survit à la navigation)
+const LS_STEP_KEY: Record<string, string> = {
+  artisan: "tuto_artisan_v1_step",
+  particulier: "tuto_particulier_v1_step",
+};
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 interface SpotRect {
@@ -38,6 +43,7 @@ export default function TutorialGuide({ role, prenom }: Props) {
   const steps = TUTORIAL_STEPS[role] ?? [];
   const step = steps[stepIndex];
   const lsKey = LS_KEY[role] ?? "tuto_v1";
+  const lsStepKey = LS_STEP_KEY[role] ?? "tuto_v1_step";
 
   // ── Hydratation (éviter SSR mismatch) ──────────────────────────────────
   useEffect(() => {
@@ -45,22 +51,30 @@ export default function TutorialGuide({ role, prenom }: Props) {
     setMounted(true);
   }, []);
 
-  // ── Auto-démarrage au 1er passage ──────────────────────────────────────
+  // ── Auto-démarrage au 1er passage (reprend au step sauvegardé si navigation) ──
   useEffect(() => {
     if (!mounted) return;
     try {
       const done = localStorage.getItem(lsKey);
       if (!done) {
+        const savedStep = parseInt(localStorage.getItem(lsStepKey) ?? "0", 10);
+        const resumeStep = isNaN(savedStep) ? 0 : Math.min(savedStep, steps.length - 1);
         const t = setTimeout(() => {
+          setStepIndex(resumeStep);
           setActive(true);
-          setStepIndex(0);
         }, 900);
         return () => clearTimeout(t);
       }
     } catch {
       // localStorage indisponible — dégradation silencieuse
     }
-  }, [mounted, lsKey]);
+  }, [mounted, lsKey, lsStepKey, steps.length]); // ── Sauvegarde du step courant (survit à la navigation) ─────────────────
+  useEffect(() => {
+    if (!active) return;
+    try {
+      localStorage.setItem(lsStepKey, String(stepIndex));
+    } catch {}
+  }, [active, stepIndex, lsStepKey]);
 
   // ── Calcul rect du spotlight (+ dropdowns ouverts pour steps interactifs) ──
   const computeSpotRect = useCallback(() => {
@@ -165,8 +179,9 @@ export default function TutorialGuide({ role, prenom }: Props) {
   const markDone = useCallback(() => {
     try {
       localStorage.setItem(lsKey, "1");
+      localStorage.removeItem(lsStepKey);
     } catch {}
-  }, [lsKey]);
+  }, [lsKey, lsStepKey]);
 
   const finish = useCallback(() => {
     markDone();
@@ -195,6 +210,7 @@ export default function TutorialGuide({ role, prenom }: Props) {
   function restart() {
     try {
       localStorage.removeItem(lsKey);
+      localStorage.removeItem(lsStepKey);
     } catch {}
     setStepIndex(0);
     setSpotRect(null);
