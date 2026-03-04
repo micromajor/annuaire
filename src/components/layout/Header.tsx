@@ -29,7 +29,7 @@ export default function Header() {
         <nav className="hidden items-center gap-3 sm:flex">
           <NavMessagerieIcon />
           <Link href="/connexion?callbackUrl=/mon-espace" className="bd-btn bd-btn-primary text-sm">
-            + Inscrire mon entreprise
+            + Créer un compte
           </Link>
         </nav>
 
@@ -73,7 +73,7 @@ export default function Header() {
             className="bd-btn bd-btn-primary w-full text-center text-sm"
             onClick={() => setMenuOpen(false)}
           >
-            + Inscrire mon entreprise
+            + Créer un compte
           </Link>
         </nav>
       )}

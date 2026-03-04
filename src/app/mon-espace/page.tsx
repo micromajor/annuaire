@@ -28,14 +28,16 @@ export default async function MonEspacePage({
   const emailVerfied = params?.verified === "1";
 
   const role = (session?.user as { role?: string })?.role;
+  const needsSetup = (session?.user as { needsSetup?: boolean })?.needsSetup;
 
   if (!session || !["artisan", "particulier"].includes(role ?? "")) {
     redirect("/connexion");
   }
 
-  // Note : le flag needsSetup n'est plus bloquant ici.
-  // Un artisan sans métiers accède directement à mon-espace pour remplir son profil.
-  // /bienvenue est réservé aux comptes sans rôle encore défini.
+  // Nouveau compte → rediriger vers /bienvenue pour choisir son profil
+  if (needsSetup) {
+    redirect("/bienvenue");
+  }
 
   const userId = (session.user as { id?: string }).id!;
 

@@ -28,7 +28,7 @@ export default function Footer() {
                   href="/connexion?callbackUrl=/mon-espace"
                   className="text-gray-300 hover:text-[#ffd93d]"
                 >
-                  Inscrire mon entreprise
+                  Créer un compte
                 </Link>
               </li>
             </ul>
