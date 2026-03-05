@@ -137,7 +137,7 @@ export default async function ArtisansPage({
 
   return (
     <div
-      className={`flex min-h-screen flex-col ${viewerRole === "artisan" ? "bg-[#6bcb77]" : viewerRole === "particulier" ? "bg-[#60c5f1]" : "bg-[#ffd93d]"}`}
+      className={`flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden ${viewerRole === "artisan" ? "bg-[#6bcb77]" : viewerRole === "particulier" ? "bg-[#60c5f1]" : "bg-[#ffd93d]"}`}
     >
       {/* Header minimaliste */}
       <header className="relative z-50 flex items-center justify-between px-6 py-4">
@@ -249,7 +249,7 @@ export default async function ArtisansPage({
               <p className="mt-1 text-gray-400">Essayez de modifier vos filtres.</p>
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 overflow-hidden sm:grid-cols-2 lg:grid-cols-3">
               {artisans.map((artisan) => (
                 <ArtisanCard key={artisan.id} artisan={artisan} avis={artisan.avis} />
               ))}

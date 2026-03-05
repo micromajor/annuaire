@@ -136,7 +136,7 @@ export default async function LandingMetier({ params }: PageProps) {
       />
 
       <div
-        className={`flex min-h-screen flex-col ${viewerRole === "artisan" ? "bg-[#6bcb77]" : viewerRole === "particulier" ? "bg-[#60c5f1]" : "bg-[#ffd93d]"}`}
+        className={`flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden ${viewerRole === "artisan" ? "bg-[#6bcb77]" : viewerRole === "particulier" ? "bg-[#60c5f1]" : "bg-[#ffd93d]"}`}
       >
         {/* Header */}
         <header className="relative z-50 flex items-center justify-between px-6 py-4">
@@ -197,7 +197,7 @@ export default async function LandingMetier({ params }: PageProps) {
 
           {/* Grille artisans */}
           {artisans.length > 0 ? (
-            <div className="mb-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mb-10 grid gap-5 overflow-hidden sm:grid-cols-2 lg:grid-cols-3">
               {artisans.map((artisan) => (
                 <ArtisanCard key={artisan.id} artisan={artisan} />
               ))}

@@ -208,13 +208,13 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div
-        className={`flex min-h-screen flex-col ${viewerRole === "artisan" ? "bg-[#6bcb77]" : viewerRole === "particulier" ? "bg-[#60c5f1]" : "bg-[#ffd93d]"}`}
+        className={`flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden ${viewerRole === "artisan" ? "bg-[#6bcb77]" : viewerRole === "particulier" ? "bg-[#60c5f1]" : "bg-[#ffd93d]"}`}
       >
         {/* Header minimaliste */}
-        <header className="relative z-50 flex items-center justify-between px-6 py-4">
+        <header className="relative z-50 flex flex-wrap items-center justify-between gap-2 px-3 py-4 sm:px-6">
           <Link
             href="/"
-            className="bd-titre text-2xl text-[#1a1a2e] no-underline"
+            className="bd-titre text-xl text-[#1a1a2e] no-underline sm:text-2xl"
             style={{ textShadow: "2px 2px 0 rgba(0,0,0,0.15)" }}
           >
             Oyez Artisans !
@@ -278,7 +278,7 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
           </nav>
         </header>
 
-        <main className="mx-auto w-full max-w-[1500px] px-4 pt-6 pb-16">
+        <main className="mx-auto w-full max-w-[1500px] px-3 pt-6 pb-16 sm:px-4">
           {isOwnFiche && (
             <div className="mb-4 flex items-center gap-3 rounded-xl border-2 border-[#1a1a2e] bg-[#1a1a2e] px-4 py-3 text-sm font-bold text-white">
               <span>&#128064;</span>
@@ -297,15 +297,15 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
             </Link>
           </nav>
 
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-6 overflow-hidden lg:grid-cols-3">
             {/* COLONNE PRINCIPALE */}
-            <div className="order-2 space-y-6 lg:order-1 lg:col-span-2">
+            <div className="order-1 min-w-0 space-y-6 lg:col-span-2">
               {/* Identite */}
               <div className="bd-card p-6">
-                <div className="mb-5 flex items-start gap-4">
-                  {/* Logo / avatar — conteneur fixe, jamais rogné */}
+                <div className="mb-5 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+                  {/* Logo / avatar — responsive sur mobile */}
                   <div
-                    className="h-28 w-44 shrink-0 overflow-hidden rounded-2xl bg-white text-4xl shadow-md"
+                    className="h-24 w-32 shrink-0 overflow-hidden rounded-2xl bg-white text-4xl shadow-md sm:h-28 sm:w-44"
                     aria-hidden="true"
                   >
                     {artisan.logoUrl ? (
@@ -319,9 +319,11 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                     )}
                   </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <h1 className="bd-titre text-2xl text-[#1a1a2e] sm:text-3xl">{nomAffiche}</h1>
+                  <div className="min-w-0 flex-1 text-center sm:text-left">
+                    <div className="flex flex-wrap items-start justify-center gap-2 sm:justify-between">
+                      <h1 className="bd-titre text-2xl break-words text-[#1a1a2e] sm:text-3xl">
+                        {nomAffiche}
+                      </h1>
                       <TrustBadge
                         isVerified={artisan.status === "VALIDE"}
                         hasFullProfile={hasFullProfile(artisan)}
@@ -482,7 +484,7 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
             </div>
 
             {/* SIDEBAR CONTACT */}
-            <div className="order-1 lg:order-2 lg:col-span-1">
+            <div className="order-2 min-w-0 lg:col-span-1">
               <div className="bd-card p-5 lg:sticky lg:top-6">
                 <h2 className="bd-titre mb-4 text-2xl text-[#1a1a2e]">Coordonn&eacute;es</h2>
 
@@ -643,10 +645,10 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
         </main>
 
         {/* Footer minimaliste */}
-        <footer className="relative z-10 border-t-2 border-[#1a1a1a]/10 px-6 py-3">
-          <div className="mx-auto flex max-w-[1500px] items-center justify-between text-xs font-semibold text-[#1a1a2e]/50">
+        <footer className="relative z-10 border-t-2 border-[#1a1a1a]/10 px-4 py-3 sm:px-6">
+          <div className="mx-auto flex max-w-[1500px] flex-col items-center gap-2 text-xs font-semibold text-[#1a1a2e]/50 sm:flex-row sm:justify-between">
             <span>&copy; 2026 Oyez Artisans !</span>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
               <SignalementModal artisanId={artisan.id} nomArtisan={nomAffiche} />
               <Link href="/mentions-legales" className="hover:text-[#1a1a2e]">
                 Mentions l&eacute;gales

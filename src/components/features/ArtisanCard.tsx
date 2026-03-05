@@ -34,9 +34,9 @@ export default function ArtisanCard({ artisan, avis = [] }: ArtisanCardProps) {
     nbAvis > 0 ? avis.reduce((acc: number, a: { note: number }) => acc + a.note, 0) / nbAvis : null;
 
   return (
-    <article className="bd-card bd-card-artisan flex flex-col p-5">
+    <article className="bd-card bd-card-artisan flex min-w-0 flex-col overflow-hidden p-5">
       {/* Header carte — nom + badge sur première ligne, logo + identité sur seconde */}
-      <div className="mb-3">
+      <div className="mb-3 min-w-0">
         {/* Ligne 1 : nom + badge */}
         <div className="mb-1.5 flex items-start justify-between gap-2">
           <h2 className="text-lg leading-tight font-black text-[#1a1a2e]">{nomAffiche}</h2>
