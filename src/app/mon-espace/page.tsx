@@ -300,6 +300,23 @@ export default async function MonEspacePage({
   // Contacts non lus
   const contactsNonLus = artisan.contacts.filter((c) => !c.lu).length;
 
+  // ── Stats d'activité ──────────────────────────────────────────────────────
+  const now = new Date();
+  const il7j = new Date(now);
+  il7j.setDate(il7j.getDate() - 7);
+  const il30j = new Date(now);
+  il30j.setDate(il30j.getDate() - 30);
+
+  const [contacts7j, contacts30j, contactsTotal, conversationsTotal, avisTotal] = await Promise.all(
+    [
+      prisma.contactRequest.count({ where: { artisanId: userId, createdAt: { gte: il7j } } }),
+      prisma.contactRequest.count({ where: { artisanId: userId, createdAt: { gte: il30j } } }),
+      prisma.contactRequest.count({ where: { artisanId: userId } }),
+      prisma.conversation.count({ where: { artisanId: userId } }),
+      prisma.avis.count({ where: { artisanId: userId, status: "VALIDE" } }),
+    ]
+  );
+
   const moyenneAvis =
     artisan.avis.length > 0
       ? artisan.avis.reduce((s: number, a: { note: number }) => s + a.note, 0) / artisan.avis.length
@@ -666,6 +683,59 @@ export default async function MonEspacePage({
                 )}
               </div>
             )}
+
+            {/* Stats d'activité */}
+            <div
+              className="rounded-2xl border-4 border-[#1a1a1a] bg-white p-5"
+              style={{ boxShadow: "5px 5px 0 #1a1a1a" }}
+            >
+              <h2 className="bd-titre mb-4 text-lg text-[#1a1a2e]">📊 Mon activité</h2>
+              {artisan.status !== "VALIDE" ? (
+                <p className="text-sm text-gray-400">
+                  Vos statistiques apparaîtront dès que votre fiche sera en ligne.
+                </p>
+              ) : (
+                <>
+                  <p className="mb-2 text-xs font-black tracking-wide text-gray-400 uppercase">
+                    Demandes reçues
+                  </p>
+                  <div className="mb-4 grid grid-cols-3 gap-2 text-center">
+                    <div
+                      className="rounded-xl bg-[#fff8f0] p-3"
+                      style={{ border: "2px solid #1a1a1a" }}
+                    >
+                      <p className="text-2xl font-black text-[#1a1a2e]">{contacts7j}</p>
+                      <p className="mt-0.5 text-xs text-gray-400">7 jours</p>
+                    </div>
+                    <div
+                      className="rounded-xl bg-[#fff8f0] p-3"
+                      style={{ border: "2px solid #1a1a1a" }}
+                    >
+                      <p className="text-2xl font-black text-[#1a1a2e]">{contacts30j}</p>
+                      <p className="mt-0.5 text-xs text-gray-400">30 jours</p>
+                    </div>
+                    <div
+                      className="rounded-xl bg-[#ffd93d] p-3"
+                      style={{ border: "2px solid #1a1a1a" }}
+                    >
+                      <p className="text-2xl font-black text-[#1a1a2e]">{contactsTotal}</p>
+                      <p className="mt-0.5 text-xs font-bold text-gray-600">Total</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 border-t-2 border-dashed border-gray-200 pt-3">
+                    <div className="flex-1 text-center">
+                      <p className="text-xl font-black text-[#60c5f1]">{conversationsTotal}</p>
+                      <p className="text-xs text-gray-400">conversations</p>
+                    </div>
+                    <div className="h-8 w-px bg-gray-200" />
+                    <div className="flex-1 text-center">
+                      <p className="text-xl font-black text-[#6bcb77]">{avisTotal}</p>
+                      <p className="text-xs text-gray-400">avis validés</p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
 
             {/* Messages clients */}
             <Link
