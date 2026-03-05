@@ -447,7 +447,7 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                     </p>
                     <a
                       href={`/connexion?callbackUrl=/artisan/${artisan.id}&context=contact`}
-                      className="bd-btn bd-btn-primary mb-3 w-full"
+                      className="bd-btn bd-btn-primary mb-3 w-full text-center !whitespace-normal"
                     >
                       &#128172; Cr&eacute;er mon compte et contacter {nomAffiche}
                     </a>
