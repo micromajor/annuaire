@@ -11,6 +11,7 @@ import AvisSection from "@/components/features/AvisSection";
 import MessagerieButton from "@/components/features/MessagerieButton";
 import NavMessagerieIcon from "@/components/features/NavMessagerieIcon";
 import CarteZoneLectureWrapper from "@/components/features/CarteZoneLectureWrapper";
+import CommunesList from "@/components/features/CommunesList";
 import PortfolioPhotos from "@/components/features/PortfolioPhotos";
 import ShareButton from "@/components/features/ShareButton";
 import SignalementModal from "@/components/features/SignalementModal";
@@ -394,15 +395,13 @@ export default async function FicheArtisanPage({ params, searchParams }: Props) 
                       <CarteZoneLectureWrapper communeNoms={communeNoms} />
                     </div>
                   )}
-                  <div className="flex flex-wrap gap-2">
-                    {[...artisan.communes]
-                      .sort((a, b) => a.commune.nom.localeCompare(b.commune.nom, "fr"))
-                      .map(({ commune }) => (
-                        <span key={commune.id} className="bd-badge bd-badge-bleu">
-                          &#128205; {commune.nom} ({commune.codePostal})
-                        </span>
-                      ))}
-                  </div>
+                  <CommunesList
+                    communes={artisan.communes.map(({ commune }) => ({
+                      id: commune.id,
+                      nom: commune.nom,
+                      codePostal: commune.codePostal,
+                    }))}
+                  />
                 </div>
 
                 {/* SIRET — info légale discrète */}
