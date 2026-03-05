@@ -125,6 +125,28 @@ export default function TutorialGuide({ role, prenom }: Props) {
     }
     const el = document.querySelector(`[data-tuto="${step.target}"]`) as HTMLElement | null;
     if (!el) {
+      // Formulaire peut-être replié — tenter de déplier via le bouton Modifier
+      const btnModifier = document.querySelector(
+        '[data-tuto="btn-modifier"]'
+      ) as HTMLElement | null;
+      if (btnModifier) {
+        btnModifier.click();
+        // Retenter après l'animation de dépliage
+        setTimeout(() => {
+          const retryEl = document.querySelector(
+            `[data-tuto="${step.target}"]`
+          ) as HTMLElement | null;
+          if (retryEl) {
+            const isMobile = window.innerWidth < 640;
+            retryEl.scrollIntoView({
+              behavior: "instant" as ScrollBehavior,
+              block: isMobile ? "start" : "center",
+            });
+            requestAnimationFrame(() => computeSpotRect());
+          }
+        }, 350);
+        return;
+      }
       setSpotRect(null);
       return;
     }

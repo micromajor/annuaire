@@ -186,6 +186,7 @@ export default function MonEspaceEditForm({ artisan, metiers }: Props) {
             {success && <span className="text-sm font-bold text-[#6bcb77]">✓ Enregistré !</span>}
             <button
               type="button"
+              data-tuto="btn-modifier"
               onClick={() => setCollapsed((c) => !c)}
               className="rounded-xl px-4 py-2 text-sm font-black text-[#1a1a2e] transition-colors hover:bg-[#ffd93d]/60"
               style={{
