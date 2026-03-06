@@ -57,10 +57,10 @@ export default function Combobox({
   const selectedLabel =
     value === "" ? "" : (options.find((o) => o.value === value)?.label ?? value);
 
-  // Libellé affiché en mode multi
+  // Libellé affiché en mode multi - affiche allLabel quand aucune sélection pour clarifier l'UX
   const multiDisplayLabel = multi
     ? values.length === 0
-      ? ""
+      ? (allLabel ?? "")
       : values.length === 1
         ? (options.find((o) => o.value === values[0])?.label ?? values[0])
         : `${values.length} métiers`
@@ -221,8 +221,14 @@ export default function Combobox({
                   : "text-gray-500 hover:bg-[#fff8f0]"
               }`}
               onMouseEnter={() => setHighlighted(0)}
-              onMouseDown={(e) => {
+              onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
+                selectOption("");
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 selectOption("");
               }}
             >
@@ -270,8 +276,14 @@ export default function Combobox({
                         : "text-[#1a1a2e] hover:bg-[#fff8f0]"
                   }`}
                   onMouseEnter={() => setHighlighted(i)}
-                  onMouseDown={(e) => {
+                  onClick={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
+                    selectOption(opt.value);
+                  }}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     selectOption(opt.value);
                   }}
                 >

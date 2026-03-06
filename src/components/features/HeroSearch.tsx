@@ -80,7 +80,7 @@ export default function HeroSearch({ metiers }: HeroSearchProps) {
             className="w-full"
             variant="ghost"
           />
-          {selectedMetiers.length > 1 && (
+          {selectedMetiers.length >= 1 && (
             <div className="mt-1.5 flex flex-wrap gap-1">
               {selectedMetiers.map((slug) => {
                 const lbl = metierOptions.find((o) => o.value === slug)?.label ?? slug;
