@@ -86,6 +86,24 @@
 - Pas de GitHub Actions pour l'instant (CI/CD Coolify suffit pour le MVP)
 - Pipeline de build : `prisma migrate deploy` + `prisma generate` + `next build` + `next start`
 
+### Crons applicatifs
+
+| Cron                      | Endpoint                      | Fréquence        | Description                                                      |
+| ------------------------- | ----------------------------- | ---------------- | ---------------------------------------------------------------- |
+| **Notification messages** | `GET /api/cron/notify-unread` | Toutes les 5 min | Envoie un email digest pour les messages non lus depuis > 15 min |
+
+**Configuration sur le VPS :**
+
+```bash
+# Variable d'environnement à ajouter dans Coolify (ou .env)
+CRON_SECRET=<un-secret-fort-aléatoire>
+
+# Cron sur le VPS (appelle l'endpoint toutes les 5 min)
+ssh root@37.27.222.18 "crontab -l | { cat; echo '*/5 * * * * curl -s -H \"Authorization: Bearer <CRON_SECRET>\" https://oyezartisans.fr/api/cron/notify-unread >> /var/log/oyez-cron.log 2>&1'; } | crontab -"
+```
+
+L'endpoint ne notifie que les messages créés il y a plus de 15 min, encore non lus (`lu: false`) et jamais notifiés (`notificationSentAt: null`). Un seul email est envoyé par destinataire, même si plusieurs messages non lus.
+
 ---
 
 ## Protection des données prod

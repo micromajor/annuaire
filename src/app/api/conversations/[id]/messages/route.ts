@@ -2,7 +2,6 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { sendNouveauMessageEmail } from "@/lib/email";
 
 async function getConversationAndUser(conversationId: string) {
   const session = await auth();
@@ -92,31 +91,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     data: { updatedAt: new Date() },
   });
 
-  // Notification email à l'interlocuteur (fire-and-forget)
-  const destinataireId =
-    role === "particulier" ? conversation.artisanId : conversation.particulierId;
-  const expediteurId = role === "particulier" ? conversation.particulierId : conversation.artisanId;
-  const [destinataireData, expediteurData] = await Promise.all([
-    prisma.artisan.findFirst({
-      where: { id: destinataireId },
-      select: { email: true, prenom: true, nom: true, raisonSociale: true },
-    }),
-    prisma.artisan.findFirst({
-      where: { id: expediteurId },
-      select: { prenom: true, nom: true, raisonSociale: true },
-    }),
-  ]);
-  if (destinataireData?.email) {
-    void sendNouveauMessageEmail({
-      destinataireEmail: destinataireData.email,
-      destinataireNom: destinataireData.prenom ?? destinataireData.raisonSociale ?? "vous",
-      expediteurNom:
-        expediteurData?.raisonSociale ??
-        `${expediteurData?.prenom ?? ""} ${expediteurData?.nom ?? ""}`.trim(),
-      conversationId: conversation.id,
-      apercu: parsed.data.contenu,
-    });
-  }
+  // Note : l'email de notification est envoyé par le cron si le message reste non lu après 15 min
 
   return NextResponse.json(message, { status: 201 });
 }

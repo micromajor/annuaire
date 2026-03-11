@@ -318,3 +318,90 @@ export async function sendNouveauMessageEmail({
     console.error("[email] Échec notification:", err);
   }
 }
+
+/**
+ * Email digest pour messages non lus après délai (appelé par le cron)
+ */
+export async function sendMessagesNonLusDigest({
+  destinataireEmail,
+  destinataireNom,
+  messages,
+}: {
+  destinataireEmail: string;
+  destinataireNom: string;
+  messages: Array<{
+    expediteurNom: string;
+    apercu: string;
+    conversationId: string;
+  }>;
+}) {
+  const count = messages.length;
+  const subject =
+    count === 1
+      ? `💬 Vous avez un message non lu de ${messages[0].expediteurNom}`
+      : `💬 Vous avez ${count} messages non lus`;
+
+  // Générer la liste des messages
+  const messagesHtml = messages
+    .map(
+      (m) => `
+      <div style="background:#fff8f0;border-left:4px solid #ffd93d;border-radius:4px;padding:14px 16px;margin-bottom:12px;">
+        <p style="margin:0 0 6px;font-size:13px;color:#666;">De <strong>${m.expediteurNom}</strong>&nbsp;:</p>
+        <p style="margin:0 0 10px;font-size:14px;color:#333;font-style:italic;">"${m.apercu}"</p>
+        <a href="${APP_URL}/messages/${m.conversationId}" style="font-size:13px;color:#1a1a2e;font-weight:700;text-decoration:underline;">
+          Voir la conversation →
+        </a>
+      </div>
+    `
+    )
+    .join("");
+
+  await resend.emails.send({
+    from: `OyezArtisans <${FROM}>`,
+    to: destinataireEmail,
+    subject,
+    html: `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#fff8f0;font-family:sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff8f0;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border:3px solid #1a1a2e;border-radius:12px;overflow:hidden;max-width:100%;">
+        <!-- Header -->
+        <tr>
+          <td style="background:#1a1a2e;padding:20px 28px;">
+            <p style="margin:0;font-size:22px;font-weight:900;color:#ffd93d;letter-spacing:-0.5px;">Oyez Artisans !</p>
+          </td>
+        </tr>
+        <!-- Body -->
+        <tr>
+          <td style="padding:28px;">
+            <p style="margin:0 0 8px;font-size:16px;color:#1a1a2e;">Bonjour <strong>${destinataireNom}</strong>,</p>
+            <p style="margin:0 0 20px;font-size:15px;color:#444;">
+              ${count === 1 ? "Vous avez reçu un message qui attend votre réponse&nbsp;:" : `Vous avez ${count} messages en attente de réponse&nbsp;:`}
+            </p>
+            <!-- Messages -->
+            ${messagesHtml}
+            <!-- CTA global -->
+            <div style="margin-top:24px;">
+              <a href="${APP_URL}/messages" style="display:inline-block;background:#ffd93d;color:#1a1a2e;font-weight:900;font-size:15px;padding:12px 24px;border-radius:8px;border:2px solid #1a1a2e;text-decoration:none;box-shadow:3px 3px 0 #1a1a2e;">
+                Voir tous mes messages →
+              </a>
+            </div>
+          </td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+          <td style="padding:16px 28px;border-top:2px solid #f0e8d8;">
+            <p style="margin:0;font-size:12px;color:#999;">Vous recevez cet email car vous êtes inscrit sur OyezArtisans. Connectez-vous sur <a href="${APP_URL}" style="color:#1a1a2e;">${APP_URL}</a> pour gérer vos messages.</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
+    `,
+  });
+}

@@ -27,6 +27,13 @@
       "type": "shell",
       "command": "$env:DATABASE_URL='postgresql://postgres:postgres@localhost:5432/annuaire_artisans' ; npm run dev",
       "isBackground": true
+    },
+    {
+      "label": "Next.js Dev Server",
+      "type": "shell",
+      "command": "$env:DATABASE_URL='postgresql://postgres:postgres@localhost:5432/annuaire_artisans' ; npm run dev",
+      "isBackground": true,
+      "problemMatcher": []
     }
   ]
 }

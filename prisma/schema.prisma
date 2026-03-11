@@ -182,12 +182,13 @@ model Conversation {
 }
 
 model Message {
-  id             String   @id @default(cuid())
-  conversationId String
-  expediteur     String   // "artisan" | "particulier"
-  contenu        String   @db.VarChar(2000)
-  lu             Boolean  @default(false)
-  createdAt      DateTime @default(now())
+  id                 String    @id @default(cuid())
+  conversationId     String
+  expediteur         String    // "artisan" | "particulier"
+  contenu            String    @db.VarChar(2000)
+  lu                 Boolean   @default(false)
+  notificationSentAt DateTime? // null = pas encore notifié, date = email envoyé
+  createdAt          DateTime  @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }
